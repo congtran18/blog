@@ -1,0 +1,96 @@
+<div class="mt4">
+    <div>
+    <h3 style="margin-top: 16px; text-align: center;">SÁCH ĐÃ XOÁ CỦA TÔI</h3>
+    <a href="/me/stored/books"><i class="fa fa-arrow-left" style="font-size:30px;color:red"></i></a>
+    </div>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">tên sách</th>
+                <th scope="col">loại</th>
+                <th scope="col">xoá vào lúc</th>
+                <th scope="col">action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each books}}
+            <tr>
+                <th scope="row">{{sum @index 1}}</th>
+                <td>{{this.name}}</td>
+                <td>{{this.level}}</td>
+                <td>{{this.deletedAt}}</td>
+                <td>
+                    <a href="/books/{{this._id}}/edit" class="btn btn-primary btn-restore" data-id="{{this._id}}">Khôi phục</a>
+                    <a href="" class="btn btn-dark" data-toggle="modal" data-id="{{this._id}}" data-target="#delete-book-modal">Xoá vĩnh viễn</a>
+                </td>
+            </tr>
+            {{else}}
+            <tr>
+                <td colspan="5" class = "text-center">
+                    Thùng rác trống
+                    <a href="/me/stored/books">Danh sách sách</a>
+                </td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</div>
+
+<!-- COMFIRM DELETE-->
+<div class="modal fade" id="delete-book-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">Xoá vĩnh viễn</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Hành động này không thể khôi phục. Bạn có chắc chắn muốn xoá sách?
+      </div>
+      <div class="modal-footer">
+        <button id="btn-delete-book" type="button" class="btn btn-danger">Xác nhận</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Huỷ</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE HIDDEN FORM -->
+<form name ="delete-book-form" method="POST"></form>
+<form name ="restore-book-form" method="POST"></form>
+
+<script>
+    //when dialog confirm clicked
+    document.addEventListener('DOMContentLoaded', function(){
+        var bookId;
+        var deleteForm = document.forms['delete-book-form'];
+        var restoreForm = document.forms['restore-book-form'];
+        var btnDeleteBook = document.getElementById('btn-delete-book');
+        var restoreBtn = $('.btn-restore');
+
+        $('#delete-book-modal').on('show.bs.modal', function(event){
+            var button = $(event.relatedTarget);
+            bookId = button.data('id'); 
+        });
+
+        btnDeleteBook.onclick = function(){
+            deleteForm.action = '/books/' + bookId + '/force?_method=DELETE';
+            deleteForm.submit();            
+        }
+
+        // Restore btn clicked 
+        restoreBtn.click(function(e){
+            e.preventDefault();//bỏ hành vi mặc định của thẻ a là tự restore về mặc định
+            
+            var bookId = $(this).data('id');
+            restoreForm.action = '/books/' + bookId + '/restore?_method=PATCH';
+            restoreForm.submit();  
+
+        });
+    });
+
+</script>
