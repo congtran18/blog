@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>💡 Máy Sinh Câu Hỏi & Câu Trả Lời Phỏng Vấn (AI Q&A Generator) — Trần Văn Thanh Công</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode: 'class', theme: { extend: { fontFamily: { sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'] } } } }
+  </script>
+  <script>
+    if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    html { font-size: 16.5px; }
+    body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
+    /* Mobile: improve tap targets and readability */
+    @media (max-width: 639px) {
+      select, input[type="text"], textarea { font-size: 16px !important; } /* prevent iOS zoom */
+    }
+  
+    @media (max-width: 639px) {
+      header { position: static !important; top: auto !important; }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen transition-colors duration-200">
+
+  <header class="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 sm:sticky sm:top-0 z-40 shadow-xs transition-colors">
+    <div class="hidden sm:block bg-slate-900 text-white px-3 sm:px-6 py-2 border-b border-slate-800">
+      <div class="max-w-[98%] mx-auto flex flex-wrap items-center justify-between gap-2 overflow-x-auto">
+        <div class="flex items-center gap-2 text-xs font-extrabold text-indigo-300 uppercase tracking-wider">
+          <span>🚀 Hệ Sinh Thái Luyện Phỏng Vấn Senior — Trần Văn Thanh Công:</span>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <a href="interview_pitch_guide.html" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-indigo-600 text-slate-200 hover:text-white text-xs font-extrabold transition flex items-center gap-1.5"><span>📖 1. Sổ Tay Kịch Bản (17 Tabs)</span></a>
+          <a href="mock_interview.html" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-rose-600 text-slate-200 hover:text-white text-xs font-extrabold transition flex items-center gap-1.5"><span>🎙️ 2. Phòng Phỏng Vấn AI 1-1</span></a>
+          <a href="tech_reading_gym.html" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-emerald-600 text-slate-200 hover:text-white text-xs font-extrabold transition flex items-center gap-1.5"><span>🗣️ 3. Luyện Đọc & Sửa Phát Âm Tech</span></a>
+          <a href="interview_qa_generator.html" class="px-3 py-1.5 rounded-lg bg-amber-500 text-white text-xs font-extrabold shadow-xs flex items-center gap-1.5 ring-2 ring-amber-300/50">
+            <span class="w-2 h-2 rounded-full bg-white animate-ping"></span>
+            <span>💡 4. Sinh Câu Hỏi & Trả Lời (Đang mở)</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="max-w-[98%] mx-auto px-2.5 sm:px-6 py-2 sm:py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+      <!-- Title row -->
+      <div class="flex items-center justify-between gap-2 min-w-0">
+        <div class="flex items-center gap-1.5 min-w-0">
+          <span class="px-2 py-0.5 text-[10px] sm:text-xs font-black rounded-md sm:rounded-full bg-amber-500 text-white uppercase tracking-wider shrink-0">
+            QA GEN
+          </span>
+          <h1 class="text-xs sm:text-base font-extrabold text-slate-900 dark:text-white tracking-tight truncate">
+            Sinh Câu Hỏi & Đáp Án Mẫu AI
+          </h1>
+        </div>
+        <div class="flex items-center gap-1 shrink-0 sm:hidden">
+          <button onclick="syncQaBank(true)" class="p-1.5 rounded-lg bg-sky-50 dark:bg-sky-950/50 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800 text-xs font-bold" title="Đồng bộ Cloud">☁️</button>
+          <button onclick="changeApiKey()" class="p-1.5 rounded-lg bg-violet-50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 border border-violet-200 dark:border-violet-800 text-xs font-bold" title="Cài đặt AI Key">🔑</button>
+          <button onclick="toggleTheme()" class="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-bold">🌙</button>
+        </div>
+      </div>
+
+      <!-- Controls row (Voice + Rate + Desktop Buttons) -->
+      <div class="flex items-center justify-between sm:justify-end gap-1.5 w-full sm:w-auto">
+        <div class="flex items-center gap-1 bg-emerald-50/80 dark:bg-emerald-950/40 px-2 py-1 rounded-xl border border-emerald-200 dark:border-emerald-800/70 flex-1 sm:flex-initial min-w-0">
+          <span class="text-xs shrink-0">🗣️</span>
+          <select id="voice-select" onchange="handleVoiceChange(this.value)" class="bg-transparent text-[11px] sm:text-xs font-bold text-emerald-800 dark:text-emerald-300 focus:outline-none flex-1 sm:w-36 truncate cursor-pointer">
+            <option value="auto">Giọng chuẩn nhất (Auto)</option>
+          </select>
+          <select id="rate-select" onchange="handleRateChange(this.value)" class="bg-white dark:bg-slate-800 text-[10px] sm:text-[11px] font-bold text-slate-700 dark:text-slate-200 px-1 py-0.5 rounded border border-emerald-200 dark:border-slate-700 focus:outline-none cursor-pointer shrink-0">
+            <option value="0.78">0.78x</option>
+            <option value="0.85">0.85x</option>
+            <option value="0.93" selected>0.93x</option>
+            <option value="1.0">1.0x</option>
+            <option value="1.1">1.1x</option>
+          </select>
+        </div>
+
+        <!-- Desktop Action Buttons -->
+        <div class="hidden sm:flex items-center gap-2 shrink-0">
+          <button id="cloud-sync-btn" onclick="syncQaBank(true)" class="px-3 py-1.5 rounded-xl bg-sky-50 dark:bg-sky-950/50 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800 text-xs font-extrabold flex items-center gap-1.5 cursor-pointer">
+            <span id="cloud-sync-icon">☁️</span>
+            <span id="cloud-sync-text">Cloud</span>
+          </button>
+          <button onclick="changeApiKey()" class="px-3 py-1.5 rounded-xl bg-violet-50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 border border-violet-200 dark:border-violet-800 text-xs font-bold cursor-pointer">🔑 AI Key</button>
+          <button onclick="toggleTheme()" class="p-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-semibold cursor-pointer"><span id="theme-icon">🌙</span></button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-[98%] mx-auto px-3 sm:px-6 py-5 pb-20 sm:pb-5 grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+    <div class="lg:col-span-8 space-y-5">
+      <!-- GENERATOR PANEL -->
+      <section class="bg-white dark:bg-slate-900 rounded-2xl border-2 border-amber-400/70 dark:border-amber-600/60 shadow-md p-4 sm:p-5 space-y-4">
+        <div>
+          <label class="block text-xs font-extrabold uppercase tracking-wider text-amber-700 dark:text-amber-300 mb-2">1. Chọn dạng câu hỏi</label>
+          <div id="category-chips" class="flex flex-wrap gap-2"></div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div>
+            <label class="block text-[11px] font-extrabold uppercase text-slate-500 mb-1">Chủ đề / Lĩnh vực</label>
+            <select id="topic-select" class="w-full p-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold">
+              <option value="auto">✨ Tự chọn theo hồ sơ của tôi</option>
+              <optgroup label="── Kỹ thuật (Technical) ──">
+                <option value="payments">💳 Payment & Idempotency</option>
+                <option value="queue">📨 Queue / Event-driven (RabbitMQ, Kafka)</option>
+                <option value="database">🗄️ Database (PostgreSQL, MongoDB)</option>
+                <option value="cache">⚡ Redis & Caching</option>
+                <option value="system">🏗️ System Design & Scalability</option>
+                <option value="cloud">☁️ Cloud, Docker & Kubernetes</option>
+                <option value="ai">🤖 AI / LLM / RAG</option>
+                <option value="nodejs">🟢 Node.js / NestJS / TypeScript</option>
+              </optgroup>
+              <optgroup label="── Kinh doanh (Business) ──">
+                <option value="product_thinking">💡 Product Thinking & Business Impact</option>
+                <option value="agile">🔄 Agile / Scrum / Sprint Planning</option>
+                <option value="stakeholder">🤝 Stakeholder & Cross-team Communication</option>
+                <option value="cost_optimization">💰 Cost Optimization & ROI</option>
+                <option value="estimation">📐 Estimation & Project Planning</option>
+                <option value="leadership_biz">🚀 Tech Leadership & Engineering Culture</option>
+              </optgroup>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-extrabold uppercase text-slate-500 mb-1">Số câu</label>
+            <select id="count-select" class="w-full p-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold">
+              <option value="1">1 câu</option>
+              <option value="3" selected>3 câu</option>
+              <option value="5">5 câu</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-extrabold uppercase text-slate-500 mb-1">Độ dài đáp án</label>
+            <select id="length-select" class="w-full p-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold">
+              <option value="short">Ngắn (~45 giây, ~100 từ)</option>
+              <option value="medium" selected>Vừa (~75 giây, ~150 từ)</option>
+              <option value="long">Đầy đủ (~2 phút, ~230 từ)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-extrabold uppercase text-slate-500 mb-1">Chế độ</label>
+            <label class="flex items-center gap-2 p-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold cursor-pointer">
+              <input id="hide-answer-check" type="checkbox" class="accent-amber-500" /> Ẩn đáp án để tự thử
+            </label>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[11px] font-extrabold uppercase text-slate-500 mb-1">Ý riêng muốn đưa vào (tuỳ chọn)</label>
+            <input id="custom-focus" type="text" placeholder="VD: câu hỏi về deadline gấp, về làm việc với team remote..." class="w-full p-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-extrabold uppercase text-slate-500 mb-1">Dán JD để sinh câu hỏi bám sát (tuỳ chọn)</label>
+            <input id="jd-text" type="text" placeholder="Dán nhanh yêu cầu chính của JD..." class="w-full p-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs" />
+          </div>
+        </div>
+
+        <button id="btn-generate" onclick="generateQuestions()" class="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-extrabold text-sm shadow-md cursor-pointer">
+          ✨ Sinh câu hỏi & câu trả lời mẫu bằng AI
+        </button>
+        <p class="text-[11px] text-slate-500 dark:text-slate-400">Không có mạng hoặc AI lỗi? Hệ thống tự dùng bộ câu mẫu có sẵn (8 câu, 2 câu cho mỗi dạng).</p>
+      </section>
+
+      <!-- RESULTS -->
+      <section id="results" class="space-y-4">
+        <div class="p-8 text-center rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 text-sm text-slate-500">
+          <div class="text-3xl mb-1">💡</div>
+          Chọn dạng câu hỏi rồi bấm <strong>Sinh câu hỏi & câu trả lời mẫu</strong>.
+        </div>
+      </section>
+    </div>
+
+    <!-- SAVED BANK -->
+    <aside class="lg:col-span-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-4 sm:p-5 space-y-3 lg:sticky lg:top-28 lg:self-start">
+      <div class="flex items-center justify-between">
+        <h3 class="text-sm font-extrabold text-slate-900 dark:text-white">📚 Ngân hàng câu đã lưu</h3>
+        <span id="bank-count" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300">0 câu</span>
+      </div>
+      <select id="bank-filter" onchange="renderBank()" class="w-full p-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold">
+        <option value="all">Tất cả dạng</option>
+        <option value="situational">🧯 Xử lý tình huống</option>
+        <option value="technical">⚙️ Technical</option>
+        <option value="culture">🤝 Culture & Mindset</option>
+        <option value="critical">🧠 Critical Thinking</option>
+        <option value="business">💼 Business & Product</option>
+      </select>
+      <div id="bank-list" class="space-y-2 max-h-[40vh] sm:max-h-[62vh] overflow-y-auto pr-1"></div>
+      <div class="flex gap-2 pt-1 border-t border-slate-200 dark:border-slate-800">
+        <button onclick="exportBank()" class="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-[11px] font-bold cursor-pointer">📥 Xuất .md</button>
+        <button onclick="clearBank()" class="px-3 py-1.5 rounded-lg bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 text-[11px] font-bold cursor-pointer">🗑️ Xóa tất cả</button>
+      </div>
+    </aside>
+  </main>
+
+  <script>
+    // =========================================================================
+    // 0. CONFIG, KEYS & SHARED CREDENTIALS (placeholders are injected by publish.sh)
+    // =========================================================================
+    const DEFAULT_USER_API_KEY = (atob("d2gtQUdBTUVC")+atob("NDItU0tsUnpG")+atob("cEZ0NGxYX0Ny")+atob("aEotQTBTUG16")+atob("cjl6YmJvZ0s2")+atob("TlI4YkEuUUE=")).split("").reverse().join("");
+    const GIST_QA_FILENAME = 'thanh_cong_qa_bank_sync.json';
+    const GIST_DESCRIPTION = 'Thanh Cong - Senior Backend Interview & English Gym Cloud Sync';
+    const BANK_KEY = 'thanh_cong_qa_bank_v1';
+
+    (function seedDefaultGistCredentials() {
+      try {
+        const tok = (atob("bFp6N2szNHFB")+atob("azU2THFKcWxV")+atob("aVNLZGJUOHJv")+atob("SkN5NGpldEU0")+atob("X3BoZw==")).split("").reverse().join("");
+        const gid = '50177db4371b0789d62e7efceb54f78c';
+        if (tok.startsWith('ghp_') || tok.startsWith('github_pat_')) {
+          if (!localStorage.getItem('thanh_cong_github_token')) localStorage.setItem('thanh_cong_github_token', tok);
+          if (!localStorage.getItem('thanh_cong_github_gist_id')) localStorage.setItem('thanh_cong_github_gist_id', gid);
+        }
+      } catch (e) {}
+    })();
+
+    function getActiveApiKey() {
+      let key = localStorage.getItem('gemini_api_key');
+      if (!key && DEFAULT_USER_API_KEY && !DEFAULT_USER_API_KEY.startsWith('__')) {
+        key = DEFAULT_USER_API_KEY;
+        localStorage.setItem('gemini_api_key', key);
+      }
+      return key || '';
+    }
+
+    function changeApiKey() {
+      const v = prompt('Dán Gemini API Key (dùng chung cho cả 4 trang):', getActiveApiKey());
+      if (v && v.trim()) { localStorage.setItem('gemini_api_key', v.trim()); alert('Đã lưu Gemini API Key!'); }
+    }
+
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      document.getElementById('theme-icon').innerText = isDark ? '☀️' : '🌙';
+    }
+
+    function esc(t) {
+      return String(t == null ? '' : t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    // =========================================================================
+    // 1. CATEGORIES
+    // =========================================================================
+    const CATEGORIES = {
+      situational: {
+        label: '🧯 Xử lý tình huống', badge: 'Situational',
+        color: 'rose',
+        brief: 'Situational / Behavioral: tình huống thật cần ra quyết định và hành động (production incident, deadline gấp, bất đồng với Tech Lead, bug lớn trước release, hứng chịu áp lực). Đáp án theo khung STAR (Situation - Task - Action - Result), có số liệu kết quả.'
+      },
+      technical: {
+        label: '⚙️ Technical', badge: 'Technical',
+        color: 'indigo',
+        brief: 'Technical depth: giải thích kỹ thuật sâu nhưng dễ hiểu (trade-off, hiệu năng, độ tin cậy, thiết kế). Đáp án theo khung: Vấn đề -> Giải pháp -> Vì sao chọn -> Đánh đổi -> Kết quả đo được.'
+      },
+      culture: {
+        label: '🤝 Culture & Mindset', badge: 'Culture & Mindset',
+        color: 'emerald',
+        brief: 'Culture fit & Mindset: ownership, nhận phản hồi, học hỏi liên tục, làm việc nhóm, giao tiếp, cân bằng cuộc sống, dùng AI trong công việc. Đáp án chân thật, có ví dụ ngắn, thể hiện tư duy phát triển (growth mindset).'
+      },
+      critical: {
+        label: '🧠 Critical Thinking', badge: 'Critical Thinking',
+        color: 'violet',
+        brief: 'Critical thinking: bài toán mơ hồ, phân tích nguyên nhân gốc (root cause), ước lượng, so sánh phương án, đặt câu hỏi làm rõ, ra quyết định khi thiếu dữ liệu. Đáp án thể hiện quy trình suy nghĩ từng bước: Làm rõ -> Đo lường -> Giả thuyết -> Kiểm chứng -> Quyết định.'
+      },
+      business: {
+        label: '💼 Business & Product', badge: 'Business',
+        color: 'sky',
+        brief: 'Business & Product thinking: product prioritization, stakeholder communication, estimation, cost-benefit thinking, connecting engineering work to business outcomes, explaining technical decisions to non-tech audiences. Đáp án thực tế, có ví dụ từ dự án, dùng ngôn ngữ đơn giản không jargon.'
+      },
+      mixed: {
+        label: '🎲 Trộn ngẫu nhiên', badge: 'Mixed', color: 'amber',
+        brief: 'Trộn đủ 5 dạng: tình huống, technical, culture & mindset, critical thinking, business & product (mỗi dạng ít nhất 1 câu nếu đủ số lượng).'
+      }
+    };
+    let selectedCategory = 'mixed';
+
+    function renderCategoryChips() {
+      document.getElementById('category-chips').innerHTML = Object.entries(CATEGORIES).map(([k, c]) => `
+        <button onclick="selectCategory('${k}')" class="px-3.5 py-2 rounded-xl text-xs font-extrabold border-2 transition cursor-pointer ${k === selectedCategory
+          ? 'bg-amber-500 border-amber-500 text-white shadow-sm'
+          : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:border-amber-400'}">${c.label}</button>
+      `).join('');
+    }
+    function selectCategory(k) { selectedCategory = k; renderCategoryChips(); }
+
+    const TOPIC_LABELS = {
+      // Technical
+      auto: 'tự chọn theo hồ sơ ứng viên',
+      payments: 'Payment, idempotency, webhook, Temporal.io, transactional outbox',
+      queue: 'RabbitMQ / BullMQ / Kafka, event-driven, rate limiting',
+      database: 'PostgreSQL & MongoDB tuning, indexing, pagination',
+      cache: 'Redis, caching, distributed locks, semantic caching',
+      system: 'System design, scalability, high concurrency',
+      cloud: 'AWS, Docker, Kubernetes, CI/CD, observability',
+      ai: 'LLM, RAG, vector search, prompt engineering',
+      nodejs: 'Node.js, NestJS, TypeScript, event loop',
+      // Business
+      product_thinking: 'Product thinking, business impact, engineering–product alignment, feature prioritization, metrics (DAU/MAU/conversion), delivering value not just code',
+      agile: 'Agile, Scrum, Sprint planning, estimation, velocity, retrospective, backlog grooming, working with PO/SM',
+      stakeholder: 'Stakeholder management, cross-team communication (PM, Design, Marketing, C-level), presenting technical decisions to non-engineers, expectation setting',
+      cost_optimization: 'Cost optimization, cloud cost reduction, ROI, business justification for technical decisions, build vs buy, infra cost vs engineering cost',
+      estimation: 'Project estimation, breaking down complexity, handling uncertainty, communicating timeline risk, scope negotiation',
+      leadership_biz: 'Tech leadership, mentoring, engineering culture, hiring bar, code review culture, knowledge sharing, team health, scaling engineering team'
+    };
+
+    // =========================================================================
+    // 2. VOICE (shared preferences with the other pages)
+    // =========================================================================
+    const synth = window.speechSynthesis;
+    let selectedVoiceURI = localStorage.getItem('preferred_tts_voice_uri') || 'auto';
+    let selectedSpeechRate = parseFloat(localStorage.getItem('preferred_tts_rate') || '0.93');
+
+    function scoreEnglishVoice(v) {
+      if (!v || !v.lang) return -1;
+      const lang = v.lang.replace('_', '-').toLowerCase();
+      if (!lang.startsWith('en')) return -1;
+      const name = v.name || '';
+      let score = 10 + (lang === 'en-us' ? 30 : lang === 'en-gb' ? 20 : 10);
+      if (name.includes('Natural') || name.includes('Online')) {
+        score += 100;
+        if (/Andrew|Ava|Aria|Guy|Brian|Jenny|Christopher/.test(name)) score += 15;
+      } else if (name === 'Google US English') score += 95;
+      else if (name.startsWith('Google ')) score += 80;
+      else if (name.includes('Premium') || name.includes('Enhanced') || name.includes('Siri')) score += 85;
+      else if (/Samantha|Evan|Aaron|Nicky/.test(name)) score += 65;
+      else if (/Daniel|Karen|Moira/.test(name)) score += 55;
+      else if (name.includes('Alex')) score += 20;
+      else if (/Fred|Albert|Bad News|Bahh|Bells|Boing|Bubbles|Cellos|Good News|Jester|Organ|Superstar|Trinoids|Whisper|Wobble|Zarvox|Junior|Kathy|Ralph/.test(name)) score -= 50;
+      return score;
+    }
+
+    function getRankedEnglishVoices() {
+      if (!synth) return [];
+      return (synth.getVoices() || []).filter(v => scoreEnglishVoice(v) > 0).sort((a, b) => scoreEnglishVoice(b) - scoreEnglishVoice(a));
+    }
+
+    function getBestEnglishVoice() {
+      const ranked = getRankedEnglishVoices();
+      if (!ranked.length) return null;
+      if (selectedVoiceURI && selectedVoiceURI !== 'auto') {
+        const found = ranked.find(v => v.voiceURI === selectedVoiceURI || v.name === selectedVoiceURI);
+        if (found) return found;
+      }
+      return ranked[0] || null;
+    }
+
+    function populateVoiceList() {
+      const selectEl = document.getElementById('voice-select');
+      const rateEl = document.getElementById('rate-select');
+      if (rateEl && selectedSpeechRate) rateEl.value = String(selectedSpeechRate);
+      if (!selectEl || !synth) return;
+      const ranked = getRankedEnglishVoices();
+      if (!ranked.length) return;
+
+      const topVoice = ranked[0];
+      const topLabel = topVoice
+        ? `✨ Tự động (${topVoice.name.replace(/Microsoft |Online \(Natural\) - English \(United States\)|English \(United States\)/g, '').trim()})`
+        : '✨ Giọng chuẩn AI (Auto)';
+
+      selectEl.innerHTML = '';
+      const autoOpt = document.createElement('option');
+      autoOpt.value = 'auto';
+      autoOpt.textContent = topLabel;
+      selectEl.appendChild(autoOpt);
+
+      ranked.slice(0, 12).forEach(v => {
+        const opt = document.createElement('option');
+        opt.value = v.voiceURI;
+        const badge = scoreEnglishVoice(v) >= 120 ? '🌟 ' : (scoreEnglishVoice(v) >= 90 ? '⚡ ' : '');
+        opt.textContent = `${badge}${v.name} (${v.lang})`;
+        selectEl.appendChild(opt);
+      });
+
+      if (selectedVoiceURI !== 'auto' && ranked.some(v => v.voiceURI === selectedVoiceURI)) {
+        selectEl.value = selectedVoiceURI;
+      } else {
+        selectEl.value = 'auto';
+      }
+    }
+
+    function handleVoiceChange(voiceURI) {
+      selectedVoiceURI = voiceURI || 'auto';
+      localStorage.setItem('preferred_tts_voice_uri', selectedVoiceURI);
+      speak('Voice updated.', 0.9);
+    }
+
+    function speak(text, rate) {
+      if (!synth || !text) return;
+      synth.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'en-US';
+      u.rate = rate || selectedSpeechRate || 0.93;
+      const v = getBestEnglishVoice();
+      if (v) { u.voice = v; u.lang = v.lang || 'en-US'; }
+      synth.speak(u);
+    }
+    function stopSpeech() { if (synth) synth.cancel(); }
+    function handleRateChange(v) { selectedSpeechRate = parseFloat(v) || 0.93; localStorage.setItem('preferred_tts_rate', String(selectedSpeechRate)); }
+
+    if ('speechSynthesis' in window) {
+      populateVoiceList();
+      window.speechSynthesis.onvoiceschanged = () => populateVoiceList();
+    }
+
+
+    // =========================================================================
+    // 3. BUILT-IN OFFLINE BANK (8 Q&As, 2 per category)
+    // =========================================================================
+    const BUILTIN_QA = [
+      {
+        category: 'situational', structure: 'STAR',
+        questionEn: 'Tell me about a time something broke in production and you had to fix it fast.',
+        questionVi: 'Kể về một lần hệ thống production gặp sự cố và bạn phải xử lý thật nhanh.',
+        whyTheyAsk: 'Họ muốn xem bạn bình tĩnh thế nào dưới áp lực và có biết tìm nguyên nhân gốc hay không.',
+        answerEn: "Sure. In my payment project, we got a webhook storm during a big campaign. The same events arrived many times, and we were close to charging customers twice. First, I stayed calm and checked the logs to find the root cause. Then I added a Redis lock, so each event runs only once. I also moved the heavy work into a queue, so the API stayed fast. After that, we had zero double charges. Later, I wrote a short post-mortem for the team. My lesson is simple: protect the money first, then fix the details.",
+        answerVi: 'Trong dự án thanh toán, webhook bị gửi lặp dồn dập khi chạy chiến dịch lớn, suýt trừ tiền khách hai lần. Tôi giữ bình tĩnh đọc log tìm nguyên nhân gốc, thêm khóa Redis để mỗi sự kiện chỉ chạy một lần, đẩy việc nặng vào hàng đợi để API vẫn nhanh. Kết quả: không còn trừ tiền hai lần, và tôi viết post-mortem cho team. Bài học: bảo vệ tiền trước, chỉnh chi tiết sau.',
+        keyPhrases: ['webhook storm', 'root cause', 'Redis lock', 'zero double charges', 'post-mortem'],
+        tips: 'Nêu rõ kết quả bằng con số hoặc trạng thái cụ thể và kết bằng bài học.',
+        followUp: 'How did you make sure it would not happen again?',
+        tricky: ['idempotency', 'webhook', 'root cause']
+      },
+      {
+        category: 'situational', structure: 'STAR',
+        questionEn: 'Tell me about a time you disagreed with your tech lead. What did you do?',
+        questionVi: 'Kể về lần bạn bất đồng với Tech Lead. Bạn đã làm gì?',
+        whyTheyAsk: 'Họ kiểm tra khả năng phản biện lịch sự bằng dữ liệu và cách bạn chấp nhận quyết định chung.',
+        answerEn: "Yes, I remember one case. My lead wanted to lock database rows for every webhook request. I was worried it would be slow under high traffic. So I did not argue. I ran a small load test and showed the numbers. The test showed the connection pool ran out very fast. Then I suggested a Redis lock with a queue, and I explained the trade-off clearly. My lead agreed, and we tried it on staging first. In the end, throughput became about ten times higher. I learned that data is the best way to disagree politely.",
+        answerVi: 'Trưởng nhóm muốn khóa dòng DB cho mỗi webhook, tôi lo sẽ chậm khi tải cao. Thay vì tranh cãi, tôi chạy load test nhỏ và đưa số liệu cho thấy pool kết nối cạn rất nhanh, rồi đề xuất khóa Redis kèm hàng đợi và giải thích đánh đổi. Sau khi thử trên staging, thông lượng tăng khoảng 10 lần. Bài học: dùng dữ liệu để bất đồng một cách lịch sự.',
+        keyPhrases: ['load test', 'show the numbers', 'trade-off', 'try it on staging', 'disagree politely'],
+        tips: 'Đừng nói xấu lead; nhấn mạnh bạn dùng dữ liệu và kết quả là cả nhóm thắng.',
+        followUp: 'What if your lead still said no after seeing the data?',
+        tricky: ['throughput', 'trade-off', 'politely']
+      },
+      {
+        category: 'technical', structure: 'Problem → Solution → Trade-off',
+        questionEn: 'How do you make sure a payment is never processed twice?',
+        questionVi: 'Làm sao để đảm bảo một giao dịch thanh toán không bao giờ bị xử lý hai lần?',
+        whyTheyAsk: 'Đây là câu kinh điển cho vị trí fintech: kiểm tra hiểu biết về idempotency và tính nhất quán.',
+        answerEn: "I use three layers of protection. First, every request has an idempotency key. I store it in Redis with an atomic lock, so a duplicate request stops right away. Second, the database has a unique constraint, which is my last safety net. Third, I use the outbox pattern, so the payment and the event are saved in one transaction. Because of this, we never lose an event, and we never process it twice. The trade-off is a little more complexity. But for money, I think it is worth it. In my project, this gave us full financial accuracy.",
+        answerVi: 'Ba lớp bảo vệ: (1) idempotency key lưu trong Redis với khóa nguyên tử để request trùng bị chặn ngay; (2) ràng buộc unique trong DB làm lưới an toàn cuối; (3) outbox pattern để lưu thanh toán và sự kiện trong cùng một transaction. Đánh đổi là phức tạp hơn một chút nhưng với tiền thì đáng.',
+        keyPhrases: ['idempotency key', 'atomic lock', 'unique constraint', 'outbox pattern', 'one transaction'],
+        tips: 'Nói rõ ba lớp theo thứ tự First/Second/Third để người nghe dễ theo dõi.',
+        followUp: 'What happens if Redis goes down?',
+        tricky: ['idempotency', 'atomic', 'constraint']
+      },
+      {
+        category: 'technical', structure: 'Problem → Action → Result',
+        questionEn: 'A MongoDB query is very slow in production. How do you fix it?',
+        questionVi: 'Một truy vấn MongoDB rất chậm trên production. Bạn xử lý thế nào?',
+        whyTheyAsk: 'Họ muốn thấy quy trình chẩn đoán có hệ thống thay vì đoán mò.',
+        answerEn: "I never guess. First, I run explain on the query to see if it scans the whole collection. In one project, the CPU was at ninety-four percent and a query took four seconds. The problem was a missing compound index. So I built the index using the ESR rule: Equality, Sort, then Range. I also changed the pagination from skip to cursor-based. After that, the query dropped to eight milliseconds, and the CPU went down to thirty-two percent. I always test on staging data first, then I watch the metrics after release.",
+        answerVi: 'Tôi không đoán mò: chạy explain xem có quét toàn collection không. Ở một dự án, CPU 94% và truy vấn mất 4 giây do thiếu compound index. Tôi tạo index theo quy tắc ESR (Equality, Sort, Range) và đổi phân trang từ skip sang cursor. Kết quả: truy vấn còn 8ms, CPU giảm còn 32%.',
+        keyPhrases: ['run explain', 'compound index', 'ESR rule', 'cursor-based pagination', 'watch the metrics'],
+        tips: 'Luôn kể theo thứ tự: đo → tìm nguyên nhân → sửa → đo lại.',
+        followUp: 'What are the downsides of adding many indexes?',
+        tricky: ['aggregation', 'pagination', 'millisecond']
+      },
+      {
+        category: 'culture', structure: 'Example → Lesson',
+        questionEn: 'How do you handle tough feedback in a code review?',
+        questionVi: 'Bạn xử lý thế nào khi nhận phản hồi gay gắt trong code review?',
+        whyTheyAsk: 'Họ đánh giá sự cởi mở, tinh thần học hỏi và khả năng không phòng thủ.',
+        answerEn: "I see feedback as free learning. When I get a tough comment, I first read it calmly and try to understand the reason behind it. If something is not clear, I ask a simple question, like, 'Can you show me an example?' Then I fix the code and say thank you. Last year, a teammate pointed out a hidden race condition in my pull request. I was happy, because it saved us from a real bug in production. Now I also give feedback in the same way: kind, clear, and with a reason.",
+        answerVi: 'Tôi coi phản hồi là bài học miễn phí: đọc bình tĩnh, hỏi lại nếu chưa rõ, sửa code và cảm ơn. Năm ngoái đồng nghiệp chỉ ra race condition ẩn trong PR của tôi, giúp tránh được bug thật. Giờ tôi cũng góp ý cho người khác theo cách tử tế, rõ ràng và có lý do.',
+        keyPhrases: ['free learning', 'ask a simple question', 'race condition', 'kind, clear, with a reason'],
+        tips: 'Kể một ví dụ thật nhỏ thay vì chỉ nói "tôi luôn cởi mở".',
+        followUp: 'Tell me about feedback you gave that was hard to say.',
+        tricky: ['feedback', 'condition', 'reason']
+      },
+      {
+        category: 'culture', structure: 'Mindset → Example',
+        questionEn: 'How do you keep learning, and how do you use AI in your daily work?',
+        questionVi: 'Bạn học hỏi liên tục thế nào và dùng AI trong công việc hằng ngày ra sao?',
+        whyTheyAsk: 'Họ muốn thấy bạn thích nghi nhanh và dùng AI như công cụ tăng năng suất, không phụ thuộc mù quáng.',
+        answerEn: "I learn by building small things. When a new tool looks useful, I try it on a side task first. For AI, I use tools like Cursor and Claude every day. They help me write boilerplate code, tests, and first drafts of documents. But I always review the result myself, because I am responsible for the quality. This habit makes me about three times faster on routine work. Then I can spend more time on design and on the hard problems. I also share what I learn with my team in short notes.",
+        answerVi: 'Tôi học bằng cách làm thứ nhỏ: thử công cụ mới trên việc phụ trước. Tôi dùng Cursor, Claude hằng ngày để viết code mẫu, test, bản nháp tài liệu nhưng luôn tự review vì chịu trách nhiệm chất lượng. Nhờ vậy việc thường ngày nhanh gấp khoảng 3 lần, còn thời gian dành cho thiết kế và bài toán khó. Tôi cũng chia sẻ lại cho team bằng ghi chú ngắn.',
+        keyPhrases: ['side task', 'review the result myself', 'responsible for quality', 'three times faster', 'share with my team'],
+        tips: 'Nhấn mạnh bạn kiểm soát AI chứ không để AI quyết định thay.',
+        followUp: 'Tell me about a time AI gave you a wrong answer.',
+        tricky: ['boilerplate', 'responsible', 'routine']
+      },
+      {
+        category: 'critical', structure: 'Clarify → Measure → Hypothesize → Fix',
+        questionEn: 'Our API becomes slow every Monday morning. How would you find the cause?',
+        questionVi: 'API của chúng ta chậm vào mỗi sáng thứ Hai. Bạn tìm nguyên nhân thế nào?',
+        whyTheyAsk: 'Đây là bài toán mơ hồ để xem quy trình suy nghĩ có cấu trúc và dựa trên dữ liệu của bạn.',
+        answerEn: "I would start with questions. How slow is it, and which endpoints? Is it only Monday, or also after a release? Then I would look at the data: latency, CPU, database load, and traffic. Next, I would make a few guesses. Maybe a weekly report runs at that time. Or maybe users all log in together, and the cache is empty. I would test each guess one by one, and start with the cheapest one. When I find the cause, I fix it and add an alert. Finally, I would write down what we learned.",
+        answerVi: 'Tôi bắt đầu bằng câu hỏi làm rõ (chậm bao nhiêu, endpoint nào, chỉ thứ Hai hay sau mỗi lần release?), rồi xem dữ liệu: độ trễ, CPU, tải DB, lưu lượng. Sau đó đặt vài giả thuyết (báo cáo tuần chạy giờ đó, hoặc cache trống khi mọi người đăng nhập), kiểm chứng từng cái bắt đầu từ cái rẻ nhất. Tìm ra thì sửa, thêm cảnh báo và ghi lại bài học.',
+        keyPhrases: ['start with questions', 'look at the data', 'make a few guesses', 'cheapest one first', 'add an alert'],
+        tips: 'Nói thành tiếng các bước: Clarify → Data → Guess → Test → Fix → Prevent.',
+        followUp: 'What if you find two causes at the same time?',
+        tricky: ['latency', 'endpoint', 'alert']
+      },
+      {
+        category: 'critical', structure: 'Options → Trade-offs → Decision',
+        questionEn: 'Should a new product start with microservices or a monolith? Why?',
+        questionVi: 'Sản phẩm mới nên bắt đầu bằng microservices hay monolith? Vì sao?',
+        whyTheyAsk: 'Họ kiểm tra khả năng cân nhắc đánh đổi thay vì chạy theo xu hướng.',
+        answerEn: "It depends, but for most new products I would start with a modular monolith. At the beginning, the team is small, and the requirements change every week. A monolith is simpler to build, test, and deploy. Microservices bring extra cost: more servers, more network problems, and harder debugging. So I would keep clear module boundaries inside the code. Later, when one part really needs to scale alone, I can move it out. For example, in my project, the voice campaign part became its own service. The key point is to decide with real needs, not with trends.",
+        answerVi: 'Tùy hoàn cảnh, nhưng với đa số sản phẩm mới tôi bắt đầu bằng modular monolith: đội nhỏ, yêu cầu đổi hằng tuần, monolith dễ xây, test, deploy hơn; microservices tốn thêm server, lỗi mạng, khó debug. Tôi giữ ranh giới module rõ ràng, khi một phần thật sự cần scale riêng thì tách ra (như phần chiến dịch gọi thoại trong dự án của tôi). Quyết định theo nhu cầu thật, không theo xu hướng.',
+        keyPhrases: ['it depends', 'modular monolith', 'clear module boundaries', 'scale alone', 'real needs, not trends'],
+        tips: 'Mở đầu bằng "It depends" rồi đưa ra lập trường rõ ràng, tránh trả lời lưng chừng.',
+        followUp: 'When exactly would you split a service out?',
+        tricky: ['monolith', 'microservices', 'boundaries']
+      },
+      // ── BUSINESS QAs ────────────────────────────────────────────────────────
+      {
+        category: 'critical', structure: 'Clarify → Options → Trade-off → Decision',
+        questionEn: 'How do you decide which feature to build first when there are many requests?',
+        questionVi: 'Bạn quyết định ưu tiên tính năng nào trước khi có quá nhiều yêu cầu từ nhiều phía?',
+        whyTheyAsk: 'Họ muốn thấy bạn không chỉ code theo mệnh lệnh mà biết suy nghĩ theo impact và dữ liệu.',
+        answerEn: "First, I ask a few questions to understand the real goal. Who is the user, and what problem does it solve? Then I look at two things: the business impact and the effort needed. I use a simple score: how many users does it affect, and how much revenue or retention does it protect? After that, I check which option is fastest to deliver safely. If two items are close, I talk to the PM and the business team to make the final call together. My key point is this: I build for impact, not just for speed.",
+        answerVi: 'Tôi hỏi để hiểu mục tiêu thật sự: ai là người dùng, bài toán gì cần giải quyết. Sau đó tôi chấm theo business impact và effort: ảnh hưởng bao nhiêu người dùng, bảo vệ bao nhiêu doanh thu. Nếu hai option sát nhau thì tôi bàn với PM và team business để ra quyết định chung. Điểm mấu chốt: tôi build theo impact, không chỉ theo tốc độ.',
+        keyPhrases: ['business impact', 'effort needed', 'talk to the PM', 'build for impact', 'real goal'],
+        tips: 'Nhấn mạnh bạn làm việc cùng PM chứ không tự quyết đơn độc, nhưng bạn có khung suy nghĩ rõ ràng.',
+        followUp: 'What if the PM and your tech lead disagree on priority?',
+        tricky: ['prioritize', 'retention', 'impact']
+      },
+      {
+        category: 'situational', structure: 'STAR',
+        questionEn: 'Tell me about a time you had to explain a complex technical decision to a non-technical stakeholder.',
+        questionVi: 'Kể về lần bạn phải giải thích một quyết định kỹ thuật phức tạp cho người không có background kỹ thuật.',
+        whyTheyAsk: 'Họ đánh giá kỹ năng giao tiếp giữa Engineering và Business — một trong những skill quan trọng nhất của Senior.',
+        answerEn: "Yes, I remember one case clearly. We needed to switch from a direct API call to an async queue system for our campaign platform. My manager was worried because it sounded slower. So I did not use technical words. I used a simple story: imagine a restaurant. The waiter takes your order right away, but the kitchen cooks it in the background. You get a faster response, and the kitchen never gets stuck. After that, I showed one number: our failure rate would drop from twelve percent to near zero. My manager approved in the next meeting. The lesson is: find the right story, then back it up with one clear number.",
+        answerVi: 'Khi chuyển từ direct API sang async queue cho campaign platform, manager lo nghe có vẻ chậm hơn. Tôi không dùng từ kỹ thuật mà kể ví dụ nhà hàng: waiter nhận order ngay, bếp nấu ngầm phía sau — khách nhận phản hồi nhanh hơn, bếp không bị nghẽn. Sau đó tôi chỉ một con số: tỷ lệ lỗi từ 12% xuống gần 0%. Manager duyệt ngay buổi họp sau.',
+        keyPhrases: ['simple story', 'avoid technical words', 'one clear number', 'async queue', 'failure rate'],
+        tips: 'Công thức: chuyện kể dễ hiểu + một con số quan trọng. Đừng dùng quá 2 thuật ngữ kỹ thuật.',
+        followUp: 'What if the stakeholder still did not agree after your explanation?',
+        tricky: ['stakeholder', 'asynchronous', 'approve']
+      },
+      {
+        category: 'culture', structure: 'Mindset → Example → Result',
+        questionEn: 'How do you make sure your engineering work connects to real business value?',
+        questionVi: 'Bạn đảm bảo công việc kỹ thuật của mình thực sự tạo ra giá trị kinh doanh thế nào?',
+        whyTheyAsk: 'Họ muốn Engineer không chỉ biết code mà còn hiểu Why: tại sao build feature này, tại sao fix cái này trước.',
+        answerEn: "I always ask 'why' before I start coding. For every task, I want to know: what user problem does it solve, and how do we measure success? In one project, my team was about to spend two weeks on a complex caching layer. But when I asked, the actual bottleneck was slow database queries, not the cache. So we fixed the queries instead, and the response time dropped by eighty percent in three days. I also join sprint planning and product reviews when I can. That way, I understand the business context, and I can push back or suggest a simpler solution when it makes sense.",
+        answerVi: 'Tôi luôn hỏi "Tại sao?" trước khi code: bài toán người dùng là gì, đo thành công bằng gì. Một lần team sắp tốn 2 tuần làm caching layer phức tạp, nhưng khi hỏi thì bottleneck thật là query DB chậm. Sửa query xong: response time giảm 80% trong 3 ngày. Tôi cũng tham gia sprint planning và product review để hiểu context business và đề xuất giải pháp đơn giản hơn khi hợp lý.',
+        keyPhrases: ['ask why', 'measure success', 'actual bottleneck', 'business context', 'simpler solution'],
+        tips: 'Kể ví dụ bạn chủ động phát hiện ra vấn đề thật thay vì làm theo spec mù — đây là dấu hiệu của Senior Engineer thật sự.',
+        followUp: 'Tell me about a time you pushed back on a feature request and why.',
+        tricky: ['bottleneck', 'context', 'measure']
+      },
+      {
+        category: 'critical', structure: 'Clarify → Estimate → Risk → Plan',
+        questionEn: 'How do you estimate how long a project will take when requirements are unclear?',
+        questionVi: 'Bạn ước lượng thời gian dự án thế nào khi yêu cầu chưa rõ ràng?',
+        whyTheyAsk: 'Senior Engineers cần quản lý kỳ vọng — kỹ năng estimation rõ ràng và trung thực là dấu hiệu của sự trưởng thành.',
+        answerEn: "I never give one number when things are unclear. First, I ask questions to reduce the unknowns. What is the must-have, and what is nice to have? Are there any hard deadlines? Then I break the work into small pieces and estimate each piece. I give a range: optimistic, realistic, and pessimistic. I also name the top two or three risks that could make things slower. After that, I suggest a short spike, maybe two or three days, to explore the risky parts before giving a final number. This way, my estimates are more honest, and the team can plan better.",
+        answerVi: 'Tôi không bao giờ đưa một con số duy nhất khi chưa rõ yêu cầu. Đầu tiên hỏi để thu hẹp ẩn số: cái gì bắt buộc phải có, cái gì nice-to-have, có deadline cứng không. Sau đó tách nhỏ công việc và estimate theo dải: lạc quan / thực tế / bi quan, kèm 2-3 rủi ro có thể làm chậm. Tôi thường đề xuất thêm 2-3 ngày spike để khám phá phần rủi ro nhất trước khi chốt con số cuối.',
+        keyPhrases: ['reduce unknowns', 'a range not one number', 'top risks', 'short spike', 'honest estimate'],
+        tips: 'Đưa ra dải thay vì một con số và luôn nêu rõ assumption — điều này cho thấy bạn chín chắn và trung thực.',
+        followUp: 'What do you do if the team is pressured to commit to an unrealistic deadline?',
+        tricky: ['estimate', 'pessimistic', 'assumption']
+      }
+    ];
+
+    // =========================================================================
+    // 4. AI GENERATION
+    // =========================================================================
+    async function callGeminiJSON(promptText, apiKey) {
+      if (!apiKey) throw new Error('Chưa có Gemini API Key (bấm 🔑 AI Key để nhập).');
+      const models = ['gemini-3.5-flash', 'gemini-3.1-flash-lite', 'gemini-3.5-flash-lite', 'gemini-3.6-flash'];
+      let lastErr = null;
+      for (const m of models) {
+        try {
+          const ctrl = new AbortController();
+          const timer = setTimeout(() => ctrl.abort(), 60000);
+          const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${encodeURIComponent(apiKey)}`, {
+            method: 'POST',
+            signal: ctrl.signal,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }], generationConfig: { responseMimeType: 'application/json' } })
+          });
+          clearTimeout(timer);
+          if (res.ok) {
+            const data = await res.json();
+            const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
+            return JSON.parse(raw.replace(/```json|```/g, '').trim());
+          }
+          const err = await res.json().catch(() => ({}));
+          lastErr = new Error(err?.error?.message || `HTTP ${res.status}`);
+        } catch (e) { lastErr = e; }
+      }
+      throw lastErr || new Error('Không kết nối được Gemini API.');
+    }
+
+    const CANDIDATE_PROFILE = "Trần Văn Thanh Công — Senior Backend Engineer, 5+ năm: Node.js/TypeScript (NestJS), Python (FastAPI), Golang, PostgreSQL, MongoDB, Redis, RabbitMQ/BullMQ, Kafka, Temporal.io, Docker, Kubernetes, AWS, LLM/RAG. Dự án thật: (1) nền tảng thanh toán đa cổng: chặn trừ tiền 2 lần bằng Redis idempotency lock + Temporal + Transactional Outbox; (2) hệ thống gọi thoại/SMS chiến dịch 100.000+ cuộc gọi đồng thời qua Twilio, dùng RabbitMQ/BullMQ rate-limit + Forward-Only State Machine; (3) tối ưu MongoDB: CPU 94%→32%, truy vấn 4.2s→8.4ms bằng ESR compound index + cursor pagination; (4) RAG với Redis semantic caching giảm 40% chi phí token, độ trễ <300ms.";
+
+    const LENGTH_WORDS = { short: '90-110 từ (khoảng 45 giây nói)', medium: '140-165 từ (khoảng 75 giây nói)', long: '210-240 từ (khoảng 2 phút nói)' };
+
+    function buildPrompt(count) {
+      const cat = CATEGORIES[selectedCategory];
+      const topic = document.getElementById('topic-select').value;
+      const length = document.getElementById('length-select').value;
+      const custom = document.getElementById('custom-focus').value.trim();
+      const jd = document.getElementById('jd-text').value.trim();
+      return [
+        'Bạn là Tech Lead kiêm huấn luyện viên phỏng vấn tiếng Anh cho ứng viên Senior Backend người Việt.',
+        'Hồ sơ ứng viên: ' + CANDIDATE_PROFILE,
+        '',
+        `Hãy tạo ${count} câu hỏi phỏng vấn KHÁC NHAU kèm câu trả lời mẫu thật hay.`,
+        '- Dạng câu hỏi: ' + cat.label + '. ' + cat.brief,
+        '- Chủ đề kỹ thuật: ' + TOPIC_LABELS[topic],
+        custom ? '- Ý riêng cần đưa vào: ' + custom : '',
+        jd ? '- Bám sát JD sau: ' + jd.slice(0, 1500) : '',
+        '- Độ dài mỗi câu trả lời: ' + LENGTH_WORDS[length],
+        '',
+        'YÊU CẦU CHO CÂU TRẢ LỜI TIẾNG ANH (answerEn):',
+        '1. Dùng từ tiếng Anh THÔNG DỤNG, dễ hiểu, dễ nói; câu ngắn (tối đa khoảng 18 từ/câu); văn nói tự nhiên, có thể dùng thể rút gọn (I\'m, we\'ve).',
+        '2. Có cấu trúc rõ ràng với từ nối dễ nhớ (First, Then, After that, As a result, The key lesson is...).',
+        '3. Vẫn truyền đạt ĐẦY ĐỦ ý: bối cảnh, hành động cụ thể, lý do/đánh đổi, kết quả (có số liệu thật từ hồ sơ khi hợp lý, viết số bằng chữ để dễ đọc).',
+        '4. Tránh thành ngữ hiếm, từ học thuật khó đọc và câu quá dài. Giọng tự tin, chân thành.',
+        '5. Không bịa công nghệ ngoài hồ sơ; nếu câu hỏi không liên quan hồ sơ thì trả lời theo kinh nghiệm hợp lý của Senior.',
+        '',
+        'Trả về ĐÚNG JSON mảng, chỉ JSON:',
+        '[{',
+        '  "category": "situational | technical | culture | critical",',
+        '  "structure": "<khung trả lời, vd: STAR / Problem-Solution-Trade-off>",',
+        '  "questionEn": "<câu hỏi tiếng Anh tự nhiên như người phỏng vấn thật>",',
+        '  "questionVi": "<dịch nghĩa tiếng Việt>",',
+        '  "whyTheyAsk": "<1-2 câu tiếng Việt: nhà tuyển dụng muốn kiểm tra điều gì>",',
+        '  "answerEn": "<câu trả lời mẫu tiếng Anh dễ nói>",',
+        '  "answerVi": "<dịch nghĩa tiếng Việt mượt, sát ý>",',
+        '  "keyPhrases": ["<4-6 cụm từ khóa tiếng Anh nên nhớ>"],',
+        '  "tips": "<1-2 câu tiếng Việt: mẹo truyền đạt/nhấn nhá khi nói>",',
+        '  "followUp": "<1 câu hỏi xoáy tiếp theo bằng tiếng Anh>",',
+        '  "tricky": ["<3 từ dễ đọc sai trong câu trả lời>"]',
+        '}]'
+      ].filter(Boolean).join('\n');
+    }
+
+    let currentItems = [];
+
+    function normalizeItem(raw, idx) {
+      const validCats = ['situational', 'technical', 'culture', 'critical', 'business'];
+      const cat = validCats.includes(raw.category) ? raw.category : (selectedCategory !== 'mixed' ? selectedCategory : 'technical');
+      return {
+        id: 'q_' + Date.now() + '_' + idx + '_' + Math.random().toString(36).slice(2, 6),
+        category: cat,
+        structure: raw.structure || '',
+        questionEn: raw.questionEn || '',
+        questionVi: raw.questionVi || '',
+        whyTheyAsk: raw.whyTheyAsk || '',
+        answerEn: raw.answerEn || '',
+        answerVi: raw.answerVi || '',
+        keyPhrases: Array.isArray(raw.keyPhrases) ? raw.keyPhrases : [],
+        tips: raw.tips || '',
+        followUp: raw.followUp || '',
+        tricky: Array.isArray(raw.tricky) ? raw.tricky : []
+      };
+    }
+
+    async function generateQuestions() {
+      const count = parseInt(document.getElementById('count-select').value, 10) || 3;
+      const btn = document.getElementById('btn-generate');
+      const old = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '⏳ AI đang viết câu hỏi & câu trả lời...';
+      stopSpeech();
+
+      try {
+        const parsed = await callGeminiJSON(buildPrompt(count), getActiveApiKey());
+        const arr = Array.isArray(parsed) ? parsed : (parsed.items || parsed.questions || []);
+        const items = arr.map(normalizeItem).filter(x => x.questionEn && x.answerEn);
+        if (!items.length) throw new Error('AI trả về dữ liệu rỗng.');
+        currentItems = items.slice(0, count);
+      } catch (err) {
+        const pool = BUILTIN_QA.filter(x => selectedCategory === 'mixed' || x.category === selectedCategory);
+        const shuffled = [...pool].sort(() => Math.random() - 0.5).slice(0, count);
+        currentItems = shuffled.map(normalizeItem);
+        alert('Không gọi được AI (' + err.message + ').\nĐã dùng bộ câu mẫu có sẵn để bạn luyện tiếp nhé!');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = old;
+      }
+      renderResults();
+      document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    async function rewriteAnswer(id, mode) {
+      const item = currentItems.find(x => x.id === id) || qaBank.items.find(x => x.id === id);
+      if (!item) return;
+      const instructions = {
+        simpler: 'Viết lại bằng từ ĐƠN GIẢN hơn nữa (như nói với người có trình độ tiếng Anh trung bình), câu ngắn hơn, vẫn đủ ý và số liệu.',
+        shorter: 'Rút gọn còn khoảng 80-95 từ nhưng giữ đủ: hành động chính, lý do, kết quả.',
+        casual: 'Viết lại theo giọng trò chuyện tự nhiên, thân thiện như đang nói chuyện thật với người phỏng vấn (vẫn chuyên nghiệp).',
+        detailed: 'Mở rộng thành khoảng 220 từ: thêm bối cảnh, lý do chọn giải pháp, đánh đổi và bài học, vẫn dùng từ dễ nói.'
+      };
+      const btnEl = document.activeElement;
+      const oldTxt = btnEl && btnEl.innerText;
+      if (btnEl && btnEl.tagName === 'BUTTON') { btnEl.disabled = true; btnEl.innerText = '⏳...'; }
+      try {
+        const prompt = [
+          'Bạn là huấn luyện viên phỏng vấn tiếng Anh cho Senior Backend Engineer.',
+          'Câu hỏi: ' + item.questionEn,
+          'Câu trả lời hiện tại: ' + item.answerEn,
+          'Nhiệm vụ: ' + instructions[mode],
+          'Giữ nguyên sự thật trong hồ sơ: ' + CANDIDATE_PROFILE,
+          'Trả về ĐÚNG JSON: {"answerEn":"...","answerVi":"<dịch tiếng Việt>","keyPhrases":["..."]}'
+        ].join('\n');
+        const r = await callGeminiJSON(prompt, getActiveApiKey());
+        if (r && r.answerEn) {
+          item.answerEn = r.answerEn;
+          if (r.answerVi) item.answerVi = r.answerVi;
+          if (Array.isArray(r.keyPhrases) && r.keyPhrases.length) item.keyPhrases = r.keyPhrases;
+          if (qaBank.items.some(x => x.id === id)) { touchBank(); renderBank(); }
+          renderResults();
+        }
+      } catch (err) {
+        alert('Không viết lại được lúc này: ' + err.message);
+        if (btnEl && btnEl.tagName === 'BUTTON') { btnEl.disabled = false; btnEl.innerText = oldTxt; }
+      }
+    }
+
+    // =========================================================================
+    // 5. RENDER RESULTS
+    // =========================================================================
+    const COLOR = {
+      rose: 'bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300',
+      indigo: 'bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300',
+      emerald: 'bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300',
+      violet: 'bg-violet-100 dark:bg-violet-950 text-violet-700 dark:text-violet-300',
+      amber: 'bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300',
+      sky: 'bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300'
+    };
+
+    function itemById(id) { return currentItems.find(x => x.id === id) || qaBank.items.find(x => x.id === id); }
+    function speakQuestion(id) { const i = itemById(id); if (i) speak(i.questionEn); }
+    function speakAnswer(id, slow) { const i = itemById(id); if (i) speak(i.answerEn, slow ? 0.75 : selectedSpeechRate); }
+    function speakPhrase(t) { speak(t, 0.85); }
+    function revealAnswer(id) { document.getElementById('ans-' + id).classList.remove('hidden'); document.getElementById('reveal-' + id).classList.add('hidden'); }
+    function toggleVi(id) { document.getElementById('vi-' + id).classList.toggle('hidden'); }
+    function copyAnswer(id) { const i = itemById(id); if (i) navigator.clipboard.writeText(i.answerEn).then(() => alert('Đã copy câu trả lời!')); }
+
+    function cardHtml(item, saved) {
+      const cat = CATEGORIES[item.category] || CATEGORIES.technical;
+      const hide = document.getElementById('hide-answer-check').checked && !saved;
+      return `
+      <article class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        <div class="p-4 sm:p-5 space-y-3">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="px-2 py-0.5 rounded-full text-[11px] font-extrabold ${COLOR[cat.color]}">${cat.label}</span>
+            ${item.structure ? `<span class="text-[11px] font-bold text-slate-500">Khung: ${esc(item.structure)}</span>` : ''}
+          </div>
+          <div class="flex items-start justify-between gap-3">
+            <h3 class="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white leading-snug">❓ ${esc(item.questionEn)}</h3>
+            <button onclick="speakQuestion('${item.id}')" class="shrink-0 px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs font-bold cursor-pointer" title="Nghe câu hỏi">🔊</button>
+          </div>
+          <div class="text-xs text-slate-500 dark:text-slate-400">🇻🇳 ${esc(item.questionVi)}</div>
+          ${item.whyTheyAsk ? `<div class="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 text-xs text-amber-900 dark:text-amber-200">🎯 <strong>Họ muốn kiểm tra:</strong> ${esc(item.whyTheyAsk)}</div>` : ''}
+
+          ${hide ? `<button id="reveal-${item.id}" onclick="revealAnswer('${item.id}')" class="w-full py-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 text-xs font-extrabold cursor-pointer">🙈 Hãy tự trả lời thành tiếng trước — bấm để xem đáp án mẫu</button>` : ''}
+
+          <div id="ans-${item.id}" class="${hide ? 'hidden' : ''} space-y-3">
+            <div class="p-4 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/20 border-2 border-emerald-200 dark:border-emerald-900 text-sm sm:text-base leading-relaxed font-medium text-slate-900 dark:text-slate-100">${esc(item.answerEn)}</div>
+
+            <div class="flex flex-wrap gap-2">
+              <button onclick="speakAnswer('${item.id}')" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold cursor-pointer">🔊 Nghe đáp án</button>
+              <button onclick="speakAnswer('${item.id}', true)" class="px-3 py-1.5 rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 text-xs font-bold cursor-pointer">🐢 Nghe chậm</button>
+              <button onclick="stopSpeech()" class="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs font-bold cursor-pointer">⏹️</button>
+              <button onclick="toggleVi('${item.id}')" class="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs font-bold cursor-pointer">🇻🇳 Dịch nghĩa</button>
+              <button onclick="copyAnswer('${item.id}')" class="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs font-bold cursor-pointer">📋 Copy</button>
+            </div>
+
+            <div id="vi-${item.id}" class="hidden p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">${esc(item.answerVi)}</div>
+
+            ${item.keyPhrases.length ? `<div class="space-y-1"><div class="text-[11px] font-extrabold uppercase text-slate-500">🔑 Cụm từ nên nhớ (bấm để nghe)</div><div class="flex flex-wrap gap-1.5">${item.keyPhrases.map(p => `<button onclick="speakPhrase(this.dataset.p)" data-p="${esc(p)}" class="px-2 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 text-xs font-bold cursor-pointer">🔊 ${esc(p)}</button>`).join('')}</div></div>` : ''}
+            ${item.tricky.length ? `<div class="flex flex-wrap items-center gap-1.5 text-xs"><span class="font-extrabold text-rose-600 dark:text-rose-400">Dễ đọc sai:</span>${item.tricky.map(w => `<button onclick="speakPhrase(this.dataset.p)" data-p="${esc(w)}" class="px-2 py-0.5 rounded bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 font-bold cursor-pointer">🔊 ${esc(w)}</button>`).join('')}</div>` : ''}
+            ${item.tips ? `<div class="text-xs text-slate-600 dark:text-slate-300">💡 <strong>Mẹo nói:</strong> ${esc(item.tips)}</div>` : ''}
+            ${item.followUp ? `<div class="text-xs text-slate-600 dark:text-slate-300">🔥 <strong>Có thể bị hỏi tiếp:</strong> <em>${esc(item.followUp)}</em> <button onclick="speakPhrase(this.dataset.p)" data-p="${esc(item.followUp)}" class="ml-1 cursor-pointer">🔊</button></div>` : ''}
+
+            <div class="flex flex-wrap gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+              <button onclick="rewriteAnswer('${item.id}','simpler')" class="px-2.5 py-1 rounded-lg bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 text-[11px] font-bold cursor-pointer">✨ Đơn giản hơn</button>
+              <button onclick="rewriteAnswer('${item.id}','shorter')" class="px-2.5 py-1 rounded-lg bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 text-[11px] font-bold cursor-pointer">✂️ Ngắn hơn</button>
+              <button onclick="rewriteAnswer('${item.id}','casual')" class="px-2.5 py-1 rounded-lg bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 text-[11px] font-bold cursor-pointer">💬 Tự nhiên hơn</button>
+              <button onclick="rewriteAnswer('${item.id}','detailed')" class="px-2.5 py-1 rounded-lg bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 text-[11px] font-bold cursor-pointer">➕ Chi tiết hơn</button>
+              ${saved
+                ? `<button onclick="deleteFromBank('${item.id}')" class="ml-auto px-2.5 py-1 rounded-lg bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 text-[11px] font-bold cursor-pointer">🗑️ Xóa khỏi ngân hàng</button>`
+                : `<button onclick="saveToBank('${item.id}')" class="ml-auto px-3 py-1 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-[11px] font-extrabold cursor-pointer">💾 Lưu vào ngân hàng</button>`}
+            </div>
+          </div>
+        </div>
+      </article>`;
+    }
+
+    function renderResults() {
+      const el = document.getElementById('results');
+      if (!currentItems.length) return;
+      el.innerHTML = currentItems.map(i => cardHtml(i, qaBank.items.some(b => b.id === i.id))).join('');
+    }
+
+    // =========================================================================
+    // 6. SAVED BANK (localStorage + shared GitHub Gist sync)
+    // =========================================================================
+    let qaBank = { items: [], deletedIds: [], updatedAt: 0 };
+    let bankSyncTimer = null;
+
+    function loadBank() {
+      try {
+        const raw = JSON.parse(localStorage.getItem(BANK_KEY) || 'null');
+        if (raw && Array.isArray(raw.items)) qaBank = { items: raw.items, deletedIds: raw.deletedIds || [], updatedAt: raw.updatedAt || 0 };
+      } catch (e) {}
+    }
+    function persistBank() { localStorage.setItem(BANK_KEY, JSON.stringify(qaBank)); }
+    function touchBank() {
+      qaBank.updatedAt = Date.now();
+      persistBank();
+      clearTimeout(bankSyncTimer);
+      bankSyncTimer = setTimeout(pushQaBank, 700);
+    }
+
+    function saveToBank(id) {
+      const item = currentItems.find(x => x.id === id);
+      if (!item || qaBank.items.some(b => b.id === id)) return;
+      qaBank.items.unshift({ ...item, savedAt: Date.now() });
+      touchBank();
+      renderBank();
+      renderResults();
+    }
+    function deleteFromBank(id) {
+      qaBank.items = qaBank.items.filter(x => x.id !== id);
+      if (!qaBank.deletedIds.includes(id)) qaBank.deletedIds.push(id);
+      touchBank();
+      renderBank();
+      renderResults();
+    }
+    function clearBank() {
+      if (!qaBank.items.length) return;
+      if (!confirm('Xóa toàn bộ ngân hàng câu hỏi (cả trên Cloud)?')) return;
+      qaBank.items.forEach(x => { if (!qaBank.deletedIds.includes(x.id)) qaBank.deletedIds.push(x.id); });
+      qaBank.items = [];
+      touchBank();
+      renderBank();
+      renderResults();
+    }
+    function openFromBank(id) {
+      const item = qaBank.items.find(x => x.id === id);
+      if (!item) return;
+      currentItems = [item];
+      renderResults();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function renderBank() {
+      const filterEl = document.getElementById('bank-filter');
+      if (filterEl.options.length === 1) {
+        Object.entries(CATEGORIES).filter(([k]) => k !== 'mixed').forEach(([k, c]) => {
+          const o = document.createElement('option'); o.value = k; o.textContent = c.label; filterEl.appendChild(o);
+        });
+      }
+      const f = filterEl.value;
+      const list = qaBank.items.filter(x => f === 'all' || x.category === f);
+      document.getElementById('bank-count').innerText = `${qaBank.items.length} câu`;
+      document.getElementById('bank-list').innerHTML = list.length ? list.map(x => {
+        const cat = CATEGORIES[x.category] || CATEGORIES.technical;
+        return `<div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 space-y-1.5">
+          <span class="px-1.5 py-0.5 rounded-full text-[10px] font-extrabold ${COLOR[cat.color]}">${cat.label}</span>
+          <div class="text-xs font-bold text-slate-800 dark:text-slate-100">${esc(x.questionEn)}</div>
+          <div class="flex items-center justify-between">
+            <button onclick="openFromBank('${x.id}')" class="text-[11px] font-extrabold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer">📖 Mở & luyện lại</button>
+            <button onclick="deleteFromBank('${x.id}')" class="text-[11px] font-bold text-slate-400 hover:text-rose-600 cursor-pointer">✕ Xóa</button>
+          </div></div>`;
+      }).join('') : `<div class="p-5 text-center text-xs text-slate-400 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl">Chưa có câu nào. Bấm "💾 Lưu vào ngân hàng" ở câu bạn thích — dữ liệu tự đồng bộ giữa Laptop và Điện thoại.</div>`;
+    }
+
+    function exportBank() {
+      if (!qaBank.items.length) { alert('Chưa có câu nào để xuất!'); return; }
+      const md = ['# Ngân hàng câu hỏi phỏng vấn — Trần Văn Thanh Công', ''].concat(qaBank.items.map((x, i) =>
+        `## ${i + 1}. [${(CATEGORIES[x.category] || {}).badge || x.category}] ${x.questionEn}\n*${x.questionVi}*\n\n**Answer:** ${x.answerEn}\n\n**Dịch:** ${x.answerVi}\n\n**Key phrases:** ${(x.keyPhrases || []).join(', ')}\n`
+      )).join('\n');
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([md], { type: 'text/markdown;charset=utf-8' }));
+      a.download = `Ngan_Hang_Cau_Hoi_${new Date().toISOString().slice(0, 10)}.md`;
+      a.click();
+    }
+
+    // ---- Cloud sync (same Secret Gist as the other pages, separate file) ----
+    function badge(status, label) {
+      const btn = document.getElementById('cloud-sync-btn');
+      document.getElementById('cloud-sync-text').innerText = label;
+      document.getElementById('cloud-sync-icon').innerText = status === 'synced' ? '🐙' : (status === 'syncing' ? '🔄' : '⚠️');
+      const tone = status === 'synced' ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'
+        : (status === 'syncing' ? 'bg-sky-50 dark:bg-sky-950/50 text-sky-700 dark:text-sky-300 border-sky-200 dark:border-sky-800'
+        : 'bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800');
+      btn.className = `px-3 py-2 rounded-xl border text-xs font-extrabold flex items-center gap-1.5 cursor-pointer ${tone}`;
+    }
+
+    function ghCreds() {
+      return { token: localStorage.getItem('thanh_cong_github_token') || '', gistId: localStorage.getItem('thanh_cong_github_gist_id') || '' };
+    }
+
+    function mergeBank(remote) {
+      if (!remote) return false;
+      const deleted = new Set([...(qaBank.deletedIds || []), ...(remote.deletedIds || [])]);
+      const map = new Map();
+      [...(remote.items || []), ...qaBank.items].forEach(x => { if (x && x.id && !deleted.has(x.id) && !map.has(x.id)) map.set(x.id, x); });
+      const merged = Array.from(map.values()).sort((a, b) => (b.savedAt || 0) - (a.savedAt || 0));
+      const changed = merged.length !== qaBank.items.length || deleted.size !== (qaBank.deletedIds || []).length;
+      qaBank = { items: merged, deletedIds: Array.from(deleted), updatedAt: Math.max(qaBank.updatedAt, remote.updatedAt || 0) };
+      persistBank();
+      return changed;
+    }
+
+    async function pushQaBank() {
+      const { token, gistId } = ghCreds();
+      if (!token || !gistId) { badge('offline', 'Lưu tại máy (chưa nối Gist)'); return; }
+      badge('syncing', 'GitHub Gist: Đang lưu...');
+      try {
+        const res = await fetch(`https://api.github.com/gists/${gistId}`, {
+          method: 'PATCH',
+          headers: { 'Accept': 'application/vnd.github+json', 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ files: { [GIST_QA_FILENAME]: { content: JSON.stringify(qaBank) } } })
+        });
+        badge(res.ok ? 'synced' : 'offline', res.ok ? 'GitHub Gist: Đã đồng bộ' : 'Lưu tại máy (Gist lỗi)');
+      } catch (e) { badge('offline', 'Lưu tại máy (offline)'); }
+    }
+
+    async function syncQaBank(manual) {
+      const { token, gistId } = ghCreds();
+      if (!gistId) {
+        badge('offline', 'Lưu tại máy (chưa nối Gist)');
+        if (manual) alert('Chưa kết nối Gist. Hãy mở trang Luyện Đọc hoặc Phỏng Vấn trước (bấm 🐙 GitHub Gist & AI Key) để nối Gist dùng chung.');
+        return;
+      }
+      badge('syncing', 'GitHub Gist: Đang đồng bộ...');
+      try {
+        const headers = { 'Accept': 'application/vnd.github+json' };
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+        const res = await fetch(`https://api.github.com/gists/${gistId}?_t=${Date.now()}`, { headers, cache: 'no-store' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const gist = await res.json();
+        const file = gist?.files?.[GIST_QA_FILENAME];
+        let changed = false;
+        if (file && file.content) changed = mergeBank(JSON.parse(file.content));
+        renderBank();
+        renderResults();
+        if (token) await pushQaBank(); else badge('synced', 'GitHub Gist: Chỉ đọc');
+        if (manual) alert(`Đã đồng bộ! Ngân hàng hiện có ${qaBank.items.length} câu${changed ? ' (có cập nhật từ thiết bị khác)' : ''}.`);
+      } catch (e) {
+        badge('offline', 'Lưu tại máy (offline)');
+        if (manual) alert('Không đồng bộ được: ' + e.message);
+      }
+    }
+
+    // =========================================================================
+    // 7. INIT
+    // =========================================================================
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('theme-icon').innerText = document.documentElement.classList.contains('dark') ? '☀️' : '🌙';
+      document.getElementById('rate-select').value = String(selectedSpeechRate);
+      renderCategoryChips();
+      loadBank();
+      renderBank();
+      if (synth) synth.getVoices();
+      syncQaBank(false);
+    });
+    window.addEventListener('focus', () => syncQaBank(false));
+  </script>
+
+  <!-- MOBILE BOTTOM NAV (hidden on sm+) -->
+  <nav class="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-slate-900 border-t border-slate-700 flex items-stretch" style="padding-bottom: env(safe-area-inset-bottom);">
+    <a href="interview_pitch_guide.html" class="flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-slate-400 hover:text-white hover:bg-slate-800 transition text-center" style="min-height:52px">
+      <span class="text-lg leading-none">📖</span>
+      <span class="text-[9px] font-bold leading-tight">Kịch Bản</span>
+    </a>
+    <a href="mock_interview.html" class="flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-slate-400 hover:text-white hover:bg-slate-800 transition text-center" style="min-height:52px">
+      <span class="text-lg leading-none">🎙️</span>
+      <span class="text-[9px] font-bold leading-tight">Phỏng Vấn</span>
+    </a>
+    <a href="tech_reading_gym.html" class="flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-slate-400 hover:text-white hover:bg-slate-800 transition text-center" style="min-height:52px">
+      <span class="text-lg leading-none">🗣️</span>
+      <span class="text-[9px] font-bold leading-tight">Luyện Đọc</span>
+    </a>
+    <a href="interview_qa_generator.html" class="flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-white bg-slate-800 transition text-center" style="min-height:52px">
+      <span class="text-lg leading-none">💡</span>
+      <span class="text-[9px] font-bold leading-tight">Q&amp;A Gen</span>
+    </a>
+  </nav>
+  <div class="sm:hidden" style="height: calc(56px + env(safe-area-inset-bottom))"></div>
+</body>
+</html>
