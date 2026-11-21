@@ -1,0 +1,2770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enterprise Data Engine &amp; ClickHouse Architecture | Firebase Analytics ETL</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+
+:root {
+  --bg-page: #f8fafc;
+  --bg-card: #ffffff;
+  --bg-subtle: #f1f5f9;
+  --bg-sidebar: #ffffff;
+  
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --text-light: #94a3b8;
+  
+  --border-light: #e2e8f0;
+  --border-subtle: #cbd5e1;
+  --border-focus: #0284c7;
+  
+  --accent-blue: #0284c7;
+  --accent-blue-light: #e0f2fe;
+  --accent-magenta: #e11d48;
+  --accent-magenta-light: #ffe4e6;
+  --accent-emerald: #059669;
+  --accent-emerald-light: #d1fae5;
+  --accent-amber: #d97706;
+  --accent-amber-light: #fef3c7;
+  --accent-indigo: #4f46e5;
+  --accent-indigo-light: #e0e7ff;
+  --accent-purple: #7c3aed;
+  --accent-purple-light: #f3e8ff;
+  
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+  
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 15px;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-page);
+  color: var(--text-secondary);
+  line-height: 1.68;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Header & Top Bar */
+.top-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.brand-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.brand-badge {
+  background: var(--accent-magenta);
+  color: #ffffff;
+  padding: 0.2rem 0.55rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.header-meta {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  border: 1px solid var(--border-light);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+
+.btn:hover {
+  background: var(--bg-subtle);
+  color: var(--text-primary);
+  border-color: var(--border-subtle);
+}
+
+.btn-primary {
+  background: var(--accent-blue);
+  color: #ffffff;
+  border-color: var(--accent-blue);
+}
+
+.btn-primary:hover {
+  background: #0369a1;
+  color: #ffffff;
+}
+
+.btn-purple {
+  background: var(--accent-purple-light);
+  color: var(--accent-purple);
+  border-color: #d8b4fe;
+}
+
+.btn-purple:hover, .btn-purple.active {
+  background: var(--accent-purple);
+  color: #ffffff;
+  border-color: var(--accent-purple);
+}
+
+/* Layout */
+.app-container {
+  display: flex;
+  min-height: calc(100vh - 56px);
+}
+
+/* Sidebar Navigation */
+.sidebar {
+  width: 330px;
+  flex-shrink: 0;
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border-light);
+  position: sticky;
+  top: 56px;
+  height: calc(100vh - 56px);
+  overflow-y: auto;
+  padding: 1.25rem 1rem 3rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sidebar-search {
+  position: sticky;
+  top: 0;
+  background: var(--bg-sidebar);
+  padding-bottom: 0.5rem;
+  z-index: 10;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-light);
+  background: var(--bg-subtle);
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  outline: none;
+  transition: all 0.15s ease;
+}
+
+.search-input:focus {
+  background: #ffffff;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+}
+
+.toc-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.toc-group-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-light);
+  margin-top: 0.75rem;
+  margin-bottom: 0.25rem;
+  padding-left: 0.5rem;
+}
+
+.toc-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  line-height: 1.35;
+  transition: all 0.12s ease;
+}
+
+.toc-link:hover {
+  background: var(--bg-subtle);
+  color: var(--accent-blue);
+  transform: translateX(2px);
+}
+
+.toc-link.active {
+  background: var(--accent-blue-light);
+  color: var(--accent-blue);
+  font-weight: 600;
+}
+
+.toc-num {
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--text-muted);
+  min-width: 1.5rem;
+}
+
+/* Main Content Container */
+.main-content {
+  flex-grow: 1;
+  max-width: 1050px;
+  padding: 2.5rem 3rem 6rem 3rem;
+  margin: 0 auto;
+}
+
+/* Hero Section */
+.hero-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+  border: 1px solid #bae6fd;
+  border-radius: var(--radius-lg);
+  padding: 2.5rem;
+  margin-bottom: 2.5rem;
+  box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 280px;
+  height: 280px;
+  background: radial-gradient(circle, rgba(2, 132, 199, 0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--accent-magenta-light);
+  color: var(--accent-magenta);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 1rem;
+}
+
+.hero-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.25;
+  letter-spacing: -0.025em;
+  margin-bottom: 1rem;
+}
+
+.hero-subtitle {
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 1.75rem;
+  max-width: 850px;
+}
+
+/* KPI Metric Cards Grid */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.metric-card {
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 1.25rem 1rem;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--accent-blue);
+}
+
+.metric-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--accent-blue);
+  line-height: 1.2;
+  margin-bottom: 0.25rem;
+  font-family: var(--font-mono);
+}
+
+.metric-card.accent-magenta .metric-value { color: var(--accent-magenta); }
+.metric-card.accent-emerald .metric-value { color: var(--accent-emerald); }
+.metric-card.accent-indigo .metric-value { color: var(--accent-indigo); }
+.metric-card.accent-purple .metric-value { color: var(--accent-purple); }
+
+.metric-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.2rem;
+}
+
+.metric-sub {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+/* Typography & Headings */
+h2 {
+  font-size: 1.65rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-top: 3.5rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 2px solid var(--border-light);
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+h3 {
+  font-size: 1.28rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-top: 2.25rem;
+  margin-bottom: 0.85rem;
+  letter-spacing: -0.015em;
+}
+
+h4 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+p {
+  margin-bottom: 1.15rem;
+  font-size: 0.96rem;
+}
+
+ul, ol {
+  margin-bottom: 1.25rem;
+  padding-left: 1.5rem;
+}
+
+li {
+  margin-bottom: 0.45rem;
+  font-size: 0.95rem;
+}
+
+strong {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* Callout Boxes (Alerts) */
+.callout {
+  border-left: 4px solid;
+  border-radius: var(--radius-md);
+  padding: 1.2rem 1.4rem;
+  margin: 1.5rem 0;
+  background: #ffffff;
+  box-shadow: var(--shadow-sm);
+}
+
+.callout-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  font-size: 0.92rem;
+  margin-bottom: 0.45rem;
+}
+
+.callout-tip {
+  border-color: var(--accent-blue);
+  background: var(--accent-blue-light);
+  color: #0369a1;
+}
+.callout-tip .callout-title { color: #0284c7; }
+
+.callout-info {
+  border-color: var(--accent-indigo);
+  background: var(--accent-indigo-light);
+  color: #3730a3;
+}
+.callout-info .callout-title { color: #4338ca; }
+
+.callout-warning {
+  border-color: var(--accent-amber);
+  background: var(--accent-amber-light);
+  color: #92400e;
+}
+.callout-warning .callout-title { color: #b45309; }
+
+.callout-danger {
+  border-color: var(--accent-magenta);
+  background: var(--accent-magenta-light);
+  color: #9f1239;
+}
+.callout-danger .callout-title { color: #be123c; }
+
+.callout-success {
+  border-color: var(--accent-emerald);
+  background: var(--accent-emerald-light);
+  color: #065f46;
+}
+.callout-success .callout-title { color: #047857; }
+
+/* 🎙️ Spoken Presentation Box (Dedicated UI for Talking Points) */
+.spoken-script {
+  background: linear-gradient(135deg, #ffffff 0%, #faf5ff 100%);
+  border: 1.5px solid #d8b4fe;
+  border-left: 6px solid var(--accent-purple);
+  border-radius: var(--radius-md);
+  padding: 1.35rem 1.5rem;
+  margin: 1.75rem 0;
+  box-shadow: 0 4px 10px -2px rgba(124, 58, 237, 0.08);
+  transition: all 0.2s ease;
+}
+
+.spoken-script:hover {
+  box-shadow: 0 8px 16px -4px rgba(124, 58, 237, 0.15);
+  border-color: #c084fc;
+}
+
+.spoken-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.84rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent-purple);
+  margin-bottom: 0.65rem;
+}
+
+.spoken-content {
+  font-size: 0.96rem;
+  color: #1e1b4b;
+  line-height: 1.65;
+}
+
+.spoken-content strong {
+  color: #581c87;
+}
+
+.spoken-content em {
+  color: #3b0764;
+  font-style: italic;
+}
+
+/* Interview Mode Styling */
+body.interview-mode-active .spoken-script {
+  border-width: 2px;
+  border-color: var(--accent-purple);
+  box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.15), 0 10px 25px -5px rgba(124, 58, 237, 0.2);
+  transform: scale(1.01);
+}
+
+/* Memory Anchor Pill */
+.memory-anchor-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: #fdf4ff;
+  border: 1px solid #f0abfc;
+  color: #86198f;
+  padding: 0.4rem 0.85rem;
+  border-radius: 9999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 2px rgba(240, 171, 252, 0.2);
+}
+.memory-anchor-pill strong {
+  color: #701a75;
+}
+.memory-anchor-pill em {
+  color: #a21caf;
+  font-style: normal;
+  padding-left: 0.4rem;
+  border-left: 1px solid #f0abfc;
+}
+
+body.interview-mode-active .memory-anchor-pill {
+  background: #fae8ff;
+  border-color: #d946ef;
+  color: #701a75;
+  box-shadow: 0 0 0 3px rgba(217, 70, 239, 0.25);
+}
+
+/* Rapid-Fire Q&A Cards */
+.qa-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+  margin: 2rem 0;
+}
+
+.qa-card {
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 1.25rem 1.5rem;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.15s ease;
+}
+
+.qa-card:hover {
+  border-color: var(--accent-blue);
+  box-shadow: var(--shadow-md);
+}
+
+.qa-q-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 0.65rem;
+}
+
+.qa-num-badge {
+  background: var(--accent-blue-light);
+  color: var(--accent-blue);
+  font-size: 0.78rem;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.qa-question {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.35;
+}
+
+.qa-answer {
+  font-size: 0.94rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  padding-left: 2.75rem;
+  border-left: 2px solid var(--accent-blue-light);
+  margin-left: 0.65rem;
+}
+
+.qa-answer strong {
+  color: var(--accent-blue);
+}
+
+.qa-trap {
+  font-size: 0.78rem;
+  color: var(--accent-amber);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.35rem;
+  padding-left: 2.75rem;
+  margin-left: 0.65rem;
+}
+
+/* Diagram & Monospace Cards */
+.diagram-container {
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  margin: 1.5rem 0;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.diagram-header {
+  background: var(--bg-subtle);
+  border-bottom: 1px solid var(--border-light);
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.diagram-body {
+  padding: 1.25rem;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: #1e293b;
+  background: #fbfcfe;
+}
+
+.diagram-body pre {
+  margin: 0;
+  white-space: pre;
+}
+
+/* Code Blocks */
+.code-container {
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  margin: 1.5rem 0;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.code-header {
+  background: #f1f5f9;
+  border-bottom: 1px solid var(--border-light);
+  padding: 0.45rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.code-lang-badge {
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  font-family: var(--font-mono);
+  background: #e2e8f0;
+  padding: 0.15rem 0.45rem;
+  border-radius: 3px;
+  color: var(--text-secondary);
+}
+
+.code-body {
+  padding: 1.15rem 1.25rem;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 0.84rem;
+  line-height: 1.6;
+  background: #fcfdfe;
+  color: #0f172a;
+}
+
+.code-body pre {
+  margin: 0;
+  white-space: pre;
+}
+
+/* Copy button */
+.copy-btn {
+  background: transparent;
+  border: 1px solid var(--border-light);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.1s ease;
+}
+
+.copy-btn:hover {
+  background: #ffffff;
+  color: var(--text-primary);
+  border-color: var(--border-subtle);
+}
+
+/* Tables */
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+  background: #ffffff;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.88rem;
+}
+
+th {
+  background: #f8fafc;
+  color: var(--text-primary);
+  font-weight: 700;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border-light);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border-light);
+  color: var(--text-secondary);
+  vertical-align: top;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+tr:nth-child(even) td {
+  background-color: #fafbfc;
+}
+
+tr:hover td {
+  background-color: #f1f5f9;
+}
+
+/* Badges */
+.badge {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: var(--font-mono);
+}
+
+.badge-pk { background: #fee2e2; color: #b91c1c; }
+.badge-fk { background: #e0e7ff; color: #4338ca; }
+.badge-unique { background: #fef3c7; color: #b45309; }
+.badge-index { background: #e0f2fe; color: #0369a1; }
+.badge-success { background: #d1fae5; color: #047857; }
+.badge-neutral { background: #f1f5f9; color: #475569; }
+
+/* Interview Case Card */
+.interview-card {
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 1.75rem;
+  margin: 2rem 0;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.interview-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--accent-blue);
+}
+
+.interview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.interview-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.before-after-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin: 1.25rem 0;
+}
+
+.ba-column {
+  border-radius: var(--radius-sm);
+  padding: 1rem 1.25rem;
+}
+
+.ba-before {
+  background: #fff5f5;
+  border: 1px solid #fed7d7;
+}
+
+.ba-after {
+  background: #f0fff4;
+  border: 1px solid #c6f6d5;
+}
+
+.ba-title {
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.ba-before .ba-title { color: #c53030; }
+.ba-after .ba-title { color: #276749; }
+
+/* Floating Back to Top Button */
+.back-to-top {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.back-to-top.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.back-to-top:hover {
+  background: var(--accent-blue);
+  color: #ffffff;
+  border-color: var(--accent-blue);
+  transform: translateY(-2px);
+}
+
+/* Print Styles */
+@media print {
+  .top-header, .sidebar, .back-to-top, .copy-btn, .search-input {
+    display: none !important;
+  }
+  
+  .main-content {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  
+  .hero-card, .diagram-container, .code-container, .interview-card, .callout, .spoken-script, .qa-card {
+    box-shadow: none !important;
+    border: 1px solid #cccccc !important;
+    break-inside: avoid;
+  }
+  
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 12pt;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .sidebar {
+    display: none;
+  }
+  .main-content {
+    padding: 1.5rem 1.25rem 4rem 1.25rem;
+  }
+  .before-after-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+  </style>
+</head>
+<body>
+
+  <!-- Top Header Navigation -->
+  <header class="top-header">
+    <div class="brand-wrapper">
+      <a href="index.html" class="brand-logo">
+        <span class="brand-badge" style="background: #059669;">DATA</span>
+        <span>Firebase &rarr; ClickHouse Data Engine &amp; Analytics Warehouse</span>
+      </a>
+      <span class="header-meta">| High-Throughput OLAP Blueprint</span>
+    </div>
+    <div class="header-actions">
+      <a href="index.html" class="btn" style="border: 1px solid #cbd5e1; font-weight: 600;" title="Quay lại Blog / AI Interview Portal">
+        <span>🏠</span> Blog Home
+      </a>
+      <a href="architecture.html" class="btn" style="border: 1px solid #cbd5e1; font-weight: 600;" title="Xem Kiến trúc E-Payment (ONE)">
+        <span>🚢</span> E-Payment Arch
+      </a>
+      <a href="s4campaign.html" class="btn" style="border: 1px solid #cbd5e1; font-weight: 600;" title="Xem Kiến trúc S4 Campaign (Telephony &amp; IVR)">
+        <span>📞</span> S4 Campaign Arch
+      </a>
+      <button id="toggle-interview-mode" class="btn btn-purple" title="Highlight all spoken scripts &amp; interview Q&amp;As">
+        <span>🎙️</span> Interview Rehearsal Mode
+      </button>
+      <a href="#whiteboard-blueprint" class="btn btn-primary" style="background: #059669; border-color: #059669;">
+        <span>🗺️</span> 4-Block Master Map
+      </a>
+      <a href="#sec-qa-matrix" class="btn btn-emerald">
+        <span>🎯</span> Top 20 Q&amp;A Matrix
+      </a>
+      <button class="btn" onclick="window.print()">
+        <span>🖨️</span> Print / PDF
+      </button>
+    </div>
+  </header>
+
+  <div class="app-container">
+    <!-- Left Sticky Sidebar Table of Contents -->
+    <aside class="sidebar">
+      <div class="sidebar-search">
+        <input type="text" id="toc-filter" class="search-input" placeholder="🔍 Search data architecture...">
+      </div>
+      <nav class="toc-nav">
+        <div class="toc-group-title">Executive &amp; Mental Model</div>
+        <a href="#hero-summary" class="toc-link"><span class="toc-num">TOP</span> Executive Overview &amp; Scale</a>
+        <a href="#whiteboard-blueprint" class="toc-link"><span class="toc-num">MAP</span> 4-Block Data Engine Blueprint</a>
+
+        <div class="toc-group-title">Core Architecture &amp; Ingestion</div>
+        <a href="#section-1" class="toc-link"><span class="toc-num">01</span> BigQuery Extraction &amp; Dedup</a>
+        <a href="#section-2" class="toc-link"><span class="toc-num">02</span> Go Buffer &amp; Timeout Isolation</a>
+        <a href="#section-3" class="toc-link"><span class="toc-num">03</span> Column Shredding &amp; Storage</a>
+
+        <div class="toc-group-title">Atomic Load Path &amp; Rollups</div>
+        <a href="#section-4" class="toc-link"><span class="toc-num">04</span> Atomic REPLACE PARTITION</a>
+        <a href="#section-5" class="toc-link"><span class="toc-num">05</span> Hot/Sealed &amp; Backfill Healing</a>
+        <a href="#section-6" class="toc-link"><span class="toc-num">06</span> Multi-Tier Derived Rollups</a>
+
+        <div class="toc-group-title">Staff Interview Masterclass</div>
+        <a href="#section-7" class="toc-link"><span class="toc-num">07</span> Edge Cases &amp; Median Times</a>
+        <a href="#section-8" class="toc-link"><span class="toc-num">08</span> Postgres sync_state &amp; ACID</a>
+        <a href="#section-9" class="toc-link"><span class="toc-num">09</span> Staff STAR Production Cases</a>
+        <a href="#sec-qa-matrix" class="toc-link"><span class="toc-num">10</span> Top 20 Rapid-Fire Q&amp;A Matrix</a>
+        <a href="#sec-closing-pitch" class="toc-link"><span class="toc-num">11</span> 5-Pillar Closing Data Pitch</a>
+      </nav>
+    </aside>
+
+    <!-- Main Content Stream -->
+    <main class="main-content">
+
+      <!-- Hero Header Card -->
+      <section id="hero-summary" class="section-card" style="background: linear-gradient(135deg, #ffffff 0%, #ecfdf5 50%, #f0fdf4 100%); border-left: 6px solid #059669;">
+        <div class="badge-row" style="margin-bottom: 0.75rem;">
+          <span class="badge badge-emerald" style="font-size: 0.8rem; padding: 0.25rem 0.65rem;">ENTERPRISE DATA ENGINE &amp; WAREHOUSE ARCHITECTURE</span>
+          <span class="badge badge-blue">CLICKHOUSE OLAP &amp; BIGQUERY ETL</span>
+          <span class="badge badge-purple">PRODUCTION GO PIPELINE</span>
+        </div>
+        
+        <h1 style="font-size: 2.2rem; font-weight: 800; color: #0f172a; line-height: 1.25; margin-bottom: 0.75rem;">
+          Firebase Analytics &rarr; ClickHouse High-Throughput Data Engine
+        </h1>
+        <p style="font-size: 1.1rem; color: #475569; max-width: 950px; line-height: 1.6; margin-bottom: 1.5rem;">
+          A mission-critical, enterprise-grade columnar data engine written in Go. Ingests billions of GA4 mobile events from BigQuery across multi-tenant projects into a self-hosted ClickHouse warehouse, reducing storage by <strong>39.6x</strong>, cutting query latency from &gt;20s timeouts to <strong>under 70 milliseconds</strong>, and guaranteeing zero data loss through atomic metadata partition swaps.
+        </p>
+
+        <!-- Key Metrics Grid -->
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-label">Storage Footprint Reduction</div>
+            <div class="metric-val" style="color: #059669;">-39.6x</div>
+            <div class="metric-sub">76.3 bytes/row vs. 3,024 bytes/row on 4.3M daily events</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Dashboard Query Latency</div>
+            <div class="metric-val" style="color: #0284c7;">45ms &ndash; 71ms</div>
+            <div class="metric-sub">18 out of 53 cards previously timed out (&gt;20s); now sub-100ms</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Partition Swap Speed</div>
+            <div class="metric-val" style="color: #7c3aed;">O(1) Atomic</div>
+            <div class="metric-sub">Metadata-only REPLACE PARTITION in 15ms without write locks</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Rollup Query Compression</div>
+            <div class="metric-val" style="color: #d97706;">125x Smaller</div>
+            <div class="metric-sub">user_daily pre-aggregates 90% of cohort and retention cards</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Streaming Deduplication</div>
+            <div class="metric-val" style="color: #4f46e5;">0.64% Dedup</div>
+            <div class="metric-sub">Eliminated duplicates in BigQuery QUALIFY without unnesting</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Pipeline Ingestion Integrity</div>
+            <div class="metric-val" style="color: #059669;">100% Match</div>
+            <div class="metric-sub">Exact row-count verification and automated backfill healing</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Whiteboard 4-Block Blueprint & Spoken Playbook -->
+      <section id="whiteboard-blueprint" class="section-card">
+        <div class="badge-row">
+          <span class="badge badge-emerald">WHITEBOARD MENTAL MODEL</span>
+          <span class="badge badge-blue">4-BLOCK DATA PIPELINE</span>
+          <span class="badge badge-purple">45-SECOND ELEVATOR PITCH</span>
+        </div>
+
+        <h2 style="font-size: 1.6rem; font-weight: 800; color: #0f172a; margin-top: 0.5rem; margin-bottom: 0.75rem;">
+          The 4-Block Data Engine Mental Model: Draw &amp; Pitch in 45 Seconds
+        </h2>
+        <p style="color: #475569; margin-bottom: 1.25rem;">
+          In Senior Data Engineer and Staff Data Architect interviews, explain how data flows through these <strong>4 distinct architectural blocks</strong>:
+        </p>
+
+        <!-- Whiteboard ASCII Diagram Box -->
+        <div class="diagram-container">
+          <div class="diagram-header">
+            <span>🗺️ FIGURE 1: FIREBASE ANALYTICS &rarr; CLICKHOUSE 4-BLOCK DATA ENGINE TOPOLOGY</span>
+            <button class="copy-btn">📋 Copy ASCII Model</button>
+          </div>
+          <div class="diagram-body">
+            <pre>
+=========================================================================================================================================
+                          FIREBASE &rarr; CLICKHOUSE: 4-BLOCK HIGH-THROUGHPUT DATA ENGINE ARCHITECTURE
+=========================================================================================================================================
+
+ [ GOOGLE BIGQUERY EXPORT ]       BLOCK 1: EXTRACTION &amp; DEDUPLICATION           BLOCK 2: MEMORY-BUFFERED LOAD PATH
+   • Project A: analytics_111      ┌────────────────────────────────────────┐     ┌──────────────────────────────────────────────┐
+   • Project B: analytics_222 ───► │ BigQuery Streaming &amp; Finalised Reader │ ──► │ Go High-Throughput Ingestion Worker          │
+   • Project C: analytics_333      │  • Dedicated Service Account per App   │     │  • In-Memory Batch Buffer: 50,000 rows       │
+                                   │  • QUALIFY Window Dedup for Streaming  │     │  • Decoupled Read/Send (Zero Code 209 timeout│
+                                   │  • Explicit Column Projections         │     │  • Concurrency Semaphore: Worker Goroutines  │
+                                   └────────────────────────────────────────┘     └──────────────────────┬───────────────────────┘
+---------------------------------------------------------------------------------------------------------│-------------------------------
+                                                                                                         ▼
+ BLOCK 4: BOOKKEEPING &amp; MULTI-TIER ROLLUPS                                        BLOCK 3: COLUMNAR WAREHOUSE &amp; STAGING SWAP
+ ┌──────────────────────────────────────────────────┐                             ┌──────────────────────────────────────────────┐
+ │ Postgres State Store: etl.sync_state             │                             │ ClickHouse Staging: events_staging           │
+ │   • Status Machine: running ➔ hot ➔ success      │ ◄──(Swap First, Mark Later)─┤   • Byte-identical schema clone              │
+ │   • Automated Backfill Detection (lastModified)  │                             │   • Checks row count against BigQuery report │
+ ├──────────────────────────────────────────────────┤                             ├──────────────────────────────────────────────┤
+ │ Derived Rollup Engine (Inside the Load)          │                             │ Atomic O(1) Partition Swap                   │
+ │   • user_daily: ~125x smaller (Cohorts/ARPDAU)   │ ◄───────────────────────────┤   • ALTER TABLE events REPLACE PARTITION     │
+ │   • daily_stats: Macro KPI summary               │                             │     (app_id, event_date) FROM staging        │
+ ├──────────────────────────────────────────────────┤                             ├──────────────────────────────────────────────┤
+ │ Metabase Interactive Dashboards (:3000)          │                             │ Column Shredding Physical Table: events      │
+ │   • Reads directly from ClickHouse columnar store│ ◄───────────────────────────┤   • 4 Typed Maps: str, int, float, user_props│
+ │   • Sub-100ms analytics cards (P99 &lt; 70ms)       │                             │   • Materialized Columns on insert (Hot keys)│
+ └──────────────────────────────────────────────────┘                             └──────────────────────────────────────────────┘
+=========================================================================================================================================
+            </pre>
+          </div>
+        </div>
+
+        <!-- 🎙️ 45-Second Spoken Pitch Box -->
+        <div class="spoken-script">
+          <div class="spoken-header">
+            <span>🎙️ Spoken Presentation Script &mdash; The 45-Second Data Engine Pitch</span>
+            <span class="badge badge-emerald" style="margin-left: auto;">Memorize Word-for-Word</span>
+          </div>
+          <div class="spoken-content">
+            <p>
+              "We engineered a <strong>high-throughput Go data engine</strong> that syncs billions of Firebase Analytics events from BigQuery into a self-hosted <strong>ClickHouse columnar warehouse</strong>. To solve previous database timeouts and massive storage bloat, I designed the platform around <strong>four core architectural blocks</strong>:
+            </p>
+            <p>
+              <strong>First, Extraction and Deduplication:</strong> We query BigQuery across multi-tenant Firebase projects. For streaming intraday exports, we eliminate duplicates using a scalar <code>QUALIFY ROW_NUMBER()</code> window filter without expensive unnesting, cutting query scan costs.
+            </p>
+            <p>
+              <strong>Second, Memory-Buffered Load Path:</strong> In Go, we buffer <strong>50,000 rows in RAM</strong> before opening an insert connection to ClickHouse. Decoupling the slow cloud read from the local insert completely eliminated server receive timeouts.
+            </p>
+            <p>
+              <strong>Third, Column Shredding and Atomic Swap:</strong> Instead of storing bulky raw JSON, we shredded events into typed columns and four typed Maps, <strong>reducing storage by 39.6 times</strong> from 3,024 to 76 bytes per row. We stream batches into a staging table, verify row counts, and perform an <strong>atomic metadata-only REPLACE PARTITION</strong> in milliseconds with zero downtime.
+            </p>
+            <p>
+              <strong>Fourth, State Bookkeeping and Multi-Tier Rollups:</strong> Postgres tracks sync states with a strict 'Swap First, Mark Later' rule, while pre-aggregating a <code>user_daily</code> rollup table that is <strong>125 times smaller</strong> than raw events, bringing dashboard query latency down from 20-second timeouts to <strong>under 70 milliseconds</strong>."
+            </p>
+          </div>
+        </div>
+
+        <!-- Vietnamese Strategy & Analogy -->
+        <div class="callout callout-tip">
+          <div class="callout-title">
+            <span>🇻🇳 Dịch Nghĩa &amp; 3 Hình Ảnh So Sánh Giúp Hiểu Ngay Bản Chất (Mental Analogies)</span>
+          </div>
+          <p style="font-size: 0.9rem; line-height: 1.6;">
+            <strong>1. Tại sao không lưu JSON? (Chiếc hộp rỗng):</strong> Lưu JSON blob vào database giống như bạn đi thuê kho để chứa đồ, nhưng đồ thì bé tí còn mỗi món lại bọc trong một chiếc thùng các-tông khổng lồ có in đầy đủ nhãn mác. 88% dung lượng bạn trả tiền là trả cho "tên của các thuộc tính JSON" bị lặp đi lặp lại hàng triệu lần. Column Shredding là vứt hết các vỏ thùng, xếp đồ gọn gàng vào từng ngăn kéo định kiểu (Typed Columns), giúp dung lượng giảm ngay **39.6 lần**.
+            <br>
+            <strong>2. Tại sao dùng REPLACE PARTITION? (Tráo mục lục sách):</strong> Thay vì bạn xóa trang sách cũ rồi ngồi cặm cụi chép từng dòng trang mới vào (vừa lâu vừa làm người đọc bị gián đoạn), bạn in trang mới ở một cuốn sổ nháp (staging), kiểm tra khớp số chữ 100%, rồi trong 1 tích tắc tráo tờ giấy nháp vào cuốn sách chính. Chi phí chỉ là đổi con trỏ thư mục trên ổ đĩa ($O(1)$), mất vài mili-giây.
+            <br>
+            <strong>3. Đệm 50k dòng trong RAM (Khay bưng nước):</strong> Người bồi bàn gom đủ 50 ly nước vào một khay rồi bưng ra bàn 1 lần trong 2 giây, thay vì đi đi lại lại 50 lần làm đồng hồ chờ của khách hàng bị hết giờ (Timeout Code 209).
+          </p>
+        </div>
+
+        <!-- 45-Minute Rapid Mastery Protocol -->
+        <div style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.5rem; margin-top: 1.5rem;">
+          <h3 style="font-size: 1.15rem; font-weight: 700; color: #0f172a; margin-bottom: 0.75rem;">
+            ⏱️ The 45-Minute Data Engine Mastery Protocol (Lộ Trình Ôn Tập Nhanh)
+          </h3>
+          <p style="font-size: 0.9rem; color: #475569; margin-bottom: 1rem;">
+            Follow this 4-step checklist to master the entire data engine architecture in 45 minutes:
+          </p>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem;">
+              <div style="font-weight: 800; color: #059669; font-size: 0.85rem; margin-bottom: 0.35rem;">PHASE 1: 05 MINS</div>
+              <div style="font-weight: 700; color: #0f172a; font-size: 0.95rem;">Draw the 4 Blocks</div>
+              <p style="font-size: 0.82rem; color: #64748b; margin-top: 0.25rem;">
+                Sketch BigQuery &rarr; Go Buffer &rarr; ClickHouse Swap &rarr; Postgres Rollups. Read the 45-second pitch out loud.
+              </p>
+            </div>
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem;">
+              <div style="font-weight: 800; color: #0284c7; font-size: 0.85rem; margin-bottom: 0.35rem;">PHASE 2: 15 MINS</div>
+              <div style="font-weight: 700; color: #0f172a; font-size: 0.95rem;">Review 10 Trade-Offs</div>
+              <p style="font-size: 0.82rem; color: #64748b; margin-top: 0.25rem;">
+                Memorize why ClickHouse beat TimescaleDB, why Column Shredding beat JSON, and why Staging beat Transactions.
+              </p>
+            </div>
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem;">
+              <div style="font-weight: 800; color: #7c3aed; font-size: 0.85rem; margin-bottom: 0.35rem;">PHASE 3: 15 MINS</div>
+              <div style="font-weight: 700; color: #0f172a; font-size: 0.95rem;">Top 20 Flashcards</div>
+              <p style="font-size: 0.82rem; color: #64748b; margin-top: 0.25rem;">
+                Keep answers hidden in Self-Test Mode. Practice answering each question in 30 seconds out loud.
+              </p>
+            </div>
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem;">
+              <div style="font-weight: 800; color: #d97706; font-size: 0.85rem; margin-bottom: 0.35rem;">PHASE 4: 10 MINS</div>
+              <div style="font-weight: 700; color: #0f172a; font-size: 0.95rem;">Closing Rehearsal</div>
+              <p style="font-size: 0.82rem; color: #64748b; margin-top: 0.25rem;">
+                Deliver the 5-Pillar Data Architect Closing Pitch to lock in your authoritative technical cadence.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5 Native Sentence Starters & Pronunciation Guide -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
+          <!-- Sentence Starters -->
+          <div style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem;">
+            <h4 style="font-size: 0.95rem; font-weight: 700; color: #0f172a; margin-bottom: 0.75rem;">
+              🗣️ 5 Native Sentence Starters for Data Engineers (Mở Đầu Câu Tự Nhiên)
+            </h4>
+            <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.86rem; color: #334155; line-height: 1.7;">
+              <li style="margin-bottom: 0.5rem; padding-left: 1.25rem; position: relative;">
+                <span style="position: absolute; left: 0; color: #059669; font-weight: bold;">1.</span>
+                <em>"When evaluating our data storage footprint, the single biggest cost driver was..."</em>
+              </li>
+              <li style="margin-bottom: 0.5rem; padding-left: 1.25rem; position: relative;">
+                <span style="position: absolute; left: 0; color: #059669; font-weight: bold;">2.</span>
+                <em>"To achieve zero-downtime updates without table locks, we implemented..."</em>
+              </li>
+              <li style="margin-bottom: 0.5rem; padding-left: 1.25rem; position: relative;">
+                <span style="position: absolute; left: 0; color: #059669; font-weight: bold;">3.</span>
+                <em>"Instead of holding insert connections open during slow BigQuery reads, we decoupled..."</em>
+              </li>
+              <li style="margin-bottom: 0.5rem; padding-left: 1.25rem; position: relative;">
+                <span style="position: absolute; left: 0; color: #059669; font-weight: bold;">4.</span>
+                <em>"We built pre-aggregated rollups manually rather than using Materialized Views because..."</em>
+              </li>
+              <li style="padding-left: 1.25rem; position: relative;">
+                <span style="position: absolute; left: 0; color: #059669; font-weight: bold;">5.</span>
+                <em>"To guarantee pipeline correctness across distributed databases, our strict rule was..."</em>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Pronunciation Guide -->
+          <div style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem;">
+            <h4 style="font-size: 0.95rem; font-weight: 700; color: #0f172a; margin-bottom: 0.75rem;">
+              🎙️ Pronunciation &amp; Natural Spoken Words (Đọc Chuẩn Thuật Ngữ Data)
+            </h4>
+            <div style="font-size: 0.84rem; line-height: 1.6; color: #334155;">
+              <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #e2e8f0; padding-bottom: 0.35rem; margin-bottom: 0.35rem;">
+                <span><strong>Columnar:</strong> <code>/kəˈlʌm.nər/</code></span>
+                <span style="color: #059669; font-weight: 600;">"kuh-LUM-ner"</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #e2e8f0; padding-bottom: 0.35rem; margin-bottom: 0.35rem;">
+                <span><strong>Shredding:</strong> <code>/ˈʃred.ɪŋ/</code></span>
+                <span style="color: #059669; font-weight: 600;">"SHRED-ing"</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #e2e8f0; padding-bottom: 0.35rem; margin-bottom: 0.35rem;">
+                <span><strong>Idempotency:</strong> <code>/ˌaɪ.dəmˈpoʊ.tən.si/</code></span>
+                <span style="color: #059669; font-weight: 600;">"Eye-dem-POH-ten-see"</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #e2e8f0; padding-bottom: 0.35rem; margin-bottom: 0.35rem;">
+                <span><strong>Partition:</strong> <code>/pɑːrˈtɪʃ.ən/</code></span>
+                <span style="color: #059669; font-weight: 600;">"par-TISH-un"</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding-top: 0.35rem;">
+                <span style="color: #dc2626;">❌ <em>Avoid:</em> "bifurcate", "preclude", "utilize"</span>
+                <span style="color: #059669; font-weight: 600;">✅ <em>Say:</em> "split", "prevent", "use"</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 16 High-Impact Memory Anchors -->
+        <div style="margin-top: 1.75rem;">
+          <h3 style="font-size: 1.15rem; font-weight: 700; color: #0f172a; margin-bottom: 0.75rem;">
+            🧠 16 High-Impact Memory Anchors (Bộ Neo Trí Nhớ Cho Data Architect)
+          </h3>
+          <p style="font-size: 0.9rem; color: #475569; margin-bottom: 1rem;">
+            When an interviewer drills down into any part of your pipeline, instantly recall these 16 facts:
+          </p>
+          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 0.75rem;">
+            <div class="card" style="padding: 0.85rem; background: #ffffff; border-left: 3px solid #059669;">
+              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">1. -39.6x Storage Cut</div>
+              <div style="font-size: 0.8rem; color: #64748b;">Shredding JSON into typed columns dropped row size from 3,024 to 76.3 bytes.</div>
+            </div>
+            <div class="card" style="padding: 0.85rem; background: #ffffff; border-left: 3px solid #0284c7;">
+              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">2. 45ms Query Latency</div>
+              <div style="font-size: 0.8rem; color: #64748b;">Eliminated all dashboard timeouts; even exact distinct counts take under 71ms.</div>
+            </div>
+            <div class="card" style="padding: 0.85rem; background: #ffffff; border-left: 3px solid #7c3aed;">
+              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">3. 4 Typed Maps</div>
+              <div style="font-size: 0.8rem; color: #64748b;">Dynamic params split into string, int, float, and user_props maps; no JSON parsing.</div>
+            </div>
+            <div class="card" style="padding: 0.85rem; background: #ffffff; border-left: 3px solid #d97706;">
+              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">4. Materialized Columns</div>
+              <div style="font-size: 0.8rem; color: #64748b;">Hot keys like session_id and engagement_ms compute on insert as real columns.</div>
+            </div>
+            <div class="card" style="padding: 0.85rem; background: #ffffff; border-left: 3px solid #4f46e5;">
+              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">5. 50,000-Row RAM Buffer</div>
+              <div style="font-size: 0.8rem; color: #64748b;">Decouples BigQuery network read from ClickHouse insert, eliminating Code 209 timeouts.</div>
+            </div>
+            <div class="card" style="padding: 0.85rem; background: #ffffff; border-left: 3px solid #e11d48;">
+              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">6. O(1) REPLACE PARTITION</div>
+              <div style="font-size: 0.8rem; color: #64748b;">Swaps data directory metadata in 15ms without write locks on active dashboards.</div>
+            </div>
+            <div class="card" style="padding: 0.85rem; background: #ffffff; border-left: 3px solid #059669;">
+              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">7. Row-Count Integrity Gate</div>
+              <div style="font-size: 0.8rem; color: #64748b;">Wrote count must equal BigQuery report; mismatches drop staging immediately.</div>
+            </div>
+            <div class="card" style="padding: 0.85rem; background: #ffffff; border-left: 3px solid #0284c7;">
+              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">8. Streaming QUALIFY Window</div>
+              <div style="font-size: 0.8rem; color: #64748b;">Deduplicates 0.64% intraday duplicates over 5 scalar batch coordinates without unnesting.</div>
+            </div>
+            <div class="card" style="padding: 0.85rem; background: #ffffff; border-left: 3px solid #7c3aed;">
+              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">9. Hot vs. Sealed Lifecycle</div>
+              <div style="font-size: 0.8rem; color: #64748b;">Intraday days reload every cycle; finalized tables seal authoritatively after D+1.</div>
+            </div>
+            <div class="card" style="padding: 0.85rem; background: #ffffff; border-left: 3px solid #d97706;">
+              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">10. Automatic Backfill Healing</div>
+              <div style="font-size: 0.8rem; color: #64748b;">Free BigQuery metadata polling detects Google backfills and triggers clean re-syncs.</div>
+            </div>
+            <div class="card" style="padding: 0.85rem; background: #ffffff; border-left: 3px solid #4f46e5;">
+              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">11. user_daily Rollup (125x)</div>
+              <div style="font-size: 0.8rem; color: #64748b;">Pre-aggregates device-day metrics; 125x smaller than raw events, powers 90% of cards.</div>
+            </div>
+            <div class="card" style="padding: 0.85rem; background: #ffffff; border-left: 3px solid #e11d48;">
+              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">12. No Materialized Views</div>
+              <div style="font-size: 0.8rem; color: #64748b;">Manual rollups with REPLACE PARTITION prevent duplicate counting during re-syncs.</div>
+            </div>
+            <div class="card" style="padding: 0.85rem; background: #ffffff; border-left: 3px solid #059669;">
+              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">13. Swap First, Mark Later</div>
+              <div style="font-size: 0.8rem; color: #64748b;">ClickHouse partition swap completes before Postgres marks success, ensuring crash safety.</div>
+            </div>
+            <div class="card" style="padding: 0.85rem; background: #ffffff; border-left: 3px solid #0284c7;">
+              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">14. Sparse Primary Key Order</div>
+              <div style="font-size: 0.8rem; color: #64748b;">ORDER BY ends with user_pseudo_id, turning single-user drill-downs into fast range scans.</div>
+            </div>
+            <div class="card" style="padding: 0.85rem; background: #ffffff; border-left: 3px solid #7c3aed;">
+              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">15. Midnight-Crossing Sessions</div>
+              <div style="font-size: 0.8rem; color: #64748b;">prevDayFlowDue automatically rebuilds yesterday's flow facts when today's data lands.</div>
+            </div>
+            <div class="card" style="padding: 0.85rem; background: #ffffff; border-left: 3px solid #d97706;">
+              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">16. LowCardinality Encoding</div>
+              <div style="font-size: 0.8rem; color: #64748b;">Dictionary encodes country, platform, and event names into tiny integers in ClickHouse.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 10 Architectural Trade-Offs Table -->
+        <div style="margin-top: 2rem;">
+          <h3 style="font-size: 1.25rem; font-weight: 800; color: #0f172a; margin-bottom: 0.5rem;">
+            ⚖️ The 10 Non-Negotiable Data Engine Trade-Offs (Why X and NOT Y)
+          </h3>
+          <p style="font-size: 0.9rem; color: #475569; margin-bottom: 1rem;">
+            Here is the exact technical rationale defending every core design decision in the pipeline:
+          </p>
+
+          <div style="overflow-x: auto; background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md);">
+            <table class="data-table" style="width: 100%; border-collapse: collapse; font-size: 0.84rem;">
+              <thead>
+                <tr style="background: #f1f5f9; text-align: left; border-bottom: 2px solid var(--border-light);">
+                  <th style="padding: 0.75rem 1rem;">#</th>
+                  <th style="padding: 0.75rem 1rem;">Architectural Area</th>
+                  <th style="padding: 0.75rem 1rem;">What We Picked (Option A)</th>
+                  <th style="padding: 0.75rem 1rem;">What We Rejected (Option B)</th>
+                  <th style="padding: 0.75rem 1rem;">Core Engineering Justification</th>
+                  <th style="padding: 0.75rem 1rem;">Spoken Interview Talking Point</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="border-bottom: 1px solid var(--border-light);">
+                  <td style="padding: 0.75rem 1rem; font-weight: 700; color: #059669;">01</td>
+                  <td style="padding: 0.75rem 1rem; font-weight: 600;">Analytical Warehouse Engine</td>
+                  <td style="padding: 0.75rem 1rem;"><span class="badge badge-emerald">ClickHouse Columnar Store</span></td>
+                  <td style="padding: 0.75rem 1rem;"><span class="badge badge-amber">TimescaleDB / Postgres</span></td>
+                  <td style="padding: 0.75rem 1rem;">Column-oriented storage with 4.8x compression; native HyperLogLog uniqExact in 71ms; atomic REPLACE PARTITION.</td>
+                  <td style="padding: 0.75rem 1rem;"><em>"TimescaleDB is row-oriented. Querying distinct users over billions of rows timed out. ClickHouse gave us 45ms query latencies and 40x smaller storage."</em></td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--border-light); background: #fbfcfe;">
+                  <td style="padding: 0.75rem 1rem; font-weight: 700; color: #059669;">02</td>
+                  <td style="padding: 0.75rem 1rem; font-weight: 600;">Data Representation Model</td>
+                  <td style="padding: 0.75rem 1rem;"><span class="badge badge-emerald">Column Shredding + Typed Maps</span></td>
+                  <td style="padding: 0.75rem 1rem;"><span class="badge badge-amber">Raw JSONB Blob Column</span></td>
+                  <td style="padding: 0.75rem 1rem;">Eliminates schema key repetition per row; cuts row footprint from 3,024 to 76 bytes; converts LATERAL unnest to column lookups.</td>
+                  <td style="padding: 0.75rem 1rem;"><em>"Storing raw JSON meant 88% of storage was repeated field names. Shredding into typed columns dropped storage from 1.1 petabytes to 28 terabytes."</em></td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--border-light);">
+                  <td style="padding: 0.75rem 1rem; font-weight: 700; color: #059669;">03</td>
+                  <td style="padding: 0.75rem 1rem; font-weight: 600;">Atomicity &amp; Ingestion Path</td>
+                  <td style="padding: 0.75rem 1rem;"><span class="badge badge-emerald">Staging + REPLACE PARTITION</span></td>
+                  <td style="padding: 0.75rem 1rem;"><span class="badge badge-amber">Long-Lived SQL Transactions</span></td>
+                  <td style="padding: 0.75rem 1rem;">Holds zero table locks during the 4-hour network read; swaps partition metadata in 15ms once data is fully verified.</td>
+                  <td style="padding: 0.75rem 1rem;"><em>"Holding a database transaction open during a BigQuery read caused 4-hour table locks. Staging plus partition swap gives us zero-downtime atomic visibility in milliseconds."</em></td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--border-light); background: #fbfcfe;">
+                  <td style="padding: 0.75rem 1rem; font-weight: 700; color: #059669;">04</td>
+                  <td style="padding: 0.75rem 1rem; font-weight: 600;">Network Buffer Strategy</td>
+                  <td style="padding: 0.75rem 1rem;"><span class="badge badge-emerald">Decoupled 50,000-Row Buffer</span></td>
+                  <td style="padding: 0.75rem 1rem;"><span class="badge badge-amber">Streaming Append to Open Batch</span></td>
+                  <td style="padding: 0.75rem 1rem;">Fills buffer in memory before opening ClickHouse connection; prevents ClickHouse receive_timeout (Code 209) failures.</td>
+                  <td style="padding: 0.75rem 1rem;"><em>"Slow BigQuery network reads previously left ClickHouse insert batches idle, triggering receive timeouts. Buffering 50k rows in memory completely separated the clocks."</em></td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--border-light);">
+                  <td style="padding: 0.75rem 1rem; font-weight: 700; color: #059669;">05</td>
+                  <td style="padding: 0.75rem 1rem; font-weight: 600;">Streaming Deduplication</td>
+                  <td style="padding: 0.75rem 1rem;"><span class="badge badge-emerald">BigQuery QUALIFY Window Filter</span></td>
+                  <td style="padding: 0.75rem 1rem;"><span class="badge badge-amber">ClickHouse ReplacingMergeTree</span></td>
+                  <td style="padding: 0.75rem 1rem;">Filters 0.64% duplicates at source over 5 scalar batch fields; avoids background merge latency and non-deterministic query counts.</td>
+                  <td style="padding: 0.75rem 1rem;"><em>"ReplacingMergeTree only deduplicates eventually in background merges, yielding wrong counts on live queries. Filtering in BigQuery with QUALIFY ensures clean input upfront."</em></td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--border-light); background: #fbfcfe;">
+                  <td style="padding: 0.75rem 1rem; font-weight: 700; color: #059669;">06</td>
+                  <td style="padding: 0.75rem 1rem; font-weight: 600;">Rollup Materialization</td>
+                  <td style="padding: 0.75rem 1rem;"><span class="badge badge-emerald">Manual Rollups via REPLACE PARTITION</span></td>
+                  <td style="padding: 0.75rem 1rem;"><span class="badge badge-amber">ClickHouse Materialized Views</span></td>
+                  <td style="padding: 0.75rem 1rem;">Materialized Views duplicate data when re-loading or backfilling days; manual rollups guarantee exact idempotency on every sync.</td>
+                  <td style="padding: 0.75rem 1rem;"><em>"Materialized views trigger on every insert block, causing double counts when re-syncing a day. Building rollups as part of the day load with partition swap guarantees idempotency."</em></td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--border-light);">
+                  <td style="padding: 0.75rem 1rem; font-weight: 700; color: #059669;">07</td>
+                  <td style="padding: 0.75rem 1rem; font-weight: 600;">Sync State Bookkeeping</td>
+                  <td style="padding: 0.75rem 1rem;"><span class="badge badge-emerald">Postgres sync_state Store</span></td>
+                  <td style="padding: 0.75rem 1rem;"><span class="badge badge-amber">ClickHouse Internal Table</span></td>
+                  <td style="padding: 0.75rem 1rem;">ClickHouse lacks ACID row-level locking and transaction isolation; Postgres provides strict primary key and status machine constraints.</td>
+                  <td style="padding: 0.75rem 1rem;"><em>"ClickHouse is an OLAP engine without ACID transaction isolation. Storing sync state in Postgres ensures safe resume logic and strict status guarantees."</em></td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--border-light); background: #fbfcfe;">
+                  <td style="padding: 0.75rem 1rem; font-weight: 700; color: #059669;">08</td>
+                  <td style="padding: 0.75rem 1rem; font-weight: 600;">Programming Language</td>
+                  <td style="padding: 0.75rem 1rem;"><span class="badge badge-emerald">Golang (Concurrency + Native TCP)</span></td>
+                  <td style="padding: 0.75rem 1rem;"><span class="badge badge-amber">Python (Airflow / Pandas)</span></td>
+                  <td style="padding: 0.75rem 1rem;">Fast native binary, low memory footprint, goroutines handle concurrent multi-project sync cleanly without heavy executor overhead.</td>
+                  <td style="padding: 0.75rem 1rem;"><em>"Python memory overhead is excessive when buffering 50,000 rows across several apps. Go's lightweight concurrency and typed structs gave us predictable, sub-second pipelines."</em></td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--border-light);">
+                  <td style="padding: 0.75rem 1rem; font-weight: 700; color: #059669;">09</td>
+                  <td style="padding: 0.75rem 1rem; font-weight: 600;">Physical String Compression</td>
+                  <td style="padding: 0.75rem 1rem;"><span class="badge badge-emerald">LowCardinality(String) Encoding</span></td>
+                  <td style="padding: 0.75rem 1rem;"><span class="badge badge-amber">Plain String Columns</span></td>
+                  <td style="padding: 0.75rem 1rem;">Dictionary encodes repeated strings (country, event_name, platform); converts expensive string group-by operations to integer math.</td>
+                  <td style="padding: 0.75rem 1rem;"><em>"Using LowCardinality on repetitive columns stores them as tiny dictionary integers, dramatically accelerating aggregation and filtering performance."</em></td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--border-light); background: #fbfcfe;">
+                  <td style="padding: 0.75rem 1rem; font-weight: 700; color: #059669;">10</td>
+                  <td style="padding: 0.75rem 1rem; font-weight: 600;">Missing Date Sentinel</td>
+                  <td style="padding: 0.75rem 1rem;"><span class="badge badge-emerald">1970-01-01 (toDate(0))</span></td>
+                  <td style="padding: 0.75rem 1rem;"><span class="badge badge-amber">Nullable(Date) / NULL</span></td>
+                  <td style="padding: 0.75rem 1rem;">Avoids nullable column bitmask overhead; simplifies dashboard filtering without risking silent null comparison drops.</td>
+                  <td style="padding: 0.75rem 1rem;"><em>"Nullable columns add an extra null-mask byte per row and degrade vectorized execution. Sentinel dates compress cleanly and preserve scan efficiency."</em></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- SECTION 1: BIGQUERY EXTRACTION & DEDUPLICATION -->
+      <section id="section-1" class="section-card">
+        <div class="badge-row">
+          <span class="badge badge-emerald">SECTION 01</span>
+          <span class="badge badge-blue">EXTRACTION &amp; DEDUPLICATION</span>
+          <span class="badge badge-purple">BIGQUERY STREAMING</span>
+        </div>
+
+        <h2 style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin-top: 0.5rem; margin-bottom: 0.75rem;">
+          01. BigQuery Extraction Mechanics: Streaming vs. Finalised Tables
+        </h2>
+        <p style="color: #475569; margin-bottom: 1.25rem;">
+          Google Analytics 4 exports data into two distinct table shapes in BigQuery. Understanding this dichotomy is essential to building an accurate, low-cost ingestion pipeline:
+        </p>
+
+        <!-- BigQuery Table Shapes Table -->
+        <div style="overflow-x: auto; background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); margin-bottom: 1.5rem;">
+          <table class="data-table" style="width: 100%; border-collapse: collapse; font-size: 0.84rem;">
+            <thead>
+              <tr style="background: #f1f5f9; text-align: left; border-bottom: 2px solid var(--border-light);">
+                <th style="padding: 0.75rem 1rem;">Export Shape</th>
+                <th style="padding: 0.75rem 1rem;">Table Naming Pattern</th>
+                <th style="padding: 0.75rem 1rem;">Availability &amp; Quota</th>
+                <th style="padding: 0.75rem 1rem;">Deduplication Characteristics</th>
+                <th style="padding: 0.75rem 1rem;">Pipeline Ingestion Treatment</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom: 1px solid var(--border-light);">
+                <td style="padding: 0.75rem 1rem; font-weight: 700; color: #0284c7;">Finalised Daily</td>
+                <td style="padding: 0.75rem 1rem; font-family: var(--font-mono);">events_YYYYMMDD</td>
+                <td style="padding: 0.75rem 1rem;">Arrives morning of D+1; free tier capped at 1M events/day.</td>
+                <td style="padding: 0.75rem 1rem;">Fully deduplicated and authoritative by Google.</td>
+                <td style="padding: 0.75rem 1rem;"><span class="badge badge-emerald">Seals day permanently (Terminal)</span></td>
+              </tr>
+              <tr style="border-bottom: 1px solid var(--border-light); background: #fbfcfe;">
+                <td style="padding: 0.75rem 1rem; font-weight: 700; color: #7c3aed;">Streaming Intraday</td>
+                <td style="padding: 0.75rem 1rem; font-family: var(--font-mono);">events_intraday_YYYYMMDD</td>
+                <td style="padding: 0.75rem 1rem;">Streams continuously within seconds; no 1M event cap.</td>
+                <td style="padding: 0.75rem 1rem;">May emit duplicates (measured at <strong>0.64%</strong>).</td>
+                <td style="padding: 0.75rem 1rem;"><span class="badge badge-amber">Loads as Hot (Re-synced every cycle)</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 style="font-size: 1.15rem; font-weight: 700; color: #0f172a; margin-top: 1.25rem; margin-bottom: 0.5rem;">
+          1.1. The Zero-Cost QUALIFY Window Deduplication Filter
+        </h3>
+        <p style="font-size: 0.9rem; color: #334155; line-height: 1.7; margin-bottom: 0.75rem;">
+          Because streaming exports can emit duplicate events over cellular retries, we deduplicate them directly inside the BigQuery SQL projection. Instead of unnesting parameters or running expensive subqueries, we partition over the <strong>five native scalar batch coordinates</strong> Google stamps on every event:
+        </p>
+
+        <!-- Code Box for QUALIFY -->
+        <div class="diagram-container">
+          <div class="diagram-header">
+            <span>⚡ BIGQUERY INTRADAY DEDUPLICATION SQL</span>
+            <button class="copy-btn">📋 Copy</button>
+          </div>
+          <div class="diagram-body">
+            <pre>
+-- Appended to the query ONLY for intraday tables:
+QUALIFY ROW_NUMBER() OVER (
+  PARTITION BY t.user_pseudo_id, 
+               t.event_name, 
+               t.event_timestamp,
+               t.event_bundle_sequence_id, 
+               t.batch_event_index
+  ORDER BY t.event_server_timestamp_offset
+) = 1
+            </pre>
+          </div>
+        </div>
+
+        <ul style="color: #334155; font-size: 0.88rem; line-height: 1.7; margin-left: 1.25rem; margin-bottom: 1.25rem;">
+          <li><strong>Zero Unnest Overhead:</strong> All five fields are top-level scalar columns, scanning zero extra bytes on BigQuery.</li>
+          <li><strong>Mathematical Precision:</strong> Two genuinely distinct events would have to share the exact same user, event name, microsecond timestamp, bundle sequence, and index to be wrongly collapsed &mdash; a statistical impossibility.</li>
+        </ul>
+
+        <!-- 🎙️ Spoken Script for Section 1 -->
+        <div class="spoken-script">
+          <div class="spoken-header">
+            <span>🎙️ Spoken Script &mdash; Explaining Extraction in Interviews</span>
+          </div>
+          <div class="spoken-content">
+            <p>
+              "In GA4, streaming intraday tables have a 0.64% duplicate rate due to mobile network retries. Rather than downloading raw duplicates and cleaning them in ClickHouse, we deduplicate them directly in BigQuery.
+            </p>
+            <p>
+              We use a <code>QUALIFY ROW_NUMBER()</code> window function partitioned over the five scalar batch coordinates Google attaches to each event. Because these are scalar columns, this operation costs <strong>zero extra query scan dollars</strong> and guarantees clean data before rows ever touch our network."
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 2: GO PIPELINE & DECOUPLED BUFFERING -->
+      <section id="section-2" class="section-card">
+        <div class="badge-row">
+          <span class="badge badge-emerald">SECTION 02</span>
+          <span class="badge badge-blue">HIGH-THROUGHPUT RUNTIME</span>
+          <span class="badge badge-purple">DECOUPLED BUFFERING</span>
+        </div>
+
+        <h2 style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin-top: 0.5rem; margin-bottom: 0.75rem;">
+          02. Go Ingestion Engine &amp; Decoupled 50,000-Row Memory Buffer
+        </h2>
+        <p style="color: #475569; margin-bottom: 1.25rem;">
+          Streaming millions of rows across cloud providers is fraught with network variability. Here is how our Go runtime completely eliminated server receive timeouts:
+        </p>
+
+        <!-- Diagram Decoupled Buffer -->
+        <div class="diagram-container">
+          <div class="diagram-header">
+            <span>🛡️ FIGURE 2: DECOUPLED BUFFERING PREVENTING CLICKHOUSE CODE 209 TIMEOUT</span>
+            <button class="copy-btn">📋 Copy</button>
+          </div>
+          <div class="diagram-body">
+            <pre>
+=========================================================================================================================================
+                                     DECOUPLED MEMORY BUFFERING LOAD PATH
+=========================================================================================================================================
+
+ ❌ THE BROKEN V1 DESIGN (Streaming Append to Open Insert Batch):
+    [ BigQuery API ] ──(Slow 100k-row chunk)──► [ Open Insert Connection ] ──► [ ClickHouse Server ]
+                                                  *Connection sits idle*          *receive_timeout expires (Code 209)!*
+                                                  *while waiting for network*      *Whole 4-million row load CRASHES!*
+
+ ----------------------------------------------------------------------------------------------------------------------------------------
+
+ ✅ THE ROBUST V2 DESIGN (Decoupled RAM Buffer):
+    [ BigQuery API ]
+           │
+           ▼ (Network Read Streams into Local RAM)
+    [ 50,000-Row In-Memory Buffer in Go ]  ◄── Holds NO connection to ClickHouse; BigQuery can take as long as it needs
+           │
+           ▼ (Buffer Full! Open local TCP connection)
+    [ PrepareBatch &amp; Instant Local Send ]  ──► Transmits 50k rows in &lt;150ms ──► [ ClickHouse events_staging ]
+                                               *Zero idle time; timeout clock never triggers!*
+=========================================================================================================================================
+            </pre>
+          </div>
+        </div>
+
+        <h3 style="font-size: 1.15rem; font-weight: 700; color: #0f172a; margin-top: 1.25rem; margin-bottom: 0.5rem;">
+          2.1. Why 50,000 Rows Per Batch?
+        </h3>
+        <p style="font-size: 0.9rem; color: #334155; line-height: 1.7; margin-bottom: 1.25rem;">
+          In columnar databases like ClickHouse, inserting rows individually or in small batches of 100 creates thousands of tiny compressed parts on disk, triggering massive background merge storms. A <strong>50,000-row batch</strong> hits the sweet spot: large enough that per-batch insertion overhead drops to zero, and small enough that multiple concurrent source goroutines buffering 50k rows remain well under 500MB of RAM.
+        </p>
+
+        <!-- 🎙️ Spoken Script for Section 2 -->
+        <div class="spoken-script">
+          <div class="spoken-header">
+            <span>🎙️ Spoken Script &mdash; Explaining Decoupled Buffering in Interviews</span>
+          </div>
+          <div class="spoken-content">
+            <p>
+              "Earlier pipeline iterations crashed on large days with ClickHouse error 209 (receive timeout). The root cause was that code kept an insert batch open while reading from BigQuery over the WAN. If a network blip occurred during the read, the idle connection timed out.
+            </p>
+            <p>
+              We solved this by <strong>decoupling the read and send clocks</strong> in Go: we accumulate a full 50,000-row batch in RAM first, and only then open the ClickHouse batch to transmit locally in milliseconds. This completely isolated our database from public cloud network latency."
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 3: COLUMN SHREDDING & CLICKHOUSE STORAGE -->
+      <section id="section-3" class="section-card">
+        <div class="badge-row">
+          <span class="badge badge-emerald">SECTION 03</span>
+          <span class="badge badge-blue">COLUMN SHREDDING</span>
+          <span class="badge badge-purple">PHYSICAL STORAGE TUNING</span>
+        </div>
+
+        <h2 style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin-top: 0.5rem; margin-bottom: 0.75rem;">
+          03. Column Shredding: Cutting Storage by 39.6x and Query Times to 45ms
+        </h2>
+        <p style="color: #475569; margin-bottom: 1.25rem;">
+          The single most transformative decision in this architecture was <strong>shredding events into typed columns</strong> instead of storing the source JSON document:
+        </p>
+
+        <!-- Real-world Benchmark Table -->
+        <div style="overflow-x: auto; background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); margin-bottom: 1.5rem;">
+          <table class="data-table" style="width: 100%; border-collapse: collapse; font-size: 0.84rem;">
+            <thead>
+              <tr style="background: #f1f5f9; text-align: left; border-bottom: 2px solid var(--border-light);">
+                <th style="padding: 0.75rem 1rem;">Storage &amp; Query Metric</th>
+                <th style="padding: 0.75rem 1rem;">V1 (Postgres + Raw JSONB)</th>
+                <th style="padding: 0.75rem 1rem;">V2 (ClickHouse Shredded)</th>
+                <th style="padding: 0.75rem 1rem;">Architectural Factor &amp; Impact</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom: 1px solid var(--border-light);">
+                <td style="padding: 0.75rem 1rem; font-weight: 700; color: #0f172a;">Storage Bytes Per Row</td>
+                <td style="padding: 0.75rem 1rem; color: #e11d48; font-weight: 600;">3,024 bytes/row</td>
+                <td style="padding: 0.75rem 1rem; color: #059669; font-weight: 700;">76.3 bytes/row</td>
+                <td style="padding: 0.75rem 1rem;"><strong>39.6x smaller</strong> (313 MiB compressed for 4.3M rows)</td>
+              </tr>
+              <tr style="border-bottom: 1px solid var(--border-light); background: #fbfcfe;">
+                <td style="padding: 0.75rem 1rem; font-weight: 700; color: #0f172a;">Annual 365B Row Storage</td>
+                <td style="padding: 0.75rem 1rem; color: #e11d48; font-weight: 600;">~1.1 Petabytes</td>
+                <td style="padding: 0.75rem 1rem; color: #059669; font-weight: 700;">~27.9 Terabytes</td>
+                <td style="padding: 0.75rem 1rem;">Enables running on a single self-hosted server instead of massive cluster</td>
+              </tr>
+              <tr style="border-bottom: 1px solid var(--border-light);">
+                <td style="padding: 0.75rem 1rem; font-weight: 700; color: #0f172a;">Users by Country Query</td>
+                <td style="padding: 0.75rem 1rem; color: #e11d48;">Timeout (&gt;20s)</td>
+                <td style="padding: 0.75rem 1rem; color: #059669; font-weight: 700;">67 ms</td>
+                <td style="padding: 0.75rem 1rem;">Reads dictionary-encoded LowCardinality integers</td>
+              </tr>
+              <tr style="border-bottom: 1px solid var(--border-light); background: #fbfcfe;">
+                <td style="padding: 0.75rem 1rem; font-weight: 700; color: #0f172a;">MAU (Exact Distinct Users)</td>
+                <td style="padding: 0.75rem 1rem; color: #e11d48;">4,390 ms</td>
+                <td style="padding: 0.75rem 1rem; color: #059669; font-weight: 700;">71 ms</td>
+                <td style="padding: 0.75rem 1rem;">Native ClickHouse <code>uniqExact</code> HyperLogLog optimization</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 style="font-size: 1.15rem; font-weight: 700; color: #0f172a; margin-top: 1.25rem; margin-bottom: 0.5rem;">
+          3.1. Physical Partitioning &amp; Sorting Key Optimization
+        </h3>
+        <ul style="color: #334155; font-size: 0.88rem; line-height: 1.7; margin-left: 1.25rem; margin-bottom: 1.25rem;">
+          <li><strong><code>PARTITION BY (app_id, event_date)</code>:</strong> Each day for each application lives in its own isolated physical directory on disk. This makes reloading a day an instantaneous metadata operation.</li>
+          <li><strong><code>ORDER BY (app_id, event_date, event_name, user_pseudo_id)</code>:</strong> ClickHouse creates a sparse primary index. Queries filtering by application, date, and event name seek directly to relevant disk granules. Placing <code>user_pseudo_id</code> at the end turns user-level drilldowns into fast <strong>range scans</strong> instead of full table scans.</li>
+          <li><strong>Materialized Columns on Insert:</strong> Dashboard hot keys (<code>session_id</code>, <code>engagement_ms</code>, <code>firebase_screen</code>, <code>install_date</code>) compute once on insert into physical columns, eliminating map lookups during live queries.</li>
+        </ul>
+      </section>
+
+      <!-- SECTION 4: ATOMIC PARTITION SWAP -->
+      <section id="section-4" class="section-card">
+        <div class="badge-row">
+          <span class="badge badge-emerald">SECTION 04</span>
+          <span class="badge badge-blue">ATOMIC LOAD PATH</span>
+          <span class="badge badge-purple">ZERO-DOWNTIME SWAP</span>
+        </div>
+
+        <h2 style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin-top: 0.5rem; margin-bottom: 0.75rem;">
+          04. The Atomic Load Path: Staging Table &amp; O(1) REPLACE PARTITION
+        </h2>
+        <p style="color: #475569; margin-bottom: 1.25rem;">
+          How does the pipeline achieve all-or-nothing visibility without locking tables during a 4-hour ingestion run?
+        </p>
+
+        <div style="display: flex; flex-direction: column; gap: 0.85rem; margin-bottom: 1.5rem;">
+          <div style="background: #ffffff; border: 1px solid var(--border-light); border-left: 4px solid #059669; border-radius: 6px; padding: 1rem;">
+            <div style="font-weight: 700; color: #0f172a; font-size: 0.95rem;">Step 1: Clean Staging Partition</div>
+            <p style="font-size: 0.85rem; color: #475569; margin-top: 0.25rem;">
+              The engine calls <code>ALTER TABLE events_staging DROP PARTITION (app_id, event_date)</code>. This ensures any leftover data from a previous aborted run is wiped before loading begins.
+            </p>
+          </div>
+
+          <div style="background: #ffffff; border: 1px solid var(--border-light); border-left: 4px solid #0284c7; border-radius: 6px; padding: 1rem;">
+            <div style="font-weight: 700; color: #0f172a; font-size: 0.95rem;">Step 2: Stream Batches into Staging</div>
+            <p style="font-size: 0.85rem; color: #475569; margin-top: 0.25rem;">
+              Rows stream from BigQuery into <code>events_staging</code> in batches of 50,000. <strong>No lock is held on the main <code>events</code> table</strong> &mdash; operators query active dashboards with zero interruption.
+            </p>
+          </div>
+
+          <div style="background: #ffffff; border: 1px solid var(--border-light); border-left: 4px solid #d97706; border-radius: 6px; padding: 1rem;">
+            <div style="font-weight: 700; color: #0f172a; font-size: 0.95rem;">Step 3: Verification &amp; Row-Count Match Guard</div>
+            <p style="font-size: 0.85rem; color: #475569; margin-top: 0.25rem;">
+              The engine compares total rows written against BigQuery's <code>numRows</code> metadata. If there is a mismatch, the staging partition is dropped immediately, the day is marked failed, and nothing publishes.
+            </p>
+          </div>
+
+          <div style="background: #ffffff; border: 1px solid var(--border-light); border-left: 4px solid #7c3aed; border-radius: 6px; padding: 1rem;">
+            <div style="font-weight: 700; color: #0f172a; font-size: 0.95rem;">Step 4: Atomic Metadata Swap in 15 Milliseconds</div>
+            <p style="font-size: 0.85rem; color: #475569; margin-top: 0.25rem;">
+              The engine executes <code>ALTER TABLE events REPLACE PARTITION (app_id, event_date) FROM events_staging</code>. This swaps disk directory pointers in <strong>under 15 milliseconds</strong>. The day becomes visible instantaneously.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 5: LIFECYCLE & BACKFILLS -->
+      <section id="section-5" class="section-card">
+        <div class="badge-row">
+          <span class="badge badge-emerald">SECTION 05</span>
+          <span class="badge badge-blue">PIPELINE RESILIENCY</span>
+          <span class="badge badge-purple">AUTOMATED BACKFILL HEALING</span>
+        </div>
+
+        <h2 style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin-top: 0.5rem; margin-bottom: 0.75rem;">
+          05. Hot/Sealed Lifecycle &amp; Automated Backfill Healing
+        </h2>
+        <p style="color: #475569; margin-bottom: 1.25rem;">
+          Data engineering in the real world must handle changing data. GA4 frequently updates past data through late-arriving events and Firebase backfills:
+        </p>
+
+        <ul style="color: #334155; font-size: 0.9rem; line-height: 1.7; margin-left: 1.25rem; margin-bottom: 1.25rem;">
+          <li><strong>Mid-Load Restatement Protection:</strong> BigQuery snapshots are captured when a query starts. If GA4 appends rows while we read, the post-swap check detects that <code>lastModifiedTime</code> changed, fails the run, and re-queues a clean re-sync next cycle.</li>
+          <li><strong>Zero-Cost Backfill Detection:</strong> Every cycle, the engine reads table metadata for all sealed days. Metadata reads are free. If BigQuery's <code>lastModifiedTime</code> differs from what Postgres recorded at load time, the day automatically queues for a clean re-load. In production, this automatically healed a day that grew from 63,197 to 75,313 rows without operator intervention.</li>
+          <li><strong>Safe Table Deletion Guard (DELETE_AFTER_SYNC):</strong> When enabled, BigQuery source tables are only dropped after five strict safety checks pass: partition swapped, rows matched, metadata unchanged, ClickHouse count verified, and regex checked.</li>
+        </ul>
+      </section>
+
+      <!-- SECTION 6: DERIVED ROLLUP ENGINE -->
+      <section id="section-6" class="section-card">
+        <div class="badge-row">
+          <span class="badge badge-emerald">SECTION 06</span>
+          <span class="badge badge-blue">ANALYTICS ENGINE</span>
+          <span class="badge badge-purple">MULTI-TIER ROLLUPS</span>
+        </div>
+
+        <h2 style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin-top: 0.5rem; margin-bottom: 0.75rem;">
+          06. Multi-Tier Rollup Architecture (Why NOT Materialized Views)
+        </h2>
+        <p style="color: #475569; margin-bottom: 1.25rem;">
+          Raw events hold fine-grained details, but scanning billions of events for simple retention charts is wasteful. We pre-aggregate metrics into derived rollup tables:
+        </p>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+          <div style="background: #ffffff; border: 1px solid var(--border-light); border-radius: 8px; padding: 1.25rem;">
+            <h4 style="font-size: 1rem; font-weight: 700; color: #0f172a; margin-bottom: 0.5rem;">
+              📊 user_daily Rollup (125x Compression)
+            </h4>
+            <p style="font-size: 0.85rem; color: #475569; line-height: 1.6;">
+              Aggregates one row per device per day. Pre-computes sessions (<code>uniqExactIf</code>), ad revenue, IAP purchases, and attribution. Being 125x smaller than raw events, it powers 90% of dashboard queries in under 50ms.
+            </p>
+          </div>
+
+          <div style="background: #ffffff; border: 1px solid var(--border-light); border-radius: 8px; padding: 1.25rem;">
+            <h4 style="font-size: 1rem; font-weight: 700; color: #0f172a; margin-bottom: 0.5rem;">
+              🚫 Why NOT ClickHouse Materialized Views?
+            </h4>
+            <p style="font-size: 0.85rem; color: #475569; line-height: 1.6;">
+              ClickHouse Materialized Views trigger on every incoming block. When a day is re-synced or backfilled, Materialized Views append duplicate values. Building rollups as an explicit step inside the load with <code>REPLACE PARTITION</code> guarantees strict idempotency.
+            </p>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- SECTION 7: EDGE CASES & ADVANCED DATA ALGORITHMS -->
+      <section id="section-7" class="section-card">
+        <div class="badge-row">
+          <span class="badge badge-emerald">SECTION 07</span>
+          <span class="badge badge-blue">ADVANCED DATA ALGORITHMS</span>
+          <span class="badge badge-purple">EDGE CASE ENGINEERING</span>
+        </div>
+
+        <h2 style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin-top: 0.5rem; margin-bottom: 0.75rem;">
+          07. Edge Cases &amp; Advanced Algorithms: Midnight Sessions &amp; Median Times
+        </h2>
+        <p style="color: #475569; margin-bottom: 1.25rem;">
+          Production data engines are distinguished by how they handle ugly, messy real-world edge cases:
+        </p>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(310px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+          
+          <div class="card" style="padding: 1.25rem; background: #ffffff; border-top: 4px solid #059669;">
+            <h4 style="font-size: 1.05rem; font-weight: 700; color: #0f172a; margin-bottom: 0.5rem;">
+              🌙 Midnight-Crossing Sessions (prevDayFlowDue)
+            </h4>
+            <p style="font-size: 0.85rem; color: #475569; line-height: 1.6;">
+              When a user opens an app at 23:55 and closes it at 00:15, events straddle two date partitions. The session's outcome lands in today's partition. Our engine implements <code>prevDayFlowDue()</code>: when today's intraday partition lands, it automatically triggers an auxiliary rebuild of yesterday's flow facts, ensuring accurate session classification.
+            </p>
+          </div>
+
+          <div class="card" style="padding: 1.25rem; background: #ffffff; border-top: 4px solid #0284c7;">
+            <h4 style="font-size: 1.05rem; font-weight: 700; color: #0f172a; margin-bottom: 0.5rem;">
+              ⏱️ Median Funnel Time (Pairwise Differences)
+            </h4>
+            <p style="font-size: 0.85rem; color: #475569; line-height: 1.6;">
+              Subtracting two step median times can result in negative numbers if step populations differ. We calculate pairwise time differences <em>inside each individual session first</em>, and only then take <code>quantileExact(0.5)</code> over those differences. Sessions missing either endpoint or arriving out of order are cleanly dropped.
+            </p>
+          </div>
+
+          <div class="card" style="padding: 1.25rem; background: #ffffff; border-top: 4px solid #7c3aed;">
+            <h4 style="font-size: 1.05rem; font-weight: 700; color: #0f172a; margin-bottom: 0.5rem;">
+              🧪 A/B Testing Net Revenue Join Engine
+            </h4>
+            <p style="font-size: 0.85rem; color: #475569; line-height: 1.6;">
+              To determine which app variant drives true business value, the engine joins ad revenue and store in-app purchases after platform fees, taxes, and refunds. It computes p-values, Sample Ratio Mismatch (SRM) checks, and sample size requirements to give product teams confident decisions.
+            </p>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- SECTION 8: POSTGRES SYNC STATE & ACID GUARANTEES -->
+      <section id="section-8" class="section-card">
+        <div class="badge-row">
+          <span class="badge badge-emerald">SECTION 08</span>
+          <span class="badge badge-blue">METADATA BOOKKEEPING</span>
+          <span class="badge badge-purple">ACID RESUME LOGIC</span>
+        </div>
+
+        <h2 style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin-top: 0.5rem; margin-bottom: 0.75rem;">
+          08. Postgres sync_state: The "Swap First, Mark Later" Rule
+        </h2>
+        <p style="color: #475569; margin-bottom: 1.25rem;">
+          ClickHouse is an analytical OLAP engine lacking distributed two-phase commits. We maintain metadata bookkeeping in a co-located Postgres database:
+        </p>
+
+        <ul style="color: #334155; font-size: 0.9rem; line-height: 1.7; margin-left: 1.25rem; margin-bottom: 1.25rem;">
+          <li><strong>Per-Day State Granularity:</strong> One row per <code>(app_id, event_date)</code> tracks lifecycle: <code>running ➔ hot ➔ success ➔ failed</code>. A failed day never blocks subsequent days; the next cycle retries it cleanly.</li>
+          <li><strong>The 'Swap First, Mark Later' Rule:</strong> We execute the ClickHouse <code>REPLACE PARTITION</code> first, and only once it succeeds do we record <code>success</code> in Postgres. If the worker crashes between the swap and the mark, the worst-case scenario is a redundant re-load next cycle &mdash; which is 100% safe because the swap is idempotent. Marking first would risk reporting incomplete data as final.</li>
+        </ul>
+      </section>
+
+      <!-- SECTION 9: STAFF STAR CASE STUDIES -->
+      <section id="section-9" class="section-card">
+        <div class="badge-row">
+          <span class="badge badge-emerald">SECTION 09</span>
+          <span class="badge badge-blue">STAFF DATA ENGINEERING</span>
+          <span class="badge badge-purple">STAR PRODUCTION STORIES</span>
+        </div>
+
+        <h2 style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin-top: 0.5rem; margin-bottom: 0.75rem;">
+          09. Staff Data Engineering Benchmarks &amp; Real-World STAR Stories
+        </h2>
+        <p style="color: #475569; margin-bottom: 1.5rem;">
+          Here are 4 battle-tested production incident stories demonstrating deep data engine craftsmanship:
+        </p>
+
+        <!-- STAR 1 -->
+        <div style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.5rem; margin-bottom: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <h3 style="font-size: 1.15rem; font-weight: 700; color: #0f172a; margin: 0;">
+              🔥 STAR Case 1: The TimescaleDB JSON Storage Explosion &amp; Dashboard Timeout Crisis
+            </h3>
+            <span class="badge badge-magenta">Incident Response</span>
+          </div>
+          <div style="font-size: 0.88rem; color: #334155; line-height: 1.7;">
+            <p><strong>Situation:</strong> In our v1 architecture, we stored GA4 events in TimescaleDB with a <code>raw jsonb</code> column. At 4.5M rows, storage exploded to 3,024 bytes per row (88% of disk was repeated JSON keys). 18 out of 53 Metabase dashboard cards timed out completely (&gt;20s), and running a single <code>COUNT(DISTINCT)</code> took several seconds.</p>
+            <p><strong>Task:</strong> Re-architect the warehouse layer to cut storage by at least 10x and bring all dashboard queries under 500ms.</p>
+            <p><strong>Action:</strong> I migrated the analytical layer to ClickHouse and designed the <strong>Column Shredding</strong> model. We decomposed JSON blobs into explicit typed columns and 4 typed Maps, with hot metrics materialized on insert. We also created the <code>user_daily</code> pre-aggregated rollup table.</p>
+            <p><strong>Result:</strong> Storage per row dropped from 3,024 to <strong>76.3 bytes (a 39.6x reduction)</strong>. Dashboard query latency dropped to <strong>45ms &ndash; 71ms</strong> with zero timeouts, while exact distinct user calculations took just 71ms.</p>
+          </div>
+        </div>
+
+        <!-- STAR 2 -->
+        <div style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.5rem; margin-bottom: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <h3 style="font-size: 1.15rem; font-weight: 700; color: #0f172a; margin: 0;">
+              ⚡ STAR Case 2: Eliminating ClickHouse Code 209 (receive_timeout) Outages
+            </h3>
+            <span class="badge badge-emerald">Pipeline Reliability</span>
+          </div>
+          <div style="font-size: 0.88rem; color: #334155; line-height: 1.7;">
+            <p><strong>Situation:</strong> On multi-million row days, our Go loader frequently aborted with ClickHouse error Code 209. The root cause was that the code kept an insert batch open while reading chunks from BigQuery over the internet. A slow read window left the insert connection idle past ClickHouse's receive timeout, killing 4-hour ingestion jobs.</p>
+            <p><strong>Task:</strong> Decouple the cloud read pace from the local database insert clock to guarantee 100% completion.</p>
+            <p><strong>Action:</strong> I re-architected the loader to accumulate a full <strong>50,000-row batch in Go memory</strong> before touching ClickHouse. Once full, the batch opens and transmits locally in milliseconds, then immediately closes.</p>
+            <p><strong>Result:</strong> Completely eliminated Code 209 timeouts across all applications. Network stalls on BigQuery no longer affect database insert connections.</p>
+          </div>
+        </div>
+
+        <!-- STAR 3 -->
+        <div style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.5rem; margin-bottom: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <h3 style="font-size: 1.15rem; font-weight: 700; color: #0f172a; margin: 0;">
+              🔄 STAR Case 3: Detecting &amp; Self-Healing Silent Google Analytics Backfills
+            </h3>
+            <span class="badge badge-blue">Data Correctness</span>
+          </div>
+          <div style="font-size: 0.88rem; color: #334155; line-height: 1.7;">
+            <p><strong>Situation:</strong> In production, we discovered that historical days previously marked 'success' had missing events. Google had backfilled late-arriving events into BigQuery days after the fact (a day grew from 63,197 to 75,313 rows), leaving our warehouse out of date without anyone noticing.</p>
+            <p><strong>Task:</strong> Build an automated self-healing mechanism that detects Google backfills without running expensive query jobs.</p>
+            <p><strong>Action:</strong> I designed an automated metadata polling loop. Every sync cycle, the engine queries BigQuery table metadata (which is free) and compares <code>lastModifiedTime</code> against what Postgres recorded. If they diverge, the day automatically re-queues for a clean reload.</p>
+            <p><strong>Result:</strong> 100% automated self-healing. The pipeline caught and resolved the 75k-row backfill immediately with zero human intervention.</p>
+          </div>
+        </div>
+
+        <!-- STAR 4 -->
+        <div style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.5rem; margin-bottom: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <h3 style="font-size: 1.15rem; font-weight: 700; color: #0f172a; margin: 0;">
+              🌙 STAR Case 4: Solving Midnight-Crossing Session Attribution in User Journeys
+            </h3>
+            <span class="badge badge-amber">Analytics Engineering</span>
+          </div>
+          <div style="font-size: 0.88rem; color: #334155; line-height: 1.7;">
+            <p><strong>Situation:</strong> In mobile apps, hundreds of user sessions cross midnight (e.g. 23:50 to 00:20). User journey and funnel cards showed artificial drops because the session conversion events landed in the next day's partition.</p>
+            <p><strong>Task:</strong> Accurately capture multi-day sessions in flow rollups without rebuilding the entire historical database every cycle.</p>
+            <p><strong>Action:</strong> I implemented <code>prevDayFlowDue()</code>: whenever an intraday load runs for today, it evaluates whether yesterday's flow facts should be re-built using evidence from both partitions. We cached build timestamps to throttle this to once every few hours.</p>
+            <p><strong>Result:</strong> Corrected conversion attribution across midnight sessions while saving 90% of rollup computational overhead.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 10: TOP 20 RAPID-FIRE INTERVIEW Q&A -->
+      <section id="sec-qa-matrix" class="section-card">
+        <div class="badge-row">
+          <span class="badge badge-emerald">SECTION 10</span>
+          <span class="badge badge-blue">STAFF INTERVIEW MASTERCLASS</span>
+          <span class="badge badge-purple">TOP 20 RAPID-FIRE Q&amp;A</span>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-top: 0.5rem; margin-bottom: 1rem;">
+          <div>
+            <h2 style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin: 0;">
+              Top 20 Rapid-Fire Data Engine &amp; Warehouse Interview Q&amp;A
+            </h2>
+            <p style="color: #475569; font-size: 0.95rem; margin-top: 0.35rem;">
+              Master these 20 high-frequency data architecture questions. Use <strong>Rehearsal Mode</strong> to test your recall or reveal all answers.
+            </p>
+          </div>
+          <button id="qa-expand-all" class="btn btn-purple" style="font-size: 0.85rem; padding: 0.5rem 1rem;">
+            👁️ Toggle All Answers (Flashcard Mode)
+          </button>
+        </div>
+
+        <!-- 20 Q&A Items Container -->
+        <div id="qa-container" style="display: flex; flex-direction: column; gap: 1.25rem;">
+
+          <!-- Q1 -->
+          <div class="qa-card" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; cursor: pointer;" class="qa-toggle-btn">
+              <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                <span class="qa-num-badge">Q01</span>
+                <div>
+                  <h4 class="qa-question" style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0;">
+                    Why choose ClickHouse over TimescaleDB or Postgres for an analytics warehouse?
+                  </h4>
+                  <div class="qa-trap">⚠️ TRAP: Saying ClickHouse is just 'faster' without citing columnar storage principles.</div>
+                </div>
+              </div>
+              <span class="qa-chevron" style="font-size: 0.9rem; color: #64748b;">▼</span>
+            </div>
+            <div class="qa-body" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-light);">
+              <div class="qa-answer">
+                <p>
+                  "TimescaleDB is still row-oriented underneath. When calculating metrics like DAU or MAU across billions of rows, row-oriented engines must scan the entire row off disk, causing memory thrashing.
+                </p>
+                <p>
+                  We chose <strong>ClickHouse</strong> for four specific technical capabilities:
+                  <br>
+                  1. <strong>Column-Oriented Compression:</strong> Repetitive columns compress at 4.8x, reducing row size to 76 bytes.
+                  <br>
+                  2. <strong>Native HyperLogLog (uniqExact):</strong> Calculates exact distinct users across billions of rows in <strong>71 milliseconds</strong>.
+                  <br>
+                  3. <strong>Atomic Partition Swap:</strong> <code>REPLACE PARTITION</code> updates partition metadata in 15ms without locking the active table.
+                  <br>
+                  4. <strong>Tiered Storage:</strong> Allows old partitions to age out to S3/GCS while remaining queryable."
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q2 -->
+          <div class="qa-card" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; cursor: pointer;" class="qa-toggle-btn">
+              <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                <span class="qa-num-badge">Q02</span>
+                <div>
+                  <h4 class="qa-question" style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0;">
+                    What is Column Shredding, and why is storing raw JSON a fatal mistake in Big Data?
+                  </h4>
+                  <div class="qa-trap">⚠️ TRAP: Thinking JSONB in Postgres is fast enough for enterprise analytics.</div>
+                </div>
+              </div>
+              <span class="qa-chevron" style="font-size: 0.9rem; color: #64748b;">▼</span>
+            </div>
+            <div class="qa-body" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-light);">
+              <div class="qa-answer">
+                <p>
+                  "Storing raw JSON blobs forces the database to repeat every field name string on every single row. In our v1 system, the <code>raw jsonb</code> column accounted for <strong>88% of our entire disk storage</strong> (2,690 bytes out of 3,024 bytes per row).
+                </p>
+                <p>
+                  <strong>Column Shredding</strong> decomposes the JSON into typed columns and four typed Maps: <code>params_str</code>, <code>params_int</code>, <code>params_float</code>, and <code>user_props_str</code>. This eliminated field name duplication, <strong>cut storage by 39.6 times</strong>, and turned expensive JSON array unnesting into single-column lookups."
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q3 -->
+          <div class="qa-card" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; cursor: pointer;" class="qa-toggle-btn">
+              <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                <span class="qa-num-badge">Q03</span>
+                <div>
+                  <h4 class="qa-question" style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0;">
+                    How does ALTER TABLE ... REPLACE PARTITION work, and why is it superior to SQL transactions?
+                  </h4>
+                  <div class="qa-trap">⚠️ TRAP: Not explaining that it is a filesystem metadata pointer swap.</div>
+                </div>
+              </div>
+              <span class="qa-chevron" style="font-size: 0.9rem; color: #64748b;">▼</span>
+            </div>
+            <div class="qa-body" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-light);">
+              <div class="qa-answer">
+                <p>
+                  "In traditional databases, loading a day requires a long-lived transaction: <code>DELETE FROM events WHERE date = X; INSERT ...; COMMIT;</code>. This holds table locks for hours, blocks concurrent readers, and crashes if the network blips.
+                </p>
+                <p>
+                  In ClickHouse, <code>ALTER TABLE events REPLACE PARTITION (app_id, event_date) FROM events_staging</code> is an <strong>atomic, O(1) metadata operation</strong>. It swaps disk directory hard links in <strong>under 15 milliseconds</strong>. Dashboards never experience table locks during the 4-hour ingestion read, and data visibility is instant."
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q4 -->
+          <div class="qa-card" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; cursor: pointer;" class="qa-toggle-btn">
+              <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                <span class="qa-num-badge">Q04</span>
+                <div>
+                  <h4 class="qa-question" style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0;">
+                    How do you prevent ClickHouse Code 209 (receive_timeout) during massive data loads?
+                  </h4>
+                  <div class="qa-trap">⚠️ TRAP: Suggesting increasing receive_timeout to several hours instead of fixing the architecture.</div>
+                </div>
+              </div>
+              <span class="qa-chevron" style="font-size: 0.9rem; color: #64748b;">▼</span>
+            </div>
+            <div class="qa-body" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-light);">
+              <div class="qa-answer">
+                <p>
+                  "Increasing timeouts is a fragile workaround. Code 209 happens when a client opens an insert connection and appends to it while reading from a slow remote API.
+                </p>
+                <p>
+                  We solved this by <strong>decoupling the read and send clocks</strong> in Go: we accumulate a full <strong>50,000-row batch in local RAM</strong> first. Once full, we open the ClickHouse batch, transmit the 50k rows over the local network in under 150ms, and close it. BigQuery network latency never touches the database connection timer."
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q5 -->
+          <div class="qa-card" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; cursor: pointer;" class="qa-toggle-btn">
+              <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                <span class="qa-num-badge">Q05</span>
+                <div>
+                  <h4 class="qa-question" style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0;">
+                    How do you handle duplicates in streaming GA4 exports without paying extra query costs?
+                  </h4>
+                  <div class="qa-trap">⚠️ TRAP: Suggesting unnesting event_params or using ClickHouse ReplacingMergeTree.</div>
+                </div>
+              </div>
+              <span class="qa-chevron" style="font-size: 0.9rem; color: #64748b;">▼</span>
+            </div>
+            <div class="qa-body" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-light);">
+              <div class="qa-answer">
+                <p>
+                  "GA4 streaming intraday tables exhibit a ~0.64% duplicate rate. ReplacingMergeTree in ClickHouse only deduplicates eventually during background merges, causing non-deterministic counts on live dashboards.
+                </p>
+                <p>
+                  We filter duplicates upfront in BigQuery using <code>QUALIFY ROW_NUMBER() OVER (...) = 1</code> partitioned across the five native batch coordinates: <code>user_pseudo_id</code>, <code>event_name</code>, <code>event_timestamp</code>, <code>event_bundle_sequence_id</code>, and <code>batch_event_index</code>. All five are top-level scalar columns, scanning <strong>zero extra query bytes</strong>."
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q6 -->
+          <div class="qa-card" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; cursor: pointer;" class="qa-toggle-btn">
+              <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                <span class="qa-num-badge">Q06</span>
+                <div>
+                  <h4 class="qa-question" style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0;">
+                    Why build derived rollups manually instead of using ClickHouse Materialized Views?
+                  </h4>
+                  <div class="qa-trap">⚠️ TRAP: Assuming Materialized Views are always the best practice in ClickHouse.</div>
+                </div>
+              </div>
+              <span class="qa-chevron" style="font-size: 0.9rem; color: #64748b;">▼</span>
+            </div>
+            <div class="qa-body" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-light);">
+              <div class="qa-answer">
+                <p>
+                  "ClickHouse Materialized Views act as insert triggers on incoming blocks. If you re-sync a day (due to a backfill or error), the Materialized View appends duplicate aggregated values.
+                </p>
+                <p>
+                  We built our rollups (like <code>user_daily</code>) as an explicit step inside the day's load pipeline using <strong>staging + REPLACE PARTITION</strong>. When a day re-syncs, its rollups are completely overwritten cleanly, guaranteeing strict idempotency and zero duplicate counts."
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q7 -->
+          <div class="qa-card" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; cursor: pointer;" class="qa-toggle-btn">
+              <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                <span class="qa-num-badge">Q07</span>
+                <div>
+                  <h4 class="qa-question" style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0;">
+                    Why store sync_state in Postgres instead of inside ClickHouse?
+                  </h4>
+                  <div class="qa-trap">⚠️ TRAP: Forgetting that ClickHouse is an OLAP engine without ACID transaction isolation.</div>
+                </div>
+              </div>
+              <span class="qa-chevron" style="font-size: 0.9rem; color: #64748b;">▼</span>
+            </div>
+            <div class="qa-body" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-light);">
+              <div class="qa-answer">
+                <p>
+                  "Sync state requires ACID guarantees: row-level locking, unique primary keys, and immediate read-after-write consistency. ClickHouse is an OLAP engine designed for append-only columnar analytics; it does not offer row-level locking.
+                </p>
+                <p>
+                  Storing <code>sync_state</code> in Postgres ensures that concurrency status transitions (<code>running</code>, <code>hot</code>, <code>success</code>, <code>failed</code>) are strictly consistent, preventing two workers from syncing the same day simultaneously."
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q8 -->
+          <div class="qa-card" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; cursor: pointer;" class="qa-toggle-btn">
+              <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                <span class="qa-num-badge">Q08</span>
+                <div>
+                  <h4 class="qa-question" style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0;">
+                    Explain the 'Swap First, Mark Later' principle. What happens if the process crashes?
+                  </h4>
+                  <div class="qa-trap">⚠️ TRAP: Thinking marking success first is safer.</div>
+                </div>
+              </div>
+              <span class="qa-chevron" style="font-size: 0.9rem; color: #64748b;">▼</span>
+            </div>
+            <div class="qa-body" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-light);">
+              <div class="qa-answer">
+                <p>
+                  "ClickHouse and Postgres cannot share a distributed transaction. If we marked 'success' in Postgres before the ClickHouse partition swap, a crash would leave the database recording a day as loaded when it never arrived.
+                </p>
+                <p>
+                  By <strong>swapping in ClickHouse first, then marking in Postgres</strong>, a crash between the two simply results in the next cycle re-syncing the day. Because the partition swap is idempotent, a redundant reload has zero side effects."
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q9 -->
+          <div class="qa-card" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; cursor: pointer;" class="qa-toggle-btn">
+              <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                <span class="qa-num-badge">Q09</span>
+                <div>
+                  <h4 class="qa-question" style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0;">
+                    How does the pipeline automatically detect and self-heal Google Analytics backfills?
+                  </h4>
+                  <div class="qa-trap">⚠️ TRAP: Re-querying all historical data tables with full scans every day.</div>
+                </div>
+              </div>
+              <span class="qa-chevron" style="font-size: 0.9rem; color: #64748b;">▼</span>
+            </div>
+            <div class="qa-body" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-light);">
+              <div class="qa-answer">
+                <p>
+                  "Full table queries would incur enormous BigQuery costs. Instead, we query <strong>BigQuery table metadata</strong>, which is completely free.
+                </p>
+                <p>
+                  Every cycle, the engine compares the table's current <code>lastModifiedTime</code> with the timestamp recorded in Postgres when the day was sealed. If Google backfilled data into a historical day, the timestamp mismatch triggers a clean re-load of that partition automatically."
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q10 -->
+          <div class="qa-card" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; cursor: pointer;" class="qa-toggle-btn">
+              <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                <span class="qa-num-badge">Q10</span>
+                <div>
+                  <h4 class="qa-question" style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0;">
+                    Why does ClickHouse ORDER BY end with user_pseudo_id?
+                  </h4>
+                  <div class="qa-trap">⚠️ TRAP: Not understanding how sparse index granules work in MergeTree.</div>
+                </div>
+              </div>
+              <span class="qa-chevron" style="font-size: 0.9rem; color: #64748b;">▼</span>
+            </div>
+            <div class="qa-body" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-light);">
+              <div class="qa-answer">
+                <p>
+                  "In ClickHouse, the primary index is sparse (one index entry per 8,192 rows). By ordering by <code>(app_id, event_date, event_name, user_pseudo_id)</code>, events for a single user are clustered together on disk within that event type.
+                </p>
+                <p>
+                  When support or analytics investigates an individual user, ClickHouse executes a <strong>tight range scan</strong> over a few disk blocks rather than scanning the entire multi-gigabyte day partition."
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q11 -->
+          <div class="qa-card" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; cursor: pointer;" class="qa-toggle-btn">
+              <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                <span class="qa-num-badge">Q11</span>
+                <div>
+                  <h4 class="qa-question" style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0;">
+                    What are Materialized Columns in ClickHouse, and when should they be used?
+                  </h4>
+                  <div class="qa-trap">⚠️ TRAP: Confusing Materialized Columns with Materialized Views.</div>
+                </div>
+              </div>
+              <span class="qa-chevron" style="font-size: 0.9rem; color: #64748b;">▼</span>
+            </div>
+            <div class="qa-body" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-light);">
+              <div class="qa-answer">
+                <p>
+                  "Materialized Columns are calculated once during insertion and stored as real physical columns on disk (e.g. <code>session_id Int64 MATERIALIZED params_int['ga_session_id']</code>).
+                </p>
+                <p>
+                  They should be used for hot parameters that appear on almost every dashboard query. This gives you the flexibility of typed Map lookups for arbitrary custom parameters, combined with native physical column scan performance for primary KPIs."
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q12 -->
+          <div class="qa-card" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; cursor: pointer;" class="qa-toggle-btn">
+              <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                <span class="qa-num-badge">Q12</span>
+                <div>
+                  <h4 class="qa-question" style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0;">
+                    How do you handle user sessions that cross midnight in daily partitioned data?
+                  </h4>
+                  <div class="qa-trap">⚠️ TRAP: Assuming session metrics can only be computed within single-day partitions.</div>
+                </div>
+              </div>
+              <span class="qa-chevron" style="font-size: 0.9rem; color: #64748b;">▼</span>
+            </div>
+            <div class="qa-body" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-light);">
+              <div class="qa-answer">
+                <p>
+                  "Mobile sessions starting at 23:55 and ending at 00:15 span two date partitions. In our pipeline, the function <code>prevDayFlowDue()</code> tracks when today's intraday data lands and triggers an auxiliary rebuild of yesterday's flow facts.
+                </p>
+                <p>
+                  This ensures that session duration, exit screens, and conversion funnels incorporate evidence from the trailing day without requiring full historical re-computation."
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q13 -->
+          <div class="qa-card" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; cursor: pointer;" class="qa-toggle-btn">
+              <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                <span class="qa-num-badge">Q13</span>
+                <div>
+                  <h4 class="qa-question" style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0;">
+                    Why use LowCardinality(String) instead of plain String columns?
+                  </h4>
+                  <div class="qa-trap">⚠️ TRAP: Using LowCardinality on high-cardinality fields like user IDs or UUIDs.</div>
+                </div>
+              </div>
+              <span class="qa-chevron" style="font-size: 0.9rem; color: #64748b;">▼</span>
+            </div>
+            <div class="qa-body" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-light);">
+              <div class="qa-answer">
+                <p>
+                  "For columns with fewer than 10,000 distinct values (like <code>country</code>, <code>platform</code>, <code>event_name</code>), <code>LowCardinality</code> replaces repeated string values with a dictionary of 1-byte or 2-byte integer IDs.
+                </p>
+                <p>
+                  This drastically reduces disk usage and accelerates <code>GROUP BY</code> queries by executing integer comparisons instead of string hashing."
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q14 -->
+          <div class="qa-card" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; cursor: pointer;" class="qa-toggle-btn">
+              <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                <span class="qa-num-badge">Q14</span>
+                <div>
+                  <h4 class="qa-question" style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0;">
+                    How do you safely delete source tables in BigQuery (DELETE_AFTER_SYNC)?
+                  </h4>
+                  <div class="qa-trap">⚠️ TRAP: Deleting source data immediately after the insert command returns.</div>
+                </div>
+              </div>
+              <span class="qa-chevron" style="font-size: 0.9rem; color: #64748b;">▼</span>
+            </div>
+            <div class="qa-body" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-light);">
+              <div class="qa-answer">
+                <p>
+                  "We enforce five strict defense-in-depth gates before deleting:
+                  <br>
+                  1. The partition swap is confirmed in ClickHouse.
+                  <br>
+                  2. Inserted row count matched BigQuery reported rows.
+                  <br>
+                  3. BigQuery table metadata remained unchanged during load.
+                  <br>
+                  4. A post-swap live <code>count()</code> on ClickHouse matches the written rows.
+                  <br>
+                  5. Table name strictly validates against <code>^events_\d{8}$</code> regex (never deleting intraday tables)."
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q15 -->
+          <div class="qa-card" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; cursor: pointer;" class="qa-toggle-btn">
+              <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                <span class="qa-num-badge">Q15</span>
+                <div>
+                  <h4 class="qa-question" style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0;">
+                    How do you compute median step-times in conversion funnels without distortion?
+                  </h4>
+                  <div class="qa-trap">⚠️ TRAP: Calculating median(Step2) minus median(Step1).</div>
+                </div>
+              </div>
+              <span class="qa-chevron" style="font-size: 0.9rem; color: #64748b;">▼</span>
+            </div>
+            <div class="qa-body" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-light);">
+              <div class="qa-answer">
+                <p>
+                  "Subtracting medians of two steps produces mathematical anomalies (and can even yield negative durations if user populations differ).
+                </p>
+                <p>
+                  We calculate pairwise time differences <em>inside each individual user session</em> first (Step2 arrival minus Step1 arrival), and then execute <code>quantileExact(0.5)</code> over those valid time differences, dropping sessions that skipped steps or completed them out of order."
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q16 -->
+          <div class="qa-card" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; cursor: pointer;" class="qa-toggle-btn">
+              <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                <span class="qa-num-badge">Q16</span>
+                <div>
+                  <h4 class="qa-question" style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0;">
+                    Why use sentinel date 1970-01-01 (toDate(0)) instead of NULL?
+                  </h4>
+                  <div class="qa-trap">⚠️ TRAP: Forgetting that Nullable columns add memory bitmasks in columnar engines.</div>
+                </div>
+              </div>
+              <span class="qa-chevron" style="font-size: 0.9rem; color: #64748b;">▼</span>
+            </div>
+            <div class="qa-body" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-light);">
+              <div class="qa-answer">
+                <p>
+                  "In ClickHouse, <code>Nullable</code> columns require an extra null-mask byte per row, degrading vectorized SIMD query optimization and compression efficiency.
+                </p>
+                <p>
+                  Using <code>1970-01-01</code> as a sentinel value for unknown dates avoids the nullable bitmask entirely and compresses cleanly into zero bytes under run-length encoding."
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q17 -->
+          <div class="qa-card" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; cursor: pointer;" class="qa-toggle-btn">
+              <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                <span class="qa-num-badge">Q17</span>
+                <div>
+                  <h4 class="qa-question" style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0;">
+                    How do you prevent race conditions between staging tables during concurrent source loads?
+                  </h4>
+                  <div class="qa-trap">⚠️ TRAP: Truncating the staging table while another worker is writing to it.</div>
+                </div>
+              </div>
+              <span class="qa-chevron" style="font-size: 0.9rem; color: #64748b;">▼</span>
+            </div>
+            <div class="qa-body" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-light);">
+              <div class="qa-answer">
+                <p>
+                  "For the main <code>events_staging</code> table, concurrency is safe because <code>REPLACE PARTITION (app_id, event_date)</code> only touches the specific named partition.
+                </p>
+                <p>
+                  For auxiliary rollup staging tables that require full truncation, we serialize operations using an in-memory <code>swapMu sync.Map</code> per table in Go, preventing concurrent workers from clearing each other's staged data."
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q18 -->
+          <div class="qa-card" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; cursor: pointer;" class="qa-toggle-btn">
+              <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                <span class="qa-num-badge">Q18</span>
+                <div>
+                  <h4 class="qa-question" style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0;">
+                    What happens if a day in BigQuery is genuinely empty? How does the pipeline handle it?
+                  </h4>
+                  <div class="qa-trap">⚠️ TRAP: Running REPLACE PARTITION from an empty staging table.</div>
+                </div>
+              </div>
+              <span class="qa-chevron" style="font-size: 0.9rem; color: #64748b;">▼</span>
+            </div>
+            <div class="qa-body" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-light);">
+              <div class="qa-answer">
+                <p>
+                  "ClickHouse strictly prohibits <code>REPLACE PARTITION</code> from an empty source table to prevent accidental data erasure.
+                </p>
+                <p>
+                  Our code explicitly checks <code>if written == 0</code>. In that case, it skips the swap and directly executes <code>ALTER TABLE events DROP PARTITION (app_id, event_date)</code> to achieve the correct empty state cleanly."
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q19 -->
+          <div class="qa-card" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; cursor: pointer;" class="qa-toggle-btn">
+              <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                <span class="qa-num-badge">Q19</span>
+                <div>
+                  <h4 class="qa-question" style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0;">
+                    How does the A/B testing engine verify Sample Ratio Mismatch (SRM)?
+                  </h4>
+                  <div class="qa-trap">⚠️ TRAP: Comparing variant metrics without testing whether traffic allocation is statistically valid.</div>
+                </div>
+              </div>
+              <span class="qa-chevron" style="font-size: 0.9rem; color: #64748b;">▼</span>
+            </div>
+            <div class="qa-body" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-light);">
+              <div class="qa-answer">
+                <p>
+                  "If a 50/50 A/B test delivers 60% of users to variant A, calculating metric uplift is statistically invalid due to traffic bias.
+                </p>
+                <p>
+                  Our engine runs a Chi-square goodness-of-fit test on observed user counts per variant versus expected allocation weights. If the p-value falls below 0.001, it flags an SRM violation in <code>verdict_code</code>, alerting teams before decisions are made on tainted data."
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q20 -->
+          <div class="qa-card" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; cursor: pointer;" class="qa-toggle-btn">
+              <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                <span class="qa-num-badge">Q20</span>
+                <div>
+                  <h4 class="qa-question" style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0;">
+                    If you were redesigning this data engine from scratch, what would you add next?
+                  </h4>
+                  <div class="qa-trap">⚠️ TRAP: Saying 'nothing, it is complete', which fails the Staff engineering mindset.</div>
+                </div>
+              </div>
+              <span class="qa-chevron" style="font-size: 0.9rem; color: #64748b;">▼</span>
+            </div>
+            <div class="qa-body" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-light);">
+              <div class="qa-answer">
+                <p>
+                  "Two architectural extensions:
+                  <br>
+                  1. <strong>S3 Tiered Storage with Cold Partitions:</strong> Configure ClickHouse storage policies to automatically migrate partitions older than 90 days to AWS S3/GCS object storage, cutting disk costs by another 80% while keeping data queryable.
+                  <br>
+                  2. <strong>Vectorized User Embeddings:</strong> Stream user session vectors into ClickHouse's vector index to enable predictive churn modeling directly inside the warehouse."
+                </p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- SECTION 11: 5-PILLAR CLOSING DATA ARCHITECT PITCH -->
+      <section id="sec-closing-pitch" class="section-card" style="background: linear-gradient(135deg, #ffffff 0%, #ecfdf5 100%); border-left: 6px solid #059669;">
+        <div class="badge-row">
+          <span class="badge badge-emerald">CLOSING PITCH</span>
+          <span class="badge badge-blue">STAFF DATA ARCHITECT</span>
+          <span class="badge badge-purple">EXECUTIVE WRAP-UP</span>
+        </div>
+
+        <h2 style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin-top: 0.5rem; margin-bottom: 0.75rem;">
+          The 5-Pillar Closing Data Architect Pitch (Bản Tuyên Ngôn Khép Lại Phỏng Vấn Data)
+        </h2>
+        <p style="color: #475569; margin-bottom: 1.25rem;">
+          When concluding an interview for a Senior or Staff Data Engineer / Architect role, deliver this 5-pillar wrap-up:
+        </p>
+
+        <div class="spoken-script">
+          <div class="spoken-header">
+            <span>🎙️ Spoken Script &mdash; 5-Pillar Data Architecture Closing</span>
+          </div>
+          <div class="spoken-content">
+            <p>
+              "To conclude, our work on the Firebase Analytics Data Engine demonstrates our data architecture philosophy across <strong>five foundational pillars</strong>:
+            </p>
+            <p>
+              <strong>1. Columnar Efficiency over Storage Waste:</strong> We eliminated raw JSON blobs and shredded events into typed columns and maps, achieving a <strong>39.6x storage reduction</strong> and sub-70ms dashboard query latency.
+            </p>
+            <p>
+              <strong>2. Atomic, Lock-Free Ingestion:</strong> We replaced fragile long-lived transactions with staging tables and <strong>O(1) metadata partition swaps</strong>, guaranteeing zero dashboard downtime during massive batch loads.
+            </p>
+            <p>
+              <strong>3. Resilient Decoupled Buffering:</strong> We decoupled WAN network reads from database insert batches in Go, eliminating receive timeouts and ensuring predictable high throughput.
+            </p>
+            <p>
+              <strong>4. Automated Correctness and Self-Healing:</strong> We built automated metadata polling that detects Google backfills and repairs historical partitions without human intervention.
+            </p>
+            <p>
+              <strong>5. Pragmatic Analytical Modeling:</strong> We pre-aggregated multi-tier rollups like <code>user_daily</code> to accelerate 90% of business reporting, while preserving raw events for fine-grained funnel analysis.
+            </p>
+            <p>
+              This is the same rigor, performance focus, and architectural discipline I bring to every data platform I build."
+            </p>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- Page Footer -->
+      <footer style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border-light); text-align: center; color: var(--text-muted); font-size: 0.85rem;">
+        <p>
+          <strong>Firebase Analytics &rarr; ClickHouse Data Engine &amp; Analytics Warehouse Architecture</strong>
+        </p>
+        <p style="margin-top: 0.35rem;">
+          Designed &amp; Maintained by <strong>Trần Văn Thành Công</strong> &bull; Senior / Staff Fullstack &amp; Data Architect
+        </p>
+        <div style="margin-top: 1rem; display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+          <a href="index.html" style="color: var(--accent-blue); text-decoration: none; font-weight: 600;">🏠 AI Interview Portal Home</a>
+          <span>&bull;</span>
+          <a href="architecture.html" style="color: var(--accent-blue); text-decoration: none; font-weight: 600;">🚢 ONE E-Payment Architecture</a>
+          <span>&bull;</span>
+          <a href="s4campaign.html" style="color: var(--accent-blue); text-decoration: none; font-weight: 600;">📞 S4 Campaign Architecture</a>
+        </div>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+
+document.addEventListener('DOMContentLoaded', () => {
+  // 1. Initialize Mermaid
+  if (window.mermaid) {
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'neutral',
+      themeVariables: {
+        fontFamily: 'Inter, -apple-system, sans-serif',
+        primaryColor: '#e0f2fe',
+        primaryTextColor: '#0f172a',
+        primaryBorderColor: '#0284c7',
+        lineColor: '#64748b',
+        secondaryColor: '#f1f5f9',
+        tertiaryColor: '#ffffff'
+      }
+    });
+  }
+
+  // 2. Copy Code / Diagram to Clipboard
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetId = btn.getAttribute('data-target');
+      let text = '';
+      if (targetId) {
+        const el = document.getElementById(targetId);
+        if (el) text = el.innerText;
+      } else {
+        const parent = btn.closest('.diagram-container, .code-container');
+        if (parent) {
+          const pre = parent.querySelector('pre');
+          if (pre) text = pre.innerText;
+        }
+      }
+      if (text) {
+        navigator.clipboard.writeText(text).then(() => {
+          const original = btn.innerText;
+          btn.innerText = '✓ Copied!';
+          btn.style.color = '#059669';
+          setTimeout(() => {
+            btn.innerText = original;
+            btn.style.color = '';
+          }, 2000);
+        });
+      }
+    });
+  });
+
+  // 3. Sidebar Table of Contents Filter
+  const searchInput = document.getElementById('toc-filter');
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      const val = e.target.value.toLowerCase().trim();
+      document.querySelectorAll('.toc-link').forEach(link => {
+        const text = link.innerText.toLowerCase();
+        if (text.includes(val)) {
+          link.style.display = 'flex';
+        } else {
+          link.style.display = 'none';
+        }
+      });
+      // Handle group titles
+      document.querySelectorAll('.toc-group-title').forEach(title => {
+        let sibling = title.nextElementSibling;
+        let anyVisible = false;
+        while (sibling && !sibling.classList.contains('toc-group-title')) {
+          if (sibling.classList.contains('toc-link') && sibling.style.display !== 'none') {
+            anyVisible = true;
+            break;
+          }
+          sibling = sibling.nextElementSibling;
+        }
+        title.style.display = (val === '' || anyVisible) ? 'block' : 'none';
+      });
+    });
+  }
+
+  // 4. Scrollspy for Active TOC Link
+  const sections = document.querySelectorAll('section[id], h2[id]');
+  const navLinks = document.querySelectorAll('.toc-link');
+
+  const observerOptions = {
+    root: null,
+    rootMargin: '-80px 0px -70% 0px',
+    threshold: 0
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.getAttribute('id');
+        navLinks.forEach(link => {
+          if (link.getAttribute('href') === '#' + id) {
+            link.classList.add('active');
+            link.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+          } else {
+            link.classList.remove('active');
+          }
+        });
+      }
+    });
+  }, observerOptions);
+
+  sections.forEach(sec => observer.observe(sec));
+
+  // 5. Back to Top Button
+  const btt = document.getElementById('back-to-top-btn');
+  if (btt) {
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 400) {
+        btt.classList.add('visible');
+      } else {
+        btt.classList.remove('visible');
+      }
+    });
+    btt.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+
+  // 6. Interview Mode Toggle
+  const toggleBtn = document.getElementById('toggle-interview-mode');
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', () => {
+      document.body.classList.toggle('interview-mode-active');
+      const isActive = document.body.classList.contains('interview-mode-active');
+      toggleBtn.classList.toggle('active', isActive);
+      if (isActive) {
+        toggleBtn.innerHTML = '<span>🎙️</span> Exit Rehearsal Mode';
+        // Scroll smoothly to first spoken script
+        const firstScript = document.querySelector('.spoken-script');
+        if (firstScript) {
+          firstScript.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      } else {
+        toggleBtn.innerHTML = '<span>🎙️</span> Interview Rehearsal Mode';
+      }
+    });
+  }
+
+  // 7. Self-Test / Flashcard Mode Toggle for Top 20 Q&A
+  const qaToggleBtn = document.getElementById('toggle-qa-answers');
+  if (qaToggleBtn) {
+    let answersHidden = false;
+    qaToggleBtn.addEventListener('click', () => {
+      answersHidden = !answersHidden;
+      document.querySelectorAll('.qa-card').forEach(card => {
+        const ans = card.querySelector('.qa-answer');
+        if (ans) {
+          if (answersHidden) {
+            ans.style.display = 'none';
+            card.classList.add('qa-hidden-mode');
+            let btn = card.querySelector('.reveal-btn');
+            if (!btn) {
+              btn = document.createElement('button');
+              btn.className = 'reveal-btn btn btn-sm';
+              btn.style.marginTop = '0.75rem';
+              btn.style.fontSize = '0.8rem';
+              btn.style.padding = '0.35rem 0.75rem';
+              btn.style.background = '#f1f5f9';
+              btn.style.border = '1px solid #cbd5e1';
+              btn.style.borderRadius = '6px';
+              btn.style.cursor = 'pointer';
+              btn.style.fontWeight = '600';
+              btn.style.color = '#0284c7';
+              btn.innerHTML = '<span>👁️</span> Reveal Model Answer';
+              btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (ans.style.display === 'none') {
+                  ans.style.display = 'block';
+                  btn.innerHTML = '<span>🙈</span> Hide Answer';
+                  btn.style.color = '#64748b';
+                } else {
+                  ans.style.display = 'none';
+                  btn.innerHTML = '<span>👁️</span> Reveal Model Answer';
+                  btn.style.color = '#0284c7';
+                }
+              });
+              card.appendChild(btn);
+            } else {
+              btn.style.display = 'inline-flex';
+              btn.innerHTML = '<span>👁️</span> Reveal Model Answer';
+              btn.style.color = '#0284c7';
+            }
+          } else {
+            ans.style.display = 'block';
+            card.classList.remove('qa-hidden-mode');
+            const btn = card.querySelector('.reveal-btn');
+            if (btn) btn.style.display = 'none';
+          }
+        }
+      });
+      qaToggleBtn.innerHTML = answersHidden 
+        ? '<span>👁️</span> Exit Self-Test (Show All Answers)' 
+        : '<span>🧠</span> Self-Test Mode: Hide Answers (Flashcards)';
+      qaToggleBtn.classList.toggle('active', answersHidden);
+    });
+  }
+});
+
+  </script>
+</body>
+</html>
