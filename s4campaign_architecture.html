@@ -1,0 +1,3049 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>S4 Campaign Architecture Blueprint | 100k CCU Voice &amp; IVR Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+
+:root {
+  --bg-page: #f8fafc;
+  --bg-card: #ffffff;
+  --bg-subtle: #f1f5f9;
+  --bg-sidebar: #ffffff;
+  
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --text-light: #94a3b8;
+  
+  --border-light: #e2e8f0;
+  --border-subtle: #cbd5e1;
+  --border-focus: #0284c7;
+  
+  --accent-blue: #0284c7;
+  --accent-blue-light: #e0f2fe;
+  --accent-magenta: #e11d48;
+  --accent-magenta-light: #ffe4e6;
+  --accent-emerald: #059669;
+  --accent-emerald-light: #d1fae5;
+  --accent-amber: #d97706;
+  --accent-amber-light: #fef3c7;
+  --accent-indigo: #4f46e5;
+  --accent-indigo-light: #e0e7ff;
+  --accent-purple: #7c3aed;
+  --accent-purple-light: #f3e8ff;
+  
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+  
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 15px;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-page);
+  color: var(--text-secondary);
+  line-height: 1.68;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Header & Top Bar */
+.top-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.brand-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.brand-badge {
+  background: var(--accent-magenta);
+  color: #ffffff;
+  padding: 0.2rem 0.55rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.header-meta {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  border: 1px solid var(--border-light);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+
+.btn:hover {
+  background: var(--bg-subtle);
+  color: var(--text-primary);
+  border-color: var(--border-subtle);
+}
+
+.btn-primary {
+  background: var(--accent-blue);
+  color: #ffffff;
+  border-color: var(--accent-blue);
+}
+
+.btn-primary:hover {
+  background: #0369a1;
+  color: #ffffff;
+}
+
+.btn-purple {
+  background: var(--accent-purple-light);
+  color: var(--accent-purple);
+  border-color: #d8b4fe;
+}
+
+.btn-purple:hover, .btn-purple.active {
+  background: var(--accent-purple);
+  color: #ffffff;
+  border-color: var(--accent-purple);
+}
+
+/* Layout */
+.app-container {
+  display: flex;
+  min-height: calc(100vh - 56px);
+}
+
+/* Sidebar Navigation */
+.sidebar {
+  width: 330px;
+  flex-shrink: 0;
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border-light);
+  position: sticky;
+  top: 56px;
+  height: calc(100vh - 56px);
+  overflow-y: auto;
+  padding: 1.25rem 1rem 3rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sidebar-search {
+  position: sticky;
+  top: 0;
+  background: var(--bg-sidebar);
+  padding-bottom: 0.5rem;
+  z-index: 10;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-light);
+  background: var(--bg-subtle);
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  outline: none;
+  transition: all 0.15s ease;
+}
+
+.search-input:focus {
+  background: #ffffff;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+}
+
+.toc-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.toc-group-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-light);
+  margin-top: 0.75rem;
+  margin-bottom: 0.25rem;
+  padding-left: 0.5rem;
+}
+
+.toc-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  line-height: 1.35;
+  transition: all 0.12s ease;
+}
+
+.toc-link:hover {
+  background: var(--bg-subtle);
+  color: var(--accent-blue);
+  transform: translateX(2px);
+}
+
+.toc-link.active {
+  background: var(--accent-blue-light);
+  color: var(--accent-blue);
+  font-weight: 600;
+}
+
+.toc-num {
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--text-muted);
+  min-width: 1.5rem;
+}
+
+/* Main Content Container */
+.main-content {
+  flex-grow: 1;
+  max-width: 1050px;
+  padding: 2.5rem 3rem 6rem 3rem;
+  margin: 0 auto;
+}
+
+/* Hero Section */
+.hero-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+  border: 1px solid #bae6fd;
+  border-radius: var(--radius-lg);
+  padding: 2.5rem;
+  margin-bottom: 2.5rem;
+  box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 280px;
+  height: 280px;
+  background: radial-gradient(circle, rgba(2, 132, 199, 0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--accent-magenta-light);
+  color: var(--accent-magenta);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 1rem;
+}
+
+.hero-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.25;
+  letter-spacing: -0.025em;
+  margin-bottom: 1rem;
+}
+
+.hero-subtitle {
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 1.75rem;
+  max-width: 850px;
+}
+
+/* KPI Metric Cards Grid */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.metric-card {
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 1.25rem 1rem;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--accent-blue);
+}
+
+.metric-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--accent-blue);
+  line-height: 1.2;
+  margin-bottom: 0.25rem;
+  font-family: var(--font-mono);
+}
+
+.metric-card.accent-magenta .metric-value { color: var(--accent-magenta); }
+.metric-card.accent-emerald .metric-value { color: var(--accent-emerald); }
+.metric-card.accent-indigo .metric-value { color: var(--accent-indigo); }
+.metric-card.accent-purple .metric-value { color: var(--accent-purple); }
+
+.metric-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.2rem;
+}
+
+.metric-sub {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+/* Typography & Headings */
+h2 {
+  font-size: 1.65rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-top: 3.5rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 2px solid var(--border-light);
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+h3 {
+  font-size: 1.28rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-top: 2.25rem;
+  margin-bottom: 0.85rem;
+  letter-spacing: -0.015em;
+}
+
+h4 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+p {
+  margin-bottom: 1.15rem;
+  font-size: 0.96rem;
+}
+
+ul, ol {
+  margin-bottom: 1.25rem;
+  padding-left: 1.5rem;
+}
+
+li {
+  margin-bottom: 0.45rem;
+  font-size: 0.95rem;
+}
+
+strong {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* Callout Boxes (Alerts) */
+.callout {
+  border-left: 4px solid;
+  border-radius: var(--radius-md);
+  padding: 1.2rem 1.4rem;
+  margin: 1.5rem 0;
+  background: #ffffff;
+  box-shadow: var(--shadow-sm);
+}
+
+.callout-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  font-size: 0.92rem;
+  margin-bottom: 0.45rem;
+}
+
+.callout-tip {
+  border-color: var(--accent-blue);
+  background: var(--accent-blue-light);
+  color: #0369a1;
+}
+.callout-tip .callout-title { color: #0284c7; }
+
+.callout-info {
+  border-color: var(--accent-indigo);
+  background: var(--accent-indigo-light);
+  color: #3730a3;
+}
+.callout-info .callout-title { color: #4338ca; }
+
+.callout-warning {
+  border-color: var(--accent-amber);
+  background: var(--accent-amber-light);
+  color: #92400e;
+}
+.callout-warning .callout-title { color: #b45309; }
+
+.callout-danger {
+  border-color: var(--accent-magenta);
+  background: var(--accent-magenta-light);
+  color: #9f1239;
+}
+.callout-danger .callout-title { color: #be123c; }
+
+.callout-success {
+  border-color: var(--accent-emerald);
+  background: var(--accent-emerald-light);
+  color: #065f46;
+}
+.callout-success .callout-title { color: #047857; }
+
+/* 🎙️ Spoken Presentation Box (Dedicated UI for Talking Points) */
+.spoken-script {
+  background: linear-gradient(135deg, #ffffff 0%, #faf5ff 100%);
+  border: 1.5px solid #d8b4fe;
+  border-left: 6px solid var(--accent-purple);
+  border-radius: var(--radius-md);
+  padding: 1.35rem 1.5rem;
+  margin: 1.75rem 0;
+  box-shadow: 0 4px 10px -2px rgba(124, 58, 237, 0.08);
+  transition: all 0.2s ease;
+}
+
+.spoken-script:hover {
+  box-shadow: 0 8px 16px -4px rgba(124, 58, 237, 0.15);
+  border-color: #c084fc;
+}
+
+.spoken-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.84rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent-purple);
+  margin-bottom: 0.65rem;
+}
+
+.spoken-content {
+  font-size: 0.96rem;
+  color: #1e1b4b;
+  line-height: 1.65;
+}
+
+.spoken-content strong {
+  color: #581c87;
+}
+
+.spoken-content em {
+  color: #3b0764;
+  font-style: italic;
+}
+
+/* Interview Mode Styling */
+body.interview-mode-active .spoken-script {
+  border-width: 2px;
+  border-color: var(--accent-purple);
+  box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.15), 0 10px 25px -5px rgba(124, 58, 237, 0.2);
+  transform: scale(1.01);
+}
+
+/* Memory Anchor Pill */
+.memory-anchor-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: #fdf4ff;
+  border: 1px solid #f0abfc;
+  color: #86198f;
+  padding: 0.4rem 0.85rem;
+  border-radius: 9999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 2px rgba(240, 171, 252, 0.2);
+}
+.memory-anchor-pill strong {
+  color: #701a75;
+}
+.memory-anchor-pill em {
+  color: #a21caf;
+  font-style: normal;
+  padding-left: 0.4rem;
+  border-left: 1px solid #f0abfc;
+}
+
+body.interview-mode-active .memory-anchor-pill {
+  background: #fae8ff;
+  border-color: #d946ef;
+  color: #701a75;
+  box-shadow: 0 0 0 3px rgba(217, 70, 239, 0.25);
+}
+
+/* Rapid-Fire Q&A Cards */
+.qa-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+  margin: 2rem 0;
+}
+
+.qa-card {
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 1.25rem 1.5rem;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.15s ease;
+}
+
+.qa-card:hover {
+  border-color: var(--accent-blue);
+  box-shadow: var(--shadow-md);
+}
+
+.qa-q-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 0.65rem;
+}
+
+.qa-num-badge {
+  background: var(--accent-blue-light);
+  color: var(--accent-blue);
+  font-size: 0.78rem;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.qa-question {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.35;
+}
+
+.qa-answer {
+  font-size: 0.94rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  padding-left: 2.75rem;
+  border-left: 2px solid var(--accent-blue-light);
+  margin-left: 0.65rem;
+}
+
+.qa-answer strong {
+  color: var(--accent-blue);
+}
+
+.qa-trap {
+  font-size: 0.78rem;
+  color: var(--accent-amber);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.35rem;
+  padding-left: 2.75rem;
+  margin-left: 0.65rem;
+}
+
+/* Diagram & Monospace Cards */
+.diagram-container {
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  margin: 1.5rem 0;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.diagram-header {
+  background: var(--bg-subtle);
+  border-bottom: 1px solid var(--border-light);
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.diagram-body {
+  padding: 1.25rem;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: #1e293b;
+  background: #fbfcfe;
+}
+
+.diagram-body pre {
+  margin: 0;
+  white-space: pre;
+}
+
+/* Code Blocks */
+.code-container {
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  margin: 1.5rem 0;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.code-header {
+  background: #f1f5f9;
+  border-bottom: 1px solid var(--border-light);
+  padding: 0.45rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.code-lang-badge {
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  font-family: var(--font-mono);
+  background: #e2e8f0;
+  padding: 0.15rem 0.45rem;
+  border-radius: 3px;
+  color: var(--text-secondary);
+}
+
+.code-body {
+  padding: 1.15rem 1.25rem;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 0.84rem;
+  line-height: 1.6;
+  background: #fcfdfe;
+  color: #0f172a;
+}
+
+.code-body pre {
+  margin: 0;
+  white-space: pre;
+}
+
+/* Copy button */
+.copy-btn {
+  background: transparent;
+  border: 1px solid var(--border-light);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.1s ease;
+}
+
+.copy-btn:hover {
+  background: #ffffff;
+  color: var(--text-primary);
+  border-color: var(--border-subtle);
+}
+
+/* Tables */
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+  background: #ffffff;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.88rem;
+}
+
+th {
+  background: #f8fafc;
+  color: var(--text-primary);
+  font-weight: 700;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border-light);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border-light);
+  color: var(--text-secondary);
+  vertical-align: top;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+tr:nth-child(even) td {
+  background-color: #fafbfc;
+}
+
+tr:hover td {
+  background-color: #f1f5f9;
+}
+
+/* Badges */
+.badge {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: var(--font-mono);
+}
+
+.badge-pk { background: #fee2e2; color: #b91c1c; }
+.badge-fk { background: #e0e7ff; color: #4338ca; }
+.badge-unique { background: #fef3c7; color: #b45309; }
+.badge-index { background: #e0f2fe; color: #0369a1; }
+.badge-success { background: #d1fae5; color: #047857; }
+.badge-neutral { background: #f1f5f9; color: #475569; }
+
+/* Interview Case Card */
+.interview-card {
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 1.75rem;
+  margin: 2rem 0;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.interview-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--accent-blue);
+}
+
+.interview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.interview-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.before-after-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin: 1.25rem 0;
+}
+
+.ba-column {
+  border-radius: var(--radius-sm);
+  padding: 1rem 1.25rem;
+}
+
+.ba-before {
+  background: #fff5f5;
+  border: 1px solid #fed7d7;
+}
+
+.ba-after {
+  background: #f0fff4;
+  border: 1px solid #c6f6d5;
+}
+
+.ba-title {
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.ba-before .ba-title { color: #c53030; }
+.ba-after .ba-title { color: #276749; }
+
+/* Floating Back to Top Button */
+.back-to-top {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.back-to-top.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.back-to-top:hover {
+  background: var(--accent-blue);
+  color: #ffffff;
+  border-color: var(--accent-blue);
+  transform: translateY(-2px);
+}
+
+/* Print Styles */
+@media print {
+  .top-header, .sidebar, .back-to-top, .copy-btn, .search-input {
+    display: none !important;
+  }
+  
+  .main-content {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  
+  .hero-card, .diagram-container, .code-container, .interview-card, .callout, .spoken-script, .qa-card {
+    box-shadow: none !important;
+    border: 1px solid #cccccc !important;
+    break-inside: avoid;
+  }
+  
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 12pt;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .sidebar {
+    display: none;
+  }
+  .main-content {
+    padding: 1.5rem 1.25rem 4rem 1.25rem;
+  }
+  .before-after-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+  </style>
+</head>
+<body>
+
+  <!-- Top Header Navigation -->
+  <header class="top-header">
+    <div class="brand-wrapper">
+      <a href="index.html" class="brand-logo">
+        <span class="brand-badge" style="background: #7c3aed;">S4</span>
+        <span>S4 Campaign &bull; Automated Voice &amp; IVR Architecture</span>
+      </a>
+      <span class="header-meta">| High-Concurrency System Blueprint</span>
+    </div>
+    <div class="header-actions">
+      <a href="index.html" class="btn" style="border: 1px solid #cbd5e1; font-weight: 600;" title="Quay lại Blog / AI Interview Portal">
+        <span>🏠</span> Blog Home
+      </a>
+      <a href="architecture.html" class="btn" style="border: 1px solid #cbd5e1; font-weight: 600;" title="Xem Kiến trúc E-Payment (ONE)">
+        <span>🚢</span> E-Payment Arch
+      </a>
+      <button id="toggle-interview-mode" class="btn btn-purple" title="Highlight all spoken scripts &amp; interview Q&amp;As">
+        <span>🎙️</span> Interview Rehearsal Mode
+      </button>
+      <a href="#whiteboard-blueprint" class="btn btn-primary" style="background: #7c3aed; border-color: #7c3aed;">
+        <span>🗺️</span> 4-Block Master Map
+      </a>
+      <a href="#sec-qa-matrix" class="btn btn-emerald">
+        <span>🎯</span> Top 20 Q&amp;A Matrix
+      </a>
+      <button class="btn" onclick="window.print()">
+        <span>🖨️</span> Print / PDF
+      </button>
+    </div>
+  </header>
+
+  <div class="app-container">
+    <!-- Left Sticky Sidebar Table of Contents -->
+    <aside class="sidebar">
+      <div class="sidebar-search">
+        <input type="text" id="toc-filter" class="search-input" placeholder="🔍 Search architecture topics...">
+      </div>
+      <nav class="toc-nav">
+        <div class="toc-group-title">Executive &amp; Mental Model</div>
+        <a href="#hero-summary" class="toc-link"><span class="toc-num">TOP</span> Executive Overview &amp; Scale</a>
+        <a href="#whiteboard-blueprint" class="toc-link"><span class="toc-num">MAP</span> 4-Block Whiteboard Blueprint</a>
+
+        <div class="toc-group-title">Core Architecture &amp; Networking</div>
+        <a href="#section-1" class="toc-link"><span class="toc-num">01</span> Edge ALB &amp; Ingress Routing</a>
+        <a href="#section-2" class="toc-link"><span class="toc-num">02</span> Core Microservices Fleet</a>
+        <a href="#section-3" class="toc-link"><span class="toc-num">03</span> Database &amp; Messaging Strategy</a>
+
+        <div class="toc-group-title">Execution Flow &amp; Resiliency</div>
+        <a href="#section-4" class="toc-link"><span class="toc-num">04</span> End-to-End 7-Step Campaign Flow</a>
+        <a href="#section-5" class="toc-link"><span class="toc-num">05</span> Zero-Trust Security &amp; Mesh</a>
+        <a href="#section-6" class="toc-link"><span class="toc-num">06</span> KEDA Event-Driven Autoscaling</a>
+        <a href="#section-7" class="toc-link"><span class="toc-num">07</span> Resiliency Patterns (DLX 3-Tier)</a>
+        <a href="#section-8" class="toc-link"><span class="toc-num">08</span> Observability &amp; Incident Triage</a>
+
+        <div class="toc-group-title">Staff Interview Masterclass</div>
+        <a href="#section-9" class="toc-link"><span class="toc-num">09</span> Staff STAR Production Incidents</a>
+        <a href="#sec-qa-matrix" class="toc-link"><span class="toc-num">10</span> Top 20 Rapid-Fire Q&amp;A Matrix</a>
+        <a href="#sec-closing-pitch" class="toc-link"><span class="toc-num">11</span> 5-Pillar Closing Architect Pitch</a>
+      </nav>
+    </aside>
+
+    <!-- Main Content Stream -->
+    <main class="main-content">
+
+      <!-- Hero Header Card -->
+      <section id="hero-summary" class="section-card" style="background: linear-gradient(135deg, #ffffff 0%, #faf5ff 50%, #f3e8ff 100%); border-left: 6px solid #7c3aed;">
+        <div class="badge-row" style="margin-bottom: 0.75rem;">
+          <span class="badge badge-purple" style="font-size: 0.8rem; padding: 0.25rem 0.65rem;">TELEPHONY &amp; REAL-TIME PLATFORM ARCHITECTURE</span>
+          <span class="badge badge-blue">HIGH-CONCURRENCY DISTRIBUTED SYSTEMS</span>
+          <span class="badge badge-emerald">JAPAN ENTERPRISE PRODUCTION</span>
+        </div>
+        
+        <h1 style="font-size: 2.2rem; font-weight: 800; color: #0f172a; line-height: 1.25; margin-bottom: 0.75rem;">
+          Automated Outbound Voice &amp; Dynamic IVR Campaign Platform
+        </h1>
+        <p style="font-size: 1.1rem; color: #475569; max-width: 950px; line-height: 1.6; margin-bottom: 1.5rem;">
+          An enterprise-grade, high-concurrency telephony system designed to orchestrate <strong>100,000+ simultaneous phone calls</strong>, ingest webhooks in <strong>under 10 milliseconds</strong>, enforce strict telco call-rate quotas via Redis Token Bucket, manage resilient 3-tier dead-letter retry queues, and compute real-time campaign analytics with Python and gRPC.
+        </p>
+
+        <!-- Key Metrics Grid -->
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-label">Concurrent Call Capacity</div>
+            <div class="metric-val" style="color: #7c3aed;">100,000+</div>
+            <div class="metric-sub">Simultaneous active calls without telephony congestion</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Webhook Ingestion Latency</div>
+            <div class="metric-val" style="color: #059669;">&lt; 10ms</div>
+            <div class="metric-sub">Non-blocking queue push prevents Twilio timeouts</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Inter-Service Latency Cut</div>
+            <div class="metric-val" style="color: #0284c7;">-30%</div>
+            <div class="metric-sub">Node.js &amp; Python communicating via gRPC over HTTP/2</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">S3 Audio Storage Cost</div>
+            <div class="metric-val" style="color: #d97706;">-75%</div>
+            <div class="metric-sub">Automated lifecycle archiving to AWS S3 Glacier</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Call Data Migration</div>
+            <div class="metric-val" style="color: #4f46e5;">Zero Downtime</div>
+            <div class="metric-sub">Millions of historical records migrated into MongoDB</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Platform Availability</div>
+            <div class="metric-val" style="color: #059669;">99.99%</div>
+            <div class="metric-sub">EKS Pod Anti-Affinity across 3 AWS Availability Zones</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Whiteboard 4-Block Blueprint & Spoken Playbook -->
+      <section id="whiteboard-blueprint" class="section-card">
+        <div class="badge-row">
+          <span class="badge badge-purple">WHITEBOARD MENTAL MODEL</span>
+          <span class="badge badge-blue">4-BLOCK SYSTEM TOPOLOGY</span>
+          <span class="badge badge-emerald">45-SECOND ELEVATOR PITCH</span>
+        </div>
+
+        <h2 style="font-size: 1.6rem; font-weight: 800; color: #0f172a; margin-top: 0.5rem; margin-bottom: 0.75rem;">
+          The 4-Block Whiteboard Mental Model: Draw &amp; Pitch in 45 Seconds
+        </h2>
+        <p style="color: #475569; margin-bottom: 1.25rem;">
+          In Senior and Staff System Design interviews, never dive straight into low-level code. Instead, walk up to the whiteboard, draw these <strong>4 distinct functional blocks</strong>, and explain the system with supreme clarity:
+        </p>
+
+        <!-- Whiteboard ASCII Diagram Box -->
+        <div class="diagram-container">
+          <div class="diagram-header">
+            <span>🗺️ FIGURE 1: S4 CAMPAIGN 4-BLOCK HIGH-CONCURRENCY ARCHITECTURE</span>
+            <button class="copy-btn">📋 Copy ASCII Model</button>
+          </div>
+          <div class="diagram-body">
+            <pre>
+=========================================================================================================================================
+                                     S4 CAMPAIGN: 4-BLOCK DISTRIBUTED TELEPHONY ARCHITECTURE
+=========================================================================================================================================
+
+ [ EXTERNAL TRAFFIC ]            BLOCK 1: EDGE &amp; INGRESS GATEWAY              BLOCK 2: FAST INGESTION &amp; RATE LIMITING
+   • Twilio Webhooks               ┌─────────────────────────────────┐          ┌──────────────────────────────────────────────┐
+   • Admin AngularJS WebApp ─────► │ AWS ALB (Application Balancer)  │ ───────► │ 1. Webhook Ingestion Service (&lt;10ms non-block)│
+   • REST Management Clients       │  • SSL 1.3 Termination          │          │    • Verifies HMAC signature                 │
+                                   │  • AWS WAF &amp; Shield (DDoS)      │          │    • Pushes raw event to RabbitMQ &amp; 200 OK   │
+                                   │  • Pod IP Target via VPC CNI    │          ├──────────────────────────────────────────────┤
+                                   └────────────────┬────────────────┘          │ 2. Redis Token Bucket (CPS Rate Limiter)     │
+                                                    ▼                           │    • 50-200 calls/sec atomic via Lua Script  │
+                                   ┌─────────────────────────────────┐          ├──────────────────────────────────────────────┤
+                                   │ NGINX Ingress Controller        │ ───────► │ 3. Redis Redlock Distributed Lock            │
+                                   │  • Header Sanitization          │          │    • Locks CallSid to prevent race condition │
+                                   │  • Context Injection (Base64)   │          └──────────────────────────────────────────────┘
+                                   │  • WebSockets Upgrade (/ws)     │                                 │
+                                   └─────────────────────────────────┘                                 ▼
+-----------------------------------------------------------------------------------------------------------------------------------------
+                                                    │
+                                                    ▼
+ BLOCK 3: ASYNC PROCESSING &amp; REAL-TIME ANALYTICS    │                         BLOCK 4: RESILIENT STORAGE &amp; MEDIA ARCHIVE
+ ┌──────────────────────────────────────────────────┴─────────────┐          ┌──────────────────────────────────────────────────┐
+ │ Call Orchestrator Engine (Node.js / TypeScript Core)           │          │ Self-Hosted RabbitMQ Cluster on EKS (Operator)   │
+ │   • Call State Machine: initiated ➔ ringing ➔ completed        │ ───────► │   • 3-Tier DLX Retry: Instant ➔ 10s ➔ 60s ➔ DLQ │
+ │   • Target Batching: Slices 500 phone numbers per batch        │          │   • Dedicated EBS gp3 NVMe volumes (&lt;0.5ms VPC)  │
+ ├────────────────────────────────────────────────────────────────┤          ├──────────────────────────────────────────────────┤
+ │ Analytics &amp; Data Engine (Python / FastAPI &amp; gRPC)              │          │ MongoDB Atlas Managed Replica Set (M60)          │
+ │   • gRPC over HTTP/2 with Node.js (-30% inter-service latency) │ ───────► │   • Write Concern: {w: 1} for raw logs (100k/s)  │
+ │   • Computes ASR, Conversion Rate &amp; Pre-aggregation ($inc)     │          │   • Write Concern: {w: "majority"} for campaigns │
+ ├────────────────────────────────────────────────────────────────┤          ├──────────────────────────────────────────────────┤
+ │ Telemetry Service (Socket.io WebSockets + Redis Pub/Sub)       │          │ AWS S3 Audio Bucket &amp; Lifecycle Archiving        │
+ │   • Throttles 500ms metric events to AngularJS UI Dashboard    │          │   • 50,000+ call recordings auto-moved to        │
+ │   • Prevents browser DOM freezing during 100k active calls     │          │     S3 Glacier after 30 days (-75% storage cost) │
+ └────────────────────────────────────────────────────────────────┘          └──────────────────────────────────────────────────┘
+=========================================================================================================================================
+            </pre>
+          </div>
+        </div>
+
+        <!-- 🎙️ 45-Second Spoken Pitch Box -->
+        <div class="spoken-script">
+          <div class="spoken-header">
+            <span>🎙️ Spoken Presentation Script — The 45-Second Elevator Pitch</span>
+            <span class="badge badge-purple" style="margin-left: auto;">Memorize Word-for-Word</span>
+          </div>
+          <div class="spoken-content">
+            <p>
+              "At S4 Campaign, we built a <strong>high-concurrency outbound telephony platform</strong> that orchestrates over <strong>100,000 automated phone calls</strong> across Japan. To handle this scale reliably, I structured the system into <strong>four clean architectural blocks</strong>:
+            </p>
+            <p>
+              <strong>First, Edge and Ingress:</strong> We use an AWS Application Load Balancer with Pod IP targeting via VPC CNI, paired with NGINX Ingress to strip untrusted headers and inject verified user context.
+            </p>
+            <p>
+              <strong>Second, Fast Ingestion and Rate Limiting:</strong> When Twilio fires callback webhooks, our Node.js gateway validates signatures and pushes raw events straight into RabbitMQ in <strong>under 10 milliseconds</strong>, returning 200 OK immediately. To obey telco quotas, an atomic Redis Token Bucket limits calls per second, while Redis Redlock prevents duplicate webhook processing.
+            </p>
+            <p>
+              <strong>Third, Async Processing and Analytics:</strong> Our Node.js Call Orchestrator runs the call state machine, while a Python FastAPI engine communicates over <strong>gRPC</strong> to pre-aggregate campaign metrics like ASR and conversion rate directly into MongoDB Atlas, cutting inter-service latency by 30%.
+            </p>
+            <p>
+              <strong>Fourth, Resilient Storage and Archiving:</strong> We host a high-throughput RabbitMQ cluster on EKS with 3-tier Dead Letter Exchange retries to safely handle transient telco failures. Audio recordings stream to AWS S3, where automated lifecycle rules move them to S3 Glacier after 30 days, <strong>cutting storage costs by 75%</strong>."
+            </p>
+          </div>
+        </div>
+
+        <!-- Vietnamese Strategy & Explanation -->
+        <div class="callout callout-tip">
+          <div class="callout-title">
+            <span>🇻🇳 Dịch Nghĩa &amp; Chiến Thuật Ghi Điểm Phỏng Vấn (Why this pitch wins)</span>
+          </div>
+          <p style="font-size: 0.9rem; line-height: 1.6;">
+            <strong>Chiến lược 4 khối (The 4-Block Rule):</strong> Đừng bao giờ trả lời lộn xộn từ frontend xuống database. Chia bài nói thành đúng 4 khối: (1) Cửa ngõ Edge &amp; Ingress, (2) Tầng tiếp nhận Webhook siêu tốc &amp; điều tiết Token Bucket, (3) Tầng xử lý bất đồng bộ kết hợp Node.js + Python gRPC, (4) Tầng lưu trữ bền vững RabbitMQ DLX và tối ưu S3 Glacier. 
+            Mọi số liệu trong bài nói đều có mục đích: <strong>100,000 CCU</strong> (quy mô), <strong>&lt;10ms</strong> (tốc độ tiếp nhận), <strong>-30% latency</strong> (tối ưu gRPC), và <strong>-75% cost</strong> (tư duy FinOps doanh nghiệp).
+          </p>
+        </div>
+
+        <!-- 45-Minute Rapid Mastery Protocol -->
+        <div style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.5rem; margin-top: 1.5rem;">
+          <h3 style="font-size: 1.15rem; font-weight: 700; color: #0f172a; margin-bottom: 0.75rem;">
+            ⏱️ The 45-Minute Rapid Mastery Protocol (Học Nhanh Thuộc Lòng Trước Phỏng Vấn)
+          </h3>
+          <p style="font-size: 0.9rem; color: #475569; margin-bottom: 1rem;">
+            Follow this 4-step checklist to master the entire system in exactly 45 minutes without feeling overwhelmed:
+          </p>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem;">
+              <div style="font-weight: 800; color: #7c3aed; font-size: 0.85rem; margin-bottom: 0.35rem;">PHASE 1: 05 MINS</div>
+              <div style="font-weight: 700; color: #0f172a; font-size: 0.95rem;">Master the 4 Blocks</div>
+              <p style="font-size: 0.82rem; color: #64748b; margin-top: 0.25rem;">
+                Draw the 4 boxes on paper. Read the 45-second spoken pitch out loud twice until it flows naturally.
+              </p>
+            </div>
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem;">
+              <div style="font-weight: 800; color: #0284c7; font-size: 0.85rem; margin-bottom: 0.35rem;">PHASE 2: 15 MINS</div>
+              <div style="font-weight: 700; color: #0f172a; font-size: 0.95rem;">Review 10 Trade-Offs</div>
+              <p style="font-size: 0.82rem; color: #64748b; margin-top: 0.25rem;">
+                Scan the table below. Memorize why we picked RabbitMQ over SQS and Redis Token Bucket over Leaky Bucket.
+              </p>
+            </div>
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem;">
+              <div style="font-weight: 800; color: #059669; font-size: 0.85rem; margin-bottom: 0.35rem;">PHASE 3: 15 MINS</div>
+              <div style="font-weight: 700; color: #0f172a; font-size: 0.95rem;">Top 20 Flashcards</div>
+              <p style="font-size: 0.82rem; color: #64748b; margin-top: 0.25rem;">
+                Turn on Rehearsal Mode. Click each Q&amp;A flashcard, test yourself on the answers, and rehearse the key bullet points.
+              </p>
+            </div>
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem;">
+              <div style="font-weight: 800; color: #d97706; font-size: 0.85rem; margin-bottom: 0.35rem;">PHASE 4: 10 MINS</div>
+              <div style="font-weight: 700; color: #0f172a; font-size: 0.95rem;">Final Voice Rehearsal</div>
+              <p style="font-size: 0.82rem; color: #64748b; margin-top: 0.25rem;">
+                Deliver the 5-Pillar Closing Architect Pitch out loud to lock in your confident, senior tone.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5 Native Sentence Starters & Pronunciation Guide -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
+          <!-- Sentence Starters -->
+          <div style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem;">
+            <h4 style="font-size: 0.95rem; font-weight: 700; color: #0f172a; margin-bottom: 0.75rem;">
+              🗣️ 5 Native Sentence Starters (Mở Đầu Câu Tự Nhiên, Không Bị Khựng)
+            </h4>
+            <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.86rem; color: #334155; line-height: 1.7;">
+              <li style="margin-bottom: 0.5rem; padding-left: 1.25rem; position: relative;">
+                <span style="position: absolute; left: 0; color: #7c3aed; font-weight: bold;">1.</span>
+                <em>"When orchestrating 100,000 concurrent calls, our primary bottleneck was..."</em>
+              </li>
+              <li style="margin-bottom: 0.5rem; padding-left: 1.25rem; position: relative;">
+                <span style="position: absolute; left: 0; color: #7c3aed; font-weight: bold;">2.</span>
+                <em>"Instead of writing directly to MongoDB upon webhook ingestion, we chose to..."</em>
+              </li>
+              <li style="margin-bottom: 0.5rem; padding-left: 1.25rem; position: relative;">
+                <span style="position: absolute; left: 0; color: #7c3aed; font-weight: bold;">3.</span>
+                <em>"To strictly obey telco rate quotas across 50 worker pods, we implemented..."</em>
+              </li>
+              <li style="margin-bottom: 0.5rem; padding-left: 1.25rem; position: relative;">
+                <span style="position: absolute; left: 0; color: #7c3aed; font-weight: bold;">4.</span>
+                <em>"We offloaded statistical calculations to Python over gRPC because..."</em>
+              </li>
+              <li style="padding-left: 1.25rem; position: relative;">
+                <span style="position: absolute; left: 0; color: #7c3aed; font-weight: bold;">5.</span>
+                <em>"To protect our downstream providers during sudden outages, we wrapped all calls in..."</em>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Pronunciation Guide -->
+          <div style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem;">
+            <h4 style="font-size: 0.95rem; font-weight: 700; color: #0f172a; margin-bottom: 0.75rem;">
+              🎙️ Pronunciation &amp; Natural Spoken Words (Đọc Chuẩn, Tránh Từ Rườm Rà)
+            </h4>
+            <div style="font-size: 0.84rem; line-height: 1.6; color: #334155;">
+              <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #e2e8f0; padding-bottom: 0.35rem; margin-bottom: 0.35rem;">
+                <span><strong>Idempotency:</strong> <code>/ˌaɪ.dəmˈpoʊ.tən.si/</code></span>
+                <span style="color: #059669; font-weight: 600;">"Eye-dem-POH-ten-see"</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #e2e8f0; padding-bottom: 0.35rem; margin-bottom: 0.35rem;">
+                <span><strong>Telephony:</strong> <code>/təˈlef.ə.ni/</code></span>
+                <span style="color: #059669; font-weight: 600;">"Tuh-LEF-uh-nee"</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #e2e8f0; padding-bottom: 0.35rem; margin-bottom: 0.35rem;">
+                <span><strong>Ingestion:</strong> <code>/ɪnˈdʒes.tʃən/</code></span>
+                <span style="color: #059669; font-weight: 600;">"In-JES-chun"</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #e2e8f0; padding-bottom: 0.35rem; margin-bottom: 0.35rem;">
+                <span><strong>Protobuf:</strong> <code>/ˈproʊ.toʊ.bʌf/</code></span>
+                <span style="color: #059669; font-weight: 600;">"PROH-toh-buf"</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding-top: 0.35rem;">
+                <span style="color: #dc2626;">❌ <em>Avoid:</em> "utilize", "bifurcate", "preclude"</span>
+                <span style="color: #059669; font-weight: 600;">✅ <em>Say:</em> "use", "split", "prevent"</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 16 High-Impact Memory Anchors -->
+        <div style="margin-top: 1.75rem;">
+          <h3 style="font-size: 1.15rem; font-weight: 700; color: #0f172a; margin-bottom: 0.75rem;">
+            🧠 16 High-Impact Memory Anchors (Bộ Neo Trí Nhớ Bất Tử Cho Phỏng Vấn)
+          </h3>
+          <p style="font-size: 0.9rem; color: #475569; margin-bottom: 1rem;">
+            When the interviewer presses on any part of the system, instantly trigger these 16 mental anchors to deliver technical depth with zero hesitation:
+          </p>
+          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 0.75rem;">
+            <div class="card" style="padding: 0.85rem; background: #ffffff; border-left: 3px solid #7c3aed;">
+              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">1. 100k CCU Capacity</div>
+              <div style="font-size: 0.8rem; color: #64748b;">Asynchronous queuing with RabbitMQ &amp; BullMQ prevents telephony bottlenecks.</div>
+            </div>
+            <div class="card" style="padding: 0.85rem; background: #ffffff; border-left: 3px solid #0284c7;">
+              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">2. &lt;10ms Ingestion</div>
+              <div style="font-size: 0.8rem; color: #64748b;">Verifies HMAC and pushes raw payload straight to queue; returns 200 OK immediately.</div>
+            </div>
+            <div class="card" style="padding: 0.85rem; background: #ffffff; border-left: 3px solid #059669;">
+              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">3. Token Bucket via Lua</div>
+              <div style="font-size: 0.8rem; color: #64748b;">Atomic Redis script enforces strict 50-200 calls/sec limits across 50 pods.</div>
+            </div>
+            <div class="card" style="padding: 0.85rem; background: #ffffff; border-left: 3px solid #d97706;">
+              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">4. Redis Redlock on CallSid</div>
+              <div style="font-size: 0.8rem; color: #64748b;">Prevents out-of-order Twilio callbacks from corrupting call lifecycle state.</div>
+            </div>
+            <div class="card" style="padding: 0.85rem; background: #ffffff; border-left: 3px solid #4f46e5;">
+              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">5. gRPC over HTTP/2</div>
+              <div style="font-size: 0.8rem; color: #64748b;">FastAPI and Node.js exchange Protobuf binaries, cutting latency by 30%.</div>
+            </div>
+            <div class="card" style="padding: 0.85rem; background: #ffffff; border-left: 3px solid #e11d48;">
+              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">6. 3-Tier RabbitMQ DLX</div>
+              <div style="font-size: 0.8rem; color: #64748b;">Instant retry ➔ 10s delay ➔ 60s delay ➔ Poison Pill DLQ prevents worker crashloops.</div>
+            </div>
+            <div class="card" style="padding: 0.85rem; background: #ffffff; border-left: 3px solid #059669;">
+              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">7. Full Jitter Backoff</div>
+              <div style="font-size: 0.8rem; color: #64748b;">Randomized retry intervals eliminate thundering herd spikes against downstream APIs.</div>
+            </div>
+            <div class="card" style="padding: 0.85rem; background: #ffffff; border-left: 3px solid #7c3aed;">
+              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">8. Opossum Circuit Breaker</div>
+              <div style="font-size: 0.8rem; color: #64748b;">Fails fast when error rate exceeds 50% over 10s; 30s half-open cooldown.</div>
+            </div>
+            <div class="card" style="padding: 0.85rem; background: #ffffff; border-left: 3px solid #0284c7;">
+              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">9. MongoDB Write Concerns</div>
+              <div style="font-size: 0.8rem; color: #64748b;">{w: 1} for 100k ops/sec raw logs; {w: "majority", j: true} for campaign billing data.</div>
+            </div>
+            <div class="card" style="padding: 0.85rem; background: #ffffff; border-left: 3px solid #d97706;">
+              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">10. Connection Pool Sizing</div>
+              <div style="font-size: 0.8rem; color: #64748b;">maxPoolSize=25 across 50 pods = ~1,600 sockets; well below Atlas M60 limits.</div>
+            </div>
+            <div class="card" style="padding: 0.85rem; background: #ffffff; border-left: 3px solid #4f46e5;">
+              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">11. KEDA Queue Depth Autoscaling</div>
+              <div style="font-size: 0.8rem; color: #64748b;">Scales pods 5 ➔ 50 within seconds based on RabbitMQ backlog depth (&gt;1,000 msgs).</div>
+            </div>
+            <div class="card" style="padding: 0.85rem; background: #ffffff; border-left: 3px solid #e11d48;">
+              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">12. AWS S3 Glacier Lifecycle</div>
+              <div style="font-size: 0.8rem; color: #64748b;">Automated transition after 30 days saves 75% on 50,000+ customer audio recordings.</div>
+            </div>
+            <div class="card" style="padding: 0.85rem; background: #ffffff; border-left: 3px solid #059669;">
+              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">13. Telemetry 500ms Debouncing</div>
+              <div style="font-size: 0.8rem; color: #64748b;">AngularJS client buffers WebSocket metric batches to keep DOM rendering fluid.</div>
+            </div>
+            <div class="card" style="padding: 0.85rem; background: #ffffff; border-left: 3px solid #7c3aed;">
+              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">14. Pod Anti-Affinity Multi-AZ</div>
+              <div style="font-size: 0.8rem; color: #64748b;">Spreads pods across us-east-1a, 1b, and 1c for 99.99% high availability.</div>
+            </div>
+            <div class="card" style="padding: 0.85rem; background: #ffffff; border-left: 3px solid #0284c7;">
+              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">15. Secretless OIDC CI/CD</div>
+              <div style="font-size: 0.8rem; color: #64748b;">GitHub Actions uses AWS IAM Workload Identity; eliminates static credential keys.</div>
+            </div>
+            <div class="card" style="padding: 0.85rem; background: #ffffff; border-left: 3px solid #d97706;">
+              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">16. Datadog Flame Graph Triage</div>
+              <div style="font-size: 0.8rem; color: #64748b;">Correlates Trace IDs and logs across services to isolate slow spans in seconds.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 10 Architectural Trade-Offs Table -->
+        <div style="margin-top: 2rem;">
+          <h3 style="font-size: 1.25rem; font-weight: 800; color: #0f172a; margin-bottom: 0.5rem;">
+            ⚖️ The 10 Non-Negotiable Engineering Trade-Offs (Why X and NOT Y)
+          </h3>
+          <p style="font-size: 0.9rem; color: #475569; margin-bottom: 1rem;">
+            Senior and Staff engineers are judged on trade-off rationale. Here is the exact decision matrix defending our choices:
+          </p>
+
+          <div style="overflow-x: auto; background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md);">
+            <table class="data-table" style="width: 100%; border-collapse: collapse; font-size: 0.84rem;">
+              <thead>
+                <tr style="background: #f1f5f9; text-align: left; border-bottom: 2px solid var(--border-light);">
+                  <th style="padding: 0.75rem 1rem;">#</th>
+                  <th style="padding: 0.75rem 1rem;">Architectural Area</th>
+                  <th style="padding: 0.75rem 1rem;">What We Picked (Option A)</th>
+                  <th style="padding: 0.75rem 1rem;">What We Rejected (Option B)</th>
+                  <th style="padding: 0.75rem 1rem;">Core Engineering Justification</th>
+                  <th style="padding: 0.75rem 1rem;">Spoken Interview Talking Point</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="border-bottom: 1px solid var(--border-light);">
+                  <td style="padding: 0.75rem 1rem; font-weight: 700; color: #7c3aed;">01</td>
+                  <td style="padding: 0.75rem 1rem; font-weight: 600;">Message Broker Infrastructure</td>
+                  <td style="padding: 0.75rem 1rem;"><span class="badge badge-emerald">Self-Hosted RabbitMQ on EKS</span></td>
+                  <td style="padding: 0.75rem 1rem;"><span class="badge badge-amber">Amazon MQ / AWS SQS</span></td>
+                  <td style="padding: 0.75rem 1rem;">IOPS customization on EBS gp3 NVMe, fine-grained DLX routing, &lt;0.5ms VPC latency, 65% cost reduction.</td>
+                  <td style="padding: 0.75rem 1rem;"><em>"Amazon MQ IOPS caps made it 3x more expensive at 100k CCU. Self-hosting via RabbitMQ Operator gave us dedicated NVMe IOPS and sub-millisecond VPC latency."</em></td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--border-light); background: #fbfcfe;">
+                  <td style="padding: 0.75rem 1rem; font-weight: 700; color: #7c3aed;">02</td>
+                  <td style="padding: 0.75rem 1rem; font-weight: 600;">CPS Rate Limiting</td>
+                  <td style="padding: 0.75rem 1rem;"><span class="badge badge-emerald">Redis Token Bucket via Lua</span></td>
+                  <td style="padding: 0.75rem 1rem;"><span class="badge badge-amber">Leaky Bucket / In-Memory Limiters</span></td>
+                  <td style="padding: 0.75rem 1rem;">Atomic token refill &amp; decrement across 50 pods prevents race conditions and telco bans.</td>
+                  <td style="padding: 0.75rem 1rem;"><em>"In-memory limiters fail across distributed pods. Redis Lua scripts run atomically, guaranteeing we never exceed telco rate quotas."</em></td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--border-light);">
+                  <td style="padding: 0.75rem 1rem; font-weight: 700; color: #7c3aed;">03</td>
+                  <td style="padding: 0.75rem 1rem; font-weight: 600;">Webhook Ingestion Strategy</td>
+                  <td style="padding: 0.75rem 1rem;"><span class="badge badge-emerald">Non-blocking Push to RabbitMQ (&lt;10ms)</span></td>
+                  <td style="padding: 0.75rem 1rem;"><span class="badge badge-amber">Direct MongoDB Writes</span></td>
+                  <td style="padding: 0.75rem 1rem;">Eliminates disk I/O wait; returns 200 OK instantly to prevent Twilio timeout retry storms.</td>
+                  <td style="padding: 0.75rem 1rem;"><em>"Writing webhooks directly to the DB caused disk contention. Pushing raw events straight to RabbitMQ ensures sub-10ms responses and zero dropped webhooks."</em></td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--border-light); background: #fbfcfe;">
+                  <td style="padding: 0.75rem 1rem; font-weight: 700; color: #7c3aed;">04</td>
+                  <td style="padding: 0.75rem 1rem; font-weight: 600;">Primary Document Store</td>
+                  <td style="padding: 0.75rem 1rem;"><span class="badge badge-emerald">MongoDB Atlas Managed (M60)</span></td>
+                  <td style="padding: 0.75rem 1rem;"><span class="badge badge-amber">AWS DocumentDB / Self-Hosted EC2</span></td>
+                  <td style="padding: 0.75rem 1rem;">Full aggregation pipeline compatibility, Change Streams, automated backups, zero stateful K8s toil.</td>
+                  <td style="padding: 0.75rem 1rem;"><em>"DocumentDB lacks modern aggregation operators and Change Streams. Atlas gave us 100% MongoDB feature compatibility and point-in-time recovery."</em></td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--border-light);">
+                  <td style="padding: 0.75rem 1rem; font-weight: 700; color: #7c3aed;">05</td>
+                  <td style="padding: 0.75rem 1rem; font-weight: 600;">Inter-Service Analytics Bridge</td>
+                  <td style="padding: 0.75rem 1rem;"><span class="badge badge-emerald">Python FastAPI + gRPC (HTTP/2)</span></td>
+                  <td style="padding: 0.75rem 1rem;"><span class="badge badge-amber">Pure Node.js REST APIs</span></td>
+                  <td style="padding: 0.75rem 1rem;">Offloads CPU-heavy statistics from Node event loop; Protobuf reduces serialization latency by 30%.</td>
+                  <td style="padding: 0.75rem 1rem;"><em>"Calculating ASR and conversion rates blocked Node's event loop. Python handles numerical math efficiently, and gRPC cut inter-service communication latency by 30%."</em></td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--border-light); background: #fbfcfe;">
+                  <td style="padding: 0.75rem 1rem; font-weight: 700; color: #7c3aed;">06</td>
+                  <td style="padding: 0.75rem 1rem; font-weight: 600;">DB Connection Pool Sizing</td>
+                  <td style="padding: 0.75rem 1rem;"><span class="badge badge-emerald">Bounded Driver Pool (maxPoolSize=25)</span></td>
+                  <td style="padding: 0.75rem 1rem;"><span class="badge badge-amber">Default Settings (maxPoolSize=100)</span></td>
+                  <td style="padding: 0.75rem 1rem;">Caps total cluster sockets at ~1,600 across 50 pods; avoids connection exhaustion crashes on primary.</td>
+                  <td style="padding: 0.75rem 1rem;"><em>"Default driver settings would have opened 5,000+ connections during autoscaling, crashing the primary. Capping pool size to 25 kept total connections at ~1,600."</em></td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--border-light);">
+                  <td style="padding: 0.75rem 1rem; font-weight: 700; color: #7c3aed;">07</td>
+                  <td style="padding: 0.75rem 1rem; font-weight: 600;">Concurrency &amp; Idempotency</td>
+                  <td style="padding: 0.75rem 1rem;"><span class="badge badge-emerald">Redis Redlock on CallSid</span></td>
+                  <td style="padding: 0.75rem 1rem;"><span class="badge badge-amber">Database Optimistic Locks</span></td>
+                  <td style="padding: 0.75rem 1rem;">Prevents out-of-order Twilio callbacks without inflicting heavy write contention on Mongo collections.</td>
+                  <td style="padding: 0.75rem 1rem;"><em>"Twilio callbacks often arrive out of sequence. Locking on CallSid in Redis resolved race conditions without database row lock contention."</em></td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--border-light); background: #fbfcfe;">
+                  <td style="padding: 0.75rem 1rem; font-weight: 700; color: #7c3aed;">08</td>
+                  <td style="padding: 0.75rem 1rem; font-weight: 600;">Error Handling &amp; Retry</td>
+                  <td style="padding: 0.75rem 1rem;"><span class="badge badge-emerald">RabbitMQ 3-Tier DLX</span></td>
+                  <td style="padding: 0.75rem 1rem;"><span class="badge badge-amber">Continuous nack(requeue=true)</span></td>
+                  <td style="padding: 0.75rem 1rem;">Delayed retry queues (10s, 60s) protect downstream services; poison pills land in DLQ without burning CPU.</td>
+                  <td style="padding: 0.75rem 1rem;"><em>"Re-queueing failed messages immediately causes CPU hot loops. Dead Letter Exchanges with 10-second and 60-second delay queues give external APIs time to recover."</em></td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--border-light);">
+                  <td style="padding: 0.75rem 1rem; font-weight: 700; color: #7c3aed;">09</td>
+                  <td style="padding: 0.75rem 1rem; font-weight: 600;">Media Audio Storage Cost</td>
+                  <td style="padding: 0.75rem 1rem;"><span class="badge badge-emerald">S3 Lifecycle Archiving to Glacier</span></td>
+                  <td style="padding: 0.75rem 1rem;"><span class="badge badge-amber">S3 Standard Persistent</span></td>
+                  <td style="padding: 0.75rem 1rem;">Automated transition after 30 days saves 75% on 50,000+ audio files while meeting compliance rules.</td>
+                  <td style="padding: 0.75rem 1rem;"><em>"Recordings are rarely accessed after 30 days. Moving them to S3 Glacier cut our storage bill by 75% while keeping audit compliance intact."</em></td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--border-light); background: #fbfcfe;">
+                  <td style="padding: 0.75rem 1rem; font-weight: 700; color: #7c3aed;">10</td>
+                  <td style="padding: 0.75rem 1rem; font-weight: 600;">Autoscaling Mechanism</td>
+                  <td style="padding: 0.75rem 1rem;"><span class="badge badge-emerald">KEDA Event-Driven on Queue Backlog</span></td>
+                  <td style="padding: 0.75rem 1rem;"><span class="badge badge-amber">Standard CPU / RAM HPA</span></td>
+                  <td style="padding: 0.75rem 1rem;">Reactive metrics lag by minutes; queue depth scaling reacts instantly when backlog exceeds 1,000 tasks.</td>
+                  <td style="padding: 0.75rem 1rem;"><em>"CPU metrics lag behind traffic bursts. KEDA watches RabbitMQ queue depth directly, scaling worker pods from 5 to 50 within seconds."</em></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- SECTION 1: EDGE & INGRESS ROUTING -->
+      <section id="section-1" class="section-card">
+        <div class="badge-row">
+          <span class="badge badge-purple">SECTION 01</span>
+          <span class="badge badge-blue">EDGE ARCHITECTURE</span>
+          <span class="badge badge-emerald">INGRESS NETWORKING</span>
+        </div>
+
+        <h2 style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin-top: 0.5rem; margin-bottom: 0.75rem;">
+          01. Edge Infrastructure, Ingress Routing &amp; Perimeter Protection
+        </h2>
+        <p style="color: #475569; margin-bottom: 1.25rem;">
+          Handling 100,000 concurrent calls and thousands of incoming Twilio webhook callbacks per second requires a rock-solid edge. Any delay or TLS handshake bottleneck at the ingress layer immediately degrades real-time call telemetry.
+        </p>
+
+        <!-- Edge Architecture Diagram -->
+        <div class="diagram-container">
+          <div class="diagram-header">
+            <span>🌐 FIGURE 2: AWS ALB &amp; NGINX INGRESS ROUTING TOPOLOGY</span>
+            <button class="copy-btn">📋 Copy</button>
+          </div>
+          <div class="diagram-body">
+            <pre>
+=========================================================================================================================================
+                                     EDGE ROUTING &amp; INGRESS GATEWAY TOPOLOGY
+=========================================================================================================================================
+
+ [ EXTERNAL CLIENTS &amp; WEBHOOKS ]
+   • Twilio Status Webhooks (`POST /webhooks/twilio/status`)
+   • AngularJS WebApp Telemetry (`WSS /ws/telemetry`)
+   • Admin Management APIs (`GET/POST /api/v1/campaigns`)
+                          │
+                          ▼
+ ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+ │ 1. AWS APPLICATION LOAD BALANCER (ALB) - Public Internet Perimeter                                         │
+ │  • TLS 1.3 Termination: Offloads CPU-intensive cryptographic handshakes from internal Kubernetes nodes.      │
+ │  • AWS WAF &amp; Shield: Filters DDoS attacks, SQL injection, and OWASP Top 10 exploits before touching pods.   │
+ │  • Cross-Zone Balancing: Distributes incoming traffic evenly across us-east-1a, 1b, and 1c.                 │
+ │  • Pod IP Targeting via AWS VPC CNI: Bypasses kube-proxy &amp; NodePort; routes packets directly to Pod IPs,   │
+ │    cutting 2-5ms of unnecessary internal network hops.                                                      │
+ └──────────────────────────────────────────────────────┬──────────────────────────────────────────────────────┘
+                                                        │
+                                                        ▼ (Direct to Ingress Pods via VPC Overlay)
+ ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+ │ 2. NGINX INGRESS CONTROLLER - Application Routing &amp; Policy Enforcement                                     │
+ │  • Dynamic Path Routing:                                                                                    │
+ │     ├── `/webhooks/twilio/*`  ──► Webhook Ingestion Service Pods (Port 3001)                                 │
+ │     ├── `/ws/telemetry`       ──► Telemetry Service Pods (HTTP 101 WebSocket Upgrade)                       │
+ │     └── `/api/v1/campaigns`   ──► Campaign &amp; Scenario Service Pods (Port 3000)                                │
+ │  • Header Sanitization: Strips 100% of untrusted external `X-User-*` headers to eliminate injection risks. │
+ │  • Context Injection: Validates JWT and injects `X-User-Context` (Base64 JSON: userId, tenantId, roles).     │
+ │  • Leaky Bucket Rate Limiting: Enforces `limit_req_zone` per tenant IP to guard expensive admin endpoints.   │
+ │  • Gzip / Brotli Compression: Compresses JSON responses and caches AngularJS frontend assets.              │
+ └──────────────────────────────────────────────────────┬──────────────────────────────────────────────────────┘
+                                                        │
+                                                        ▼ (Internal VPC: Header Enrichment + Strict mTLS)
+ ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+ │ AWS EKS WORKER NODES (Private Subnets - Multi-AZ: us-east-1a, 1b, 1c)                                       │
+ └─────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+=========================================================================================================================================
+            </pre>
+          </div>
+        </div>
+
+        <h3 style="font-size: 1.15rem; font-weight: 700; color: #0f172a; margin-top: 1.25rem; margin-bottom: 0.5rem;">
+          1.1. AWS Application Load Balancer (ALB) — Public Cloud Gateway
+        </h3>
+        <ul style="color: #334155; font-size: 0.9rem; line-height: 1.7; margin-left: 1.25rem; margin-bottom: 1.25rem;">
+          <li><strong>SSL/TLS 1.3 Termination:</strong> Sits directly on the Internet boundary, taking the entire burden of cryptographic handshakes off our internal Node.js call engines, saving valuable CPU cycles for event processing.</li>
+          <li><strong>AWS WAF &amp; Shield Integration:</strong> Automatically detects and mitigates Layer 7 DDoS floods and bad bots before requests ever reach the Kubernetes cluster.</li>
+          <li><strong>Cross-Zone High Availability:</strong> Balances incoming traffic smoothly across three AWS Availability Zones, ensuring 99.99% availability even during a data center disruption.</li>
+          <li><strong>Pod IP Targeting via AWS VPC CNI:</strong> Instead of routing traffic through standard Kubernetes <code>NodePort</code> and <code>kube-proxy</code> iptables, packets route directly from the ALB target group to individual Pod IP addresses, shaving <strong>2 to 5 milliseconds</strong> of latency off every webhook.</li>
+        </ul>
+
+        <h3 style="font-size: 1.15rem; font-weight: 700; color: #0f172a; margin-top: 1rem; margin-bottom: 0.5rem;">
+          1.2. NGINX Ingress Controller — Policy &amp; Security Layer
+        </h3>
+        <ul style="color: #334155; font-size: 0.9rem; line-height: 1.7; margin-left: 1.25rem; margin-bottom: 1.25rem;">
+          <li><strong>Clean Path Separation:</strong> Splits incoming traffic into three dedicated paths: high-frequency webhook ingestion, persistent WebSockets for live operator telemetry, and standard REST management APIs.</li>
+          <li><strong>Header Sanitization &amp; Context Enrichment:</strong> Strips out any untrusted external <code>X-User-*</code> headers sent from public clients. It validates the user JWT and injects an authenticated <code>X-User-Context</code> header carrying user ID, tenant ID, and permissions down to internal pods.</li>
+          <li><strong>WebSocket Protocol Upgrades:</strong> Handles HTTP 101 Switching Protocols seamlessly to power the live AngularJS real-time call monitoring dashboard.</li>
+        </ul>
+
+        <!-- 🎙️ Spoken Script for Section 1 -->
+        <div class="spoken-script">
+          <div class="spoken-header">
+            <span>🎙️ Spoken Script — Explaining Edge &amp; Ingress in Interviews</span>
+          </div>
+          <div class="spoken-content">
+            <p>
+              "At the edge, we terminated TLS on an <strong>AWS Application Load Balancer</strong> backed by AWS WAF. Instead of routing traffic through typical <code>kube-proxy</code> NodePorts, we used <strong>Pod IP targeting via AWS VPC CNI</strong>. This allowed the load balancer to route webhook packets directly into Pod IPs, cutting 2 to 5 milliseconds off every status callback.
+            </p>
+            <p>
+              Behind the ALB, our <strong>NGINX Ingress Controller</strong> stripped untrusted external headers and injected a verified <code>X-User-Context</code> header containing tenant metadata. It also managed WebSocket upgrades for live operator dashboards."
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 2: CORE MICROSERVICES FLEET -->
+      <section id="section-2" class="section-card">
+        <div class="badge-row">
+          <span class="badge badge-purple">SECTION 02</span>
+          <span class="badge badge-blue">MICROSERVICES FLEET</span>
+          <span class="badge badge-emerald">POLYGLOT ARCHITECTURE</span>
+        </div>
+
+        <h2 style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin-top: 0.5rem; margin-bottom: 0.75rem;">
+          02. Core Microservices Fleet (Polyglot Node.js &amp; Python)
+        </h2>
+        <p style="color: #475569; margin-bottom: 1.25rem;">
+          S4 Campaign relies on a polyglot microservices fleet designed to separate fast I/O ingestion from heavy CPU-bound analytics. Each service has a single responsibility and scales independently.
+        </p>
+
+        <!-- Service Fleet Cards Grid -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(310px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+          
+          <!-- 1. Webhook Ingestion Service -->
+          <div class="card" style="padding: 1.25rem; border-top: 4px solid #059669; background: #ffffff;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <h4 style="font-size: 1.05rem; font-weight: 700; color: #0f172a; margin: 0;">1. Webhook Ingestion Service</h4>
+              <span class="badge badge-emerald">Node.js / Express</span>
+            </div>
+            <p style="font-size: 0.85rem; color: #475569; line-height: 1.6; margin-bottom: 0.75rem;">
+              Lightweight ingestion gateway built exclusively to receive external Twilio call callbacks.
+            </p>
+            <ul style="font-size: 0.82rem; color: #334155; line-height: 1.6; margin-left: 1.1rem; padding: 0;">
+              <li><strong>HMAC Signature Validation:</strong> Hashes URL and payload with our Auth Token to verify <code>X-Twilio-Signature</code> in under 1ms.</li>
+              <li><strong>Sub-10ms Non-Blocking Push:</strong> Pushes raw event payloads directly to RabbitMQ and returns <code>200 OK</code> immediately. Twilio never times out or fires retry storms.</li>
+            </ul>
+          </div>
+
+          <!-- 2. Call Orchestrator Engine -->
+          <div class="card" style="padding: 1.25rem; border-top: 4px solid #7c3aed; background: #ffffff;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <h4 style="font-size: 1.05rem; font-weight: 700; color: #0f172a; margin: 0;">2. Call Orchestrator Engine</h4>
+              <span class="badge badge-purple">Node.js / TypeScript</span>
+            </div>
+            <p style="font-size: 0.85rem; color: #475569; line-height: 1.6; margin-bottom: 0.75rem;">
+              The brain of the platform. Executes call workflows, rate limits, and lifecycle state changes.
+            </p>
+            <ul style="font-size: 0.82rem; color: #334155; line-height: 1.6; margin-left: 1.1rem; padding: 0;">
+              <li><strong>Call State Machine:</strong> Transitions calls smoothly through <code>initiated ➔ ringing ➔ in-progress ➔ completed</code>.</li>
+              <li><strong>Redis Token Bucket (CPS):</strong> Uses atomic Lua scripts to cap outbound calls at 50-200 calls/second, strictly honoring telco quotas.</li>
+              <li><strong>Redis Redlock:</strong> Obtains distributed locks on <code>CallSid</code> to prevent out-of-order callbacks from corrupting state.</li>
+            </ul>
+          </div>
+
+          <!-- 3. Analytics & Data Engine -->
+          <div class="card" style="padding: 1.25rem; border-top: 4px solid #0284c7; background: #ffffff;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <h4 style="font-size: 1.05rem; font-weight: 700; color: #0f172a; margin: 0;">3. Analytics &amp; Data Engine</h4>
+              <span class="badge badge-blue">Python / FastAPI &amp; gRPC</span>
+            </div>
+            <p style="font-size: 0.85rem; color: #475569; line-height: 1.6; margin-bottom: 0.75rem;">
+              Dedicated service for heavy numerical computations and statistical aggregations.
+            </p>
+            <ul style="font-size: 0.82rem; color: #334155; line-height: 1.6; margin-left: 1.1rem; padding: 0;">
+              <li><strong>CPU-Bound Metrics:</strong> Calculates Answer-Seizure Ratio (ASR), conversion rates, and call durations without blocking Node's event loop.</li>
+              <li><strong>gRPC over HTTP/2:</strong> Exchanges Protobuf binaries with Node.js services, cutting inter-service latency by 30%.</li>
+              <li><strong>Pre-Aggregation Pipeline:</strong> Uses atomic <code>$inc</code> updates in MongoDB to keep hourly dashboard stats instant.</li>
+            </ul>
+          </div>
+
+          <!-- 4. Campaign & Scenario Service -->
+          <div class="card" style="padding: 1.25rem; border-top: 4px solid #d97706; background: #ffffff;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <h4 style="font-size: 1.05rem; font-weight: 700; color: #0f172a; margin: 0;">4. Campaign &amp; Scenario Service</h4>
+              <span class="badge badge-amber">Node.js / Express</span>
+            </div>
+            <p style="font-size: 0.85rem; color: #475569; line-height: 1.6; margin-bottom: 0.75rem;">
+              Manages customer campaign configurations and dynamic IVR decision trees.
+            </p>
+            <ul style="font-size: 0.82rem; color: #334155; line-height: 1.6; margin-left: 1.1rem; padding: 0;">
+              <li><strong>Target Batching:</strong> Efficiently slices 500,000 uploaded phone numbers into chunks of 500 records for worker queues.</li>
+              <li><strong>IVR Decision Tree Builder:</strong> Serializes dynamic branching logic (DTMF keypad inputs) into JSON trees executed by Twilio.</li>
+            </ul>
+          </div>
+
+          <!-- 5. Telemetry Service -->
+          <div class="card" style="padding: 1.25rem; border-top: 4px solid #4f46e5; background: #ffffff;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <h4 style="font-size: 1.05rem; font-weight: 700; color: #0f172a; margin: 0;">5. Real-Time Telemetry Service</h4>
+              <span class="badge badge-indigo">Socket.io WebSockets</span>
+            </div>
+            <p style="font-size: 0.85rem; color: #475569; line-height: 1.6; margin-bottom: 0.75rem;">
+              Streams live campaign statistics directly to operator browser dashboards.
+            </p>
+            <ul style="font-size: 0.82rem; color: #334155; line-height: 1.6; margin-left: 1.1rem; padding: 0;">
+              <li><strong>Redis Pub/Sub Subscriber:</strong> Listens to real-time status events from all worker pods.</li>
+              <li><strong>500ms Client Throttling:</strong> Batches metric updates before rendering on the AngularJS UI, keeping the browser smooth.</li>
+            </ul>
+          </div>
+
+          <!-- 6. Media & Storage Worker -->
+          <div class="card" style="padding: 1.25rem; border-top: 4px solid #e11d48; background: #ffffff;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <h4 style="font-size: 1.05rem; font-weight: 700; color: #0f172a; margin: 0;">6. Media &amp; Storage Worker</h4>
+              <span class="badge badge-magenta">Python Worker</span>
+            </div>
+            <p style="font-size: 0.85rem; color: #475569; line-height: 1.6; margin-bottom: 0.75rem;">
+              Handles voice recordings, storage compliance, and cost optimization.
+            </p>
+            <ul style="font-size: 0.82rem; color: #334155; line-height: 1.6; margin-left: 1.1rem; padding: 0;">
+              <li><strong>Async Audio Download:</strong> Pulls completed <code>.mp3</code> recordings from Twilio and streams them to private S3 buckets.</li>
+              <li><strong>S3 Glacier Lifecycle:</strong> Auto-archives files after 30 days, cutting audio storage costs by 75%.</li>
+            </ul>
+          </div>
+
+        </div>
+
+        <!-- 🎙️ Spoken Script for Section 2 -->
+        <div class="spoken-script">
+          <div class="spoken-header">
+            <span>🎙️ Spoken Script — Explaining Polyglot Architecture &amp; gRPC</span>
+          </div>
+          <div class="spoken-content">
+            <p>
+              "We chose a <strong>polyglot microservices model</strong>: Node.js handles fast I/O ingestion and telephony state transitions, while Python handles statistical calculations.
+            </p>
+            <p>
+              When Twilio fires a webhook, our <strong>Node.js Ingestion Gateway</strong> verifies the HMAC signature and pushes the raw event into RabbitMQ in <strong>under 10 milliseconds</strong>, returning 200 OK immediately.
+            </p>
+            <p>
+              Downstream, when calls finish, our <strong>Python Analytics Engine</strong> calculates metrics like Answer-Seizure Ratio. To connect Node.js and Python, we used <strong>gRPC over HTTP/2</strong> with Protobuf binary serialization. This eliminated JSON parsing overhead and <strong>reduced inter-service communication latency by 30%</strong>."
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 3: DATABASE & MESSAGING INFRASTRUCTURE -->
+      <section id="section-3" class="section-card">
+        <div class="badge-row">
+          <span class="badge badge-purple">SECTION 03</span>
+          <span class="badge badge-blue">DATA &amp; MESSAGING</span>
+          <span class="badge badge-emerald">HIGH CONCURRENCY TUNING</span>
+        </div>
+
+        <h2 style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin-top: 0.5rem; margin-bottom: 0.75rem;">
+          03. Database Strategy: Managed Atlas vs. Self-Hosted, Sizing &amp; Write Concerns
+        </h2>
+        <p style="color: #475569; margin-bottom: 1.25rem;">
+          In high-concurrency systems, poor database choices cause connection exhaustion and lock contention. Here is our exact data tier strategy:
+        </p>
+
+        <!-- Managed vs Self-Hosted Table -->
+        <div style="overflow-x: auto; background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); margin-bottom: 1.5rem;">
+          <table class="data-table" style="width: 100%; border-collapse: collapse; font-size: 0.84rem;">
+            <thead>
+              <tr style="background: #f1f5f9; text-align: left; border-bottom: 2px solid var(--border-light);">
+                <th style="padding: 0.75rem 1rem;">Component</th>
+                <th style="padding: 0.75rem 1rem;">Chosen Solution</th>
+                <th style="padding: 0.75rem 1rem;">Managed vs. Self-Hosted</th>
+                <th style="padding: 0.75rem 1rem;">Strategic Technical Justification</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom: 1px solid var(--border-light);">
+                <td style="padding: 0.75rem 1rem; font-weight: 700; color: #7c3aed;">MongoDB</td>
+                <td style="padding: 0.75rem 1rem; font-weight: 600;">MongoDB Atlas (M60 Replica Set)</td>
+                <td style="padding: 0.75rem 1rem;"><span class="badge badge-emerald">Managed (SaaS)</span></td>
+                <td style="padding: 0.75rem 1rem;">Supports full aggregation pipelines and Change Streams; provides automated point-in-time recovery without stateful Kubernetes storage maintenance.</td>
+              </tr>
+              <tr style="border-bottom: 1px solid var(--border-light); background: #fbfcfe;">
+                <td style="padding: 0.75rem 1rem; font-weight: 700; color: #7c3aed;">Redis</td>
+                <td style="padding: 0.75rem 1rem; font-weight: 600;">AWS ElastiCache for Redis</td>
+                <td style="padding: 0.75rem 1rem;"><span class="badge badge-emerald">Managed (AWS)</span></td>
+                <td style="padding: 0.75rem 1rem;">Cluster mode enabled across multi-AZ; delivers sub-millisecond latency for atomic Token Bucket Lua scripts and distributed Redlock.</td>
+              </tr>
+              <tr style="border-bottom: 1px solid var(--border-light);">
+                <td style="padding: 0.75rem 1rem; font-weight: 700; color: #7c3aed;">RabbitMQ</td>
+                <td style="padding: 0.75rem 1rem; font-weight: 600;">RabbitMQ Operator on AWS EKS</td>
+                <td style="padding: 0.75rem 1rem;"><span class="badge badge-purple">Self-Hosted on EKS</span></td>
+                <td style="padding: 0.75rem 1rem;">AWS Amazon MQ caps IOPS and is cost-prohibitive at 100k CCU. Self-hosting with EBS gp3 NVMe volumes cut costs by 65% and keeps VPC latency under 0.5ms.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 style="font-size: 1.15rem; font-weight: 700; color: #0f172a; margin-top: 1.25rem; margin-bottom: 0.5rem;">
+          3.1. MongoDB Write Concerns &amp; Read Preferences
+        </h3>
+        <p style="font-size: 0.9rem; color: #475569; margin-bottom: 1rem;">
+          We segregated write concerns based on data criticality to balance extreme write throughput with zero data loss:
+        </p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
+          <div style="background: #f8fafc; border-left: 4px solid #059669; padding: 1rem; border-radius: 6px;">
+            <div style="font-weight: 700; font-size: 0.9rem; color: #0f172a;">Raw Call Logs (High Throughput)</div>
+            <div style="font-family: var(--font-mono); font-size: 0.82rem; color: #059669; margin-top: 0.25rem;">{ w: 1, j: false }</div>
+            <p style="font-size: 0.82rem; color: #64748b; margin-top: 0.35rem;">
+              Writes to primary node memory and acknowledges instantly. Achieves <strong>100,000+ ops/sec</strong> write throughput for status callbacks without waiting for disk flush.
+            </p>
+          </div>
+          <div style="background: #f8fafc; border-left: 4px solid #7c3aed; padding: 1rem; border-radius: 6px;">
+            <div style="font-weight: 700; font-size: 0.9rem; color: #0f172a;">Campaigns &amp; Billing (High Durability)</div>
+            <div style="font-family: var(--font-mono); font-size: 0.82rem; color: #7c3aed; margin-top: 0.25rem;">{ w: "majority", j: true }</div>
+            <p style="font-size: 0.82rem; color: #64748b; margin-top: 0.35rem;">
+              Waits for replication to majority nodes and journal disk flush. Guarantees zero rollbacks on financial and campaign configuration data during primary failover.
+            </p>
+          </div>
+          <div style="background: #f8fafc; border-left: 4px solid #0284c7; padding: 1rem; border-radius: 6px;">
+            <div style="font-weight: 700; font-size: 0.9rem; color: #0f172a;">Analytics &amp; Dashboard Queries</div>
+            <div style="font-family: var(--font-mono); font-size: 0.82rem; color: #0284c7; margin-top: 0.25rem;">readPreference: "secondaryPreferred"</div>
+            <p style="font-size: 0.82rem; color: #64748b; margin-top: 0.35rem;">
+              Routes heavy analytics queries to read replicas, leaving 100% of the primary node's capacity available for real-time call logging.
+            </p>
+          </div>
+        </div>
+
+        <h3 style="font-size: 1.15rem; font-weight: 700; color: #0f172a; margin-top: 1.25rem; margin-bottom: 0.5rem;">
+          3.2. Connection Pool Sizing Formula (Preventing Socket Exhaustion)
+        </h3>
+        <p style="font-size: 0.9rem; color: #475569; margin-bottom: 0.75rem;">
+          During auto-scaling events, unbounded driver pools will overwhelm database socket limits. We sized pools strictly with this mathematical formula:
+        </p>
+        <div style="background: #f1f5f9; padding: 0.75rem 1rem; border-radius: 6px; font-family: var(--font-mono); font-size: 0.85rem; color: #0f172a; margin-bottom: 1rem;">
+          Total DB Connections = &sum; (Max Pods of Service_i &times; maxPoolSize_i)
+        </div>
+        <ul style="color: #334155; font-size: 0.88rem; line-height: 1.7; margin-left: 1.25rem; margin-bottom: 1.25rem;">
+          <li><strong>Call Orchestrator (Max 50 Pods):</strong> <code>maxPoolSize = 25</code> &rarr; $50 	imes 25 = 1,250$ connections max.</li>
+          <li><strong>Python Analytics (Max 20 Pods):</strong> <code>maxPoolSize = 15</code> &rarr; $20 	imes 15 = 300$ connections max.</li>
+          <li><strong>Ingestion Service (Max 10 Pods):</strong> <code>maxPoolSize = 5</code> &rarr; $10 	imes 5 = 50$ connections max.</li>
+          <li><strong>Total Peak Connections:</strong> $pprox 1,600$ connections &mdash; well within the 10,000+ connection limit of MongoDB Atlas M60.</li>
+        </ul>
+
+        <!-- 🎙️ Spoken Script for Section 3 -->
+        <div class="spoken-script">
+          <div class="spoken-header">
+            <span>🎙️ Spoken Script — Explaining Database Tuning &amp; Connection Pooling</span>
+          </div>
+          <div class="spoken-content">
+            <p>
+              "To keep database performance smooth under 100,000 active calls, we tuned write concerns and connection pools carefully.
+            </p>
+            <p>
+              For raw call status logs, we used <code>{ w: 1, j: false }</code> to write to primary memory, achieving over <strong>100,000 write ops per second</strong>. For critical campaign states and billing data, we enforced <code>{ w: 'majority', j: true }</code> to ensure zero data loss during failovers.
+            </p>
+            <p>
+              To prevent connection exhaustion when KEDA scales our cluster up to 50 pods, we capped the driver's <code>maxPoolSize</code> to 25 per pod. This kept total cluster connections around <strong>1,600</strong>, safely below our database limit."
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 4: END-TO-END 7-STEP CAMPAIGN FLOW -->
+      <section id="section-4" class="section-card">
+        <div class="badge-row">
+          <span class="badge badge-purple">SECTION 04</span>
+          <span class="badge badge-blue">LIFECYCLE WORKFLOW</span>
+          <span class="badge badge-emerald">7-STEP EXECUTION</span>
+        </div>
+
+        <h2 style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin-top: 0.5rem; margin-bottom: 0.75rem;">
+          04. End-to-End Campaign Execution Flow (From Launch to Reconciliation)
+        </h2>
+        <p style="color: #475569; margin-bottom: 1.25rem;">
+          Every voice campaign progresses through 7 synchronized steps from operator launch to final financial settlement:
+        </p>
+
+        <!-- 7 Steps Workflow -->
+        <div style="display: flex; flex-direction: column; gap: 0.85rem; margin-bottom: 1.5rem;">
+          
+          <div style="background: #ffffff; border: 1px solid var(--border-light); border-left: 4px solid #7c3aed; border-radius: 6px; padding: 1rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-weight: 700; color: #0f172a; font-size: 0.95rem;">Step 1: Campaign Launch (T = 0s)</span>
+              <span class="badge badge-purple">Admin UI ➔ RabbitMQ</span>
+            </div>
+            <p style="font-size: 0.85rem; color: #475569; margin-top: 0.35rem;">
+              The operator configures the campaign and clicks "Start". The Campaign Service marks the campaign active in MongoDB and publishes a <code>campaign.launched</code> event to RabbitMQ.
+            </p>
+          </div>
+
+          <div style="background: #ffffff; border: 1px solid var(--border-light); border-left: 4px solid #0284c7; border-radius: 6px; padding: 1rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-weight: 700; color: #0f172a; font-size: 0.95rem;">Step 2: Batching &amp; Token Bucket CPS Control</span>
+              <span class="badge badge-blue">Redis Lua ➔ Twilio REST</span>
+            </div>
+            <p style="font-size: 0.85rem; color: #475569; margin-top: 0.35rem;">
+              Call Orchestrators pull 500 phone numbers per batch. Before dialing, worker pods request tokens from Redis via Lua script. Only when tokens are granted does the worker invoke Twilio's Outbound Call REST API.
+            </p>
+          </div>
+
+          <div style="background: #ffffff; border: 1px solid var(--border-light); border-left: 4px solid #059669; border-radius: 6px; padding: 1rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-weight: 700; color: #0f172a; font-size: 0.95rem;">Step 3: Dynamic IVR Execution &amp; Consent</span>
+              <span class="badge badge-emerald">Twilio Voice ➔ DTMF Keypad</span>
+            </div>
+            <p style="font-size: 0.85rem; color: #475569; margin-top: 0.35rem;">
+              The customer answers. Twilio plays the configured IVR audio script asking for recording consent. Customer DTMF keypad inputs navigate the branching JSON decision tree.
+            </p>
+          </div>
+
+          <div style="background: #ffffff; border: 1px solid var(--border-light); border-left: 4px solid #d97706; border-radius: 6px; padding: 1rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-weight: 700; color: #0f172a; font-size: 0.95rem;">Step 4: Fast Ingestion &amp; Idempotent State Transitions</span>
+              <span class="badge badge-amber">&lt;10ms Ingest ➔ Redis Redlock</span>
+            </div>
+            <p style="font-size: 0.85rem; color: #475569; margin-top: 0.35rem;">
+              Twilio sends status callbacks (<code>ringing</code>, <code>in-progress</code>, <code>completed</code>). Ingestion returns 200 OK in &lt;10ms. The Orchestrator acquires a Redis lock on <code>CallSid</code> and advances the call state machine.
+            </p>
+          </div>
+
+          <div style="background: #ffffff; border: 1px solid var(--border-light); border-left: 4px solid #4f46e5; border-radius: 6px; padding: 1rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-weight: 700; color: #0f172a; font-size: 0.95rem;">Step 5: Live Telemetry with Client Debouncing</span>
+              <span class="badge badge-indigo">WebSockets ➔ 500ms Buffer</span>
+            </div>
+            <p style="font-size: 0.85rem; color: #475569; margin-top: 0.35rem;">
+              State events publish to Redis Pub/Sub. The Telemetry Service forwards metrics over WebSockets to the AngularJS dashboard. Client-side 500ms debouncing prevents browser DOM freezing during peak call spikes.
+            </p>
+          </div>
+
+          <div style="background: #ffffff; border: 1px solid var(--border-light); border-left: 4px solid #e11d48; border-radius: 6px; padding: 1rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-weight: 700; color: #0f172a; font-size: 0.95rem;">Step 6: Pre-Aggregation &amp; Media Archiving</span>
+              <span class="badge badge-magenta">Python Worker ➔ S3 Glacier</span>
+            </div>
+            <p style="font-size: 0.85rem; color: #475569; margin-top: 0.35rem;">
+              Python analytics workers aggregate hourly metrics using atomic MongoDB <code>$inc</code> operations. Meanwhile, background workers stream recording audio to private AWS S3 buckets for Glacier archiving.
+            </p>
+          </div>
+
+          <div style="background: #ffffff; border: 1px solid var(--border-light); border-left: 4px solid #059669; border-radius: 6px; padding: 1rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-weight: 700; color: #0f172a; font-size: 0.95rem;">Step 7: Billing Reconciliation &amp; Campaign Report</span>
+              <span class="badge badge-emerald">Telco Audit ➔ ROI Export</span>
+            </div>
+            <p style="font-size: 0.85rem; color: #475569; margin-top: 0.35rem;">
+              At campaign conclusion, the system reconciles billable call minutes with telco rate tables, detects discrepancies, and generates comprehensive ROI reports for business stakeholders.
+            </p>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- SECTION 5: SECURITY & SERVICE MESH -->
+      <section id="section-5" class="section-card">
+        <div class="badge-row">
+          <span class="badge badge-purple">SECTION 05</span>
+          <span class="badge badge-blue">ZERO-TRUST SECURITY</span>
+          <span class="badge badge-emerald">CONTEXT PROPAGATION</span>
+        </div>
+
+        <h2 style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin-top: 0.5rem; margin-bottom: 0.75rem;">
+          05. Security Architecture, Context Propagation &amp; Service Mesh
+        </h2>
+        <p style="color: #475569; margin-bottom: 1.25rem;">
+          Multi-tenant telephony platforms require strict security isolation. Here is how we enforced zero-trust security and seamless context propagation across services:
+        </p>
+
+        <ul style="color: #334155; font-size: 0.9rem; line-height: 1.7; margin-left: 1.25rem; margin-bottom: 1.25rem;">
+          <li><strong>Header Enrichment at Ingress:</strong> Once NGINX Ingress validates the JWT signature via our Auth Service JWKS endpoint, it drops all external <code>X-User-*</code> headers and injects a single <code>X-User-Context</code> header carrying verified metadata (tenant ID, user ID, roles).</li>
+          <li><strong>Async Context Storage:</strong> Internal Node.js services store this context in <code>AsyncLocalStorage</code>, while Python uses <code>contextvars</code>. This keeps request and tenant context available throughout async workflows without passing parameters manually.</li>
+          <li><strong>Automatic Interceptors:</strong> Outbound HTTP clients (Axios) and gRPC client interceptors automatically read from async storage and attach context headers and OpenTelemetry <code>traceparent</code> IDs to outgoing calls.</li>
+          <li><strong>Istio Service Mesh with Strict mTLS:</strong> Pod-to-pod communication is encrypted with mutual TLS. Kubernetes <code>AuthorizationPolicy</code> rules ensure only authorized gateway pods can communicate with internal microservices.</li>
+        </ul>
+      </section>
+
+      <!-- SECTION 6: KEDA AUTOSCALING & DEVSECOPS -->
+      <section id="section-6" class="section-card">
+        <div class="badge-row">
+          <span class="badge badge-purple">SECTION 06</span>
+          <span class="badge badge-blue">EVENT-DRIVEN SCALING</span>
+          <span class="badge badge-emerald">DEVSECOPS PIPELINE</span>
+        </div>
+
+        <h2 style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin-top: 0.5rem; margin-bottom: 0.75rem;">
+          06. KEDA Event-Driven Autoscaling &amp; Zero-Downtime Releases
+        </h2>
+        <p style="color: #475569; margin-bottom: 1.25rem;">
+          Standard CPU/RAM horizontal pod autoscalers react too slowly to massive campaign dial surges. We replaced CPU metrics with event-driven queue metrics:
+        </p>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+          <div style="background: #ffffff; border: 1px solid var(--border-light); border-radius: 8px; padding: 1.25rem;">
+            <h4 style="font-size: 1rem; font-weight: 700; color: #0f172a; margin-bottom: 0.5rem;">
+              ⚡ KEDA Queue Depth Autoscaling
+            </h4>
+            <p style="font-size: 0.85rem; color: #475569; line-height: 1.6;">
+              KEDA monitors RabbitMQ queue depth directly. When the backlog exceeds <strong>1,000 pending calls</strong>, KEDA scales worker pods from <strong>5 to 50 pods within seconds</strong>. When queues clear, it scales down smoothly to conserve cluster resources.
+            </p>
+          </div>
+
+          <div style="background: #ffffff; border: 1px solid var(--border-light); border-radius: 8px; padding: 1.25rem;">
+            <h4 style="font-size: 1rem; font-weight: 700; color: #0f172a; margin-bottom: 0.5rem;">
+              🛡️ Secretless CI/CD &amp; DevSecOps
+            </h4>
+            <p style="font-size: 0.85rem; color: #475569; line-height: 1.6;">
+              GitHub Actions deploys via <strong>AWS IAM OIDC Workload Identity</strong>, eliminating permanent static AWS keys. Automated scanning with <strong>Trivy</strong> (containers), <strong>SonarCloud</strong> (SAST), and <strong>Gitleaks</strong> blocks vulnerable pull requests.
+            </p>
+          </div>
+
+          <div style="background: #ffffff; border: 1px solid var(--border-light); border-radius: 8px; padding: 1.25rem;">
+            <h4 style="font-size: 1rem; font-weight: 700; color: #0f172a; margin-bottom: 0.5rem;">
+              🛑 30s Graceful Shutdown (SIGTERM)
+            </h4>
+            <p style="font-size: 0.85rem; color: #475569; line-height: 1.6;">
+              During rolling updates, worker pods trap <code>SIGTERM</code>, immediately stop taking new jobs from RabbitMQ, and wait up to <strong>30 seconds</strong> to complete in-flight calls before shutting down cleanly. Zero calls are dropped.
+            </p>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- SECTION 7: RESILIENCY PATTERNS -->
+      <section id="section-7" class="section-card">
+        <div class="badge-row">
+          <span class="badge badge-purple">SECTION 07</span>
+          <span class="badge badge-blue">RESILIENCY ENGINEERING</span>
+          <span class="badge badge-emerald">FAULT TOLERANCE</span>
+        </div>
+
+        <h2 style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin-top: 0.5rem; margin-bottom: 0.75rem;">
+          07. Advanced Resiliency Patterns: 3-Tier RabbitMQ DLX, Jitter &amp; Circuit Breakers
+        </h2>
+        <p style="color: #475569; margin-bottom: 1.25rem;">
+          Telephony systems deal with unreliable public networks and telco carrier timeouts. We implemented layered resiliency patterns to prevent cascading failures:
+        </p>
+
+        <!-- DLX Diagram -->
+        <div class="diagram-container">
+          <div class="diagram-header">
+            <span>🛡️ FIGURE 3: 3-TIER RABBITMQ DEAD LETTER EXCHANGE RETRY TOPOLOGY</span>
+            <button class="copy-btn">📋 Copy</button>
+          </div>
+          <div class="diagram-body">
+            <pre>
+=========================================================================================================================================
+                                   RABBITMQ 3-TIER DEAD LETTER RETRY TOPOLOGY
+=========================================================================================================================================
+
+  [ CALL WORKER ] ──(Fails to process webhook or external API)
+         │
+         ├── Attempt 1 &amp; 2: Local Memory Retry (Transient network flicker)
+         │
+         ▼ (Still failing)
+  ┌─────────────────────────────────────────────────────────────┐
+  │ TIER 1: DELAY QUEUE 1 (TTL = 10,000ms / 10 seconds)         │
+  │   • Queue: `call.retry.10s`                                 │
+  │   • No active consumers; message sits idle for 10 seconds.  │
+  │   • On TTL expiration ──► Routed via DLX back to Main Queue │
+  └──────────────────────────────┬──────────────────────────────┘
+                                 │
+                                 ▼ (Fails again upon re-consumption)
+  ┌─────────────────────────────────────────────────────────────┐
+  │ TIER 2: DELAY QUEUE 2 (TTL = 60,000ms / 60 seconds)         │
+  │   • Queue: `call.retry.60s`                                 │
+  │   • Gives downstream Telco APIs 1 full minute to recover.   │
+  │   • On TTL expiration ──► Routed via DLX back to Main Queue │
+  └──────────────────────────────┬──────────────────────────────┘
+                                 │
+                                 ▼ (Fails 3rd time - Exhausted Retries)
+  ┌─────────────────────────────────────────────────────────────┐
+  │ TIER 3: POISON PILL DEAD LETTER QUEUE (DLQ)                 │
+  │   • Queue: `call.poison.dlq`                                │
+  │   • Never discarded. Alert fires to PagerDuty/Slack.        │
+  │   • Inspected and replayed safely via Admin CLI.            │
+  └─────────────────────────────────────────────────────────────┘
+=========================================================================================================================================
+            </pre>
+          </div>
+        </div>
+
+        <h3 style="font-size: 1.15rem; font-weight: 700; color: #0f172a; margin-top: 1.25rem; margin-bottom: 0.5rem;">
+          7.1. Why 3-Tier DLX Instead of Immediate Re-queueing?
+        </h3>
+        <p style="font-size: 0.9rem; color: #334155; line-height: 1.7; margin-bottom: 1.25rem;">
+          Continuous <code>nack(requeue=true)</code> is a deadly antipattern. If an external telco API goes down, re-queued messages immediately hit the worker again, causing <strong>100% CPU burn loops</strong> and log explosion. Our 3-tier DLX queues let messages sit dormant during their TTL, giving downstream dependencies time to heal.
+        </p>
+
+        <h3 style="font-size: 1.15rem; font-weight: 700; color: #0f172a; margin-top: 1rem; margin-bottom: 0.5rem;">
+          7.2. Exponential Backoff with Full Jitter
+        </h3>
+        <p style="font-size: 0.9rem; color: #334155; line-height: 1.7; margin-bottom: 0.5rem;">
+          When retrying external HTTP calls, standard exponential backoff causes synchronized bursts known as the <strong>Thundering Herd problem</strong>. We apply Full Jitter to scatter retry requests across time:
+        </p>
+        <div style="background: #f1f5f9; padding: 0.75rem 1rem; border-radius: 6px; font-family: var(--font-mono); font-size: 0.85rem; color: #0f172a; margin-bottom: 1.25rem;">
+          Sleep Time = random(0, min(Max_Backoff, Base_Backoff &times; 2^attempt))
+          <br>
+          <span style="font-size: 0.78rem; color: #64748b;">(Base Backoff: 200ms | Max Backoff: 5,000ms | Max Retries: 3)</span>
+        </div>
+
+        <h3 style="font-size: 1.15rem; font-weight: 700; color: #0f172a; margin-top: 1rem; margin-bottom: 0.5rem;">
+          7.3. Opossum Circuit Breaker Guard
+        </h3>
+        <p style="font-size: 0.9rem; color: #334155; line-height: 1.7; margin-bottom: 1.25rem;">
+          We wrap all outbound requests to Twilio with the Opossum Circuit Breaker. If failure rates exceed <strong>50% over a 10-second rolling window</strong>, the circuit trips to <code>OPEN</code> state. Outbound calls fail fast without flooding external servers. After a 30-second cooldown, it enters <code>HALF-OPEN</code> state, allowing 5% test traffic through to verify recovery.
+        </p>
+
+        <!-- 🎙️ Spoken Script for Section 7 -->
+        <div class="spoken-script">
+          <div class="spoken-header">
+            <span>🎙️ Spoken Script — Explaining Resiliency Patterns in Interviews</span>
+          </div>
+          <div class="spoken-content">
+            <p>
+              "To prevent cascading outages when external telco carriers fail, we implemented three resiliency layers:
+            </p>
+            <p>
+              <strong>First, a 3-tier RabbitMQ Dead Letter Exchange:</strong> Rather than using continuous re-queueing, failed messages route to 10-second and 60-second TTL delay queues. This gives external APIs time to recover without burning worker CPU cycles. Persistent poison pills land in a dedicated DLQ for inspection.
+            </p>
+            <p>
+              <strong>Second, Exponential Backoff with Full Jitter:</strong> We randomize retry intervals to prevent the thundering herd problem.
+            </p>
+            <p>
+              <strong>Third, Circuit Breakers:</strong> If Twilio errors exceed 50% over 10 seconds, our Opossum circuit breaker trips open, failing fast and alerting on-call engineers immediately."
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 8: OBSERVABILITY & INCIDENT TRIAGE -->
+      <section id="section-8" class="section-card">
+        <div class="badge-row">
+          <span class="badge badge-purple">SECTION 08</span>
+          <span class="badge badge-blue">OBSERVABILITY &amp; APM</span>
+          <span class="badge badge-emerald">INCIDENT TRIAGE</span>
+        </div>
+
+        <h2 style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin-top: 0.5rem; margin-bottom: 0.75rem;">
+          08. Full Observability &amp; Incident Triage Playbook
+        </h2>
+        <p style="color: #475569; margin-bottom: 1.25rem;">
+          When an incident hits in production, Senior and Staff Engineers follow a structured, top-down investigation playbook:
+        </p>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+          <div style="background: #ffffff; border: 1px solid var(--border-light); border-radius: 8px; padding: 1.25rem;">
+            <h4 style="font-size: 1rem; font-weight: 700; color: #0f172a; margin-bottom: 0.5rem;">
+              1. Datadog APM Flame Graphs
+            </h4>
+            <p style="font-size: 0.85rem; color: #475569; line-height: 1.6;">
+              When p99 latency spikes, we look up the Trace ID in Datadog. The <strong>Flame Graph</strong> visually shows whether the delay is in the NGINX Ingress, Node.js event loop, Python gRPC processing, or MongoDB WiredTiger write lock contention.
+            </p>
+          </div>
+
+          <div style="background: #ffffff; border: 1px solid var(--border-light); border-radius: 8px; padding: 1.25rem;">
+            <h4 style="font-size: 1rem; font-weight: 700; color: #0f172a; margin-bottom: 0.5rem;">
+              2. Trace-Log Injection
+            </h4>
+            <p style="font-size: 0.85rem; color: #475569; line-height: 1.6;">
+              Every backend log automatically includes <code>dd.trace_id</code> and <code>dd.span_id</code> via OpenTelemetry context. Clicking an error trace in Datadog instantly reveals the exact log message and database query without manual log searching.
+            </p>
+          </div>
+
+          <div style="background: #ffffff; border: 1px solid var(--border-light); border-radius: 8px; padding: 1.25rem;">
+            <h4 style="font-size: 1rem; font-weight: 700; color: #0f172a; margin-bottom: 0.5rem;">
+              3. Kubernetes Diagnostic Triage
+            </h4>
+            <p style="font-size: 0.85rem; color: #475569; line-height: 1.6;">
+              If a pod restarts without application logs, we inspect AWS CloudWatch Container Insights for Kubernetes exit codes: <code>OOMKilled (Exit Code 137)</code> indicates memory limit breaches, while <code>CrashLoopBackOff</code> flags configuration or IAM permission errors.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 9: STAFF BENCHMARKS & PRODUCTION STAR STORIES -->
+      <section id="section-9" class="section-card">
+        <div class="badge-row">
+          <span class="badge badge-purple">SECTION 09</span>
+          <span class="badge badge-blue">STAFF ENGINEERING</span>
+          <span class="badge badge-emerald">STAR CASE STUDIES</span>
+        </div>
+
+        <h2 style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin-top: 0.5rem; margin-bottom: 0.75rem;">
+          09. Staff Engineering Benchmarks &amp; Real-World STAR Case Studies
+        </h2>
+        <p style="color: #475569; margin-bottom: 1.5rem;">
+          Interviewers evaluate whether candidates have faced real production fires and delivered measurable business results. Here are 4 battle-tested STAR stories from S4 Campaign:
+        </p>
+
+        <!-- STAR Story 1 -->
+        <div style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.5rem; margin-bottom: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <h3 style="font-size: 1.15rem; font-weight: 700; color: #0f172a; margin: 0;">
+              🔥 STAR Case 1: The Twilio Webhook Flood &amp; Retry Storm Crisis
+            </h3>
+            <span class="badge badge-magenta">Incident Response</span>
+          </div>
+          <div style="font-size: 0.88rem; color: #334155; line-height: 1.7;">
+            <p><strong>Situation:</strong> During a nationwide financial notification campaign, Twilio delivered over 10,000 status callbacks per second. Our initial gateway attempted to update call records directly in MongoDB, causing disk write queues to spike and webhook response latency to climb past 5 seconds. Twilio interpreted this as a server failure and triggered aggressive retries, threatening a complete gateway collapse.</p>
+            <p><strong>Task:</strong> I was tasked with decoupling webhook ingestion from database persistence to bring response times under 50ms and eliminate retry storms.</p>
+            <p><strong>Action:</strong> I re-architected the ingestion layer into a lightweight Node.js gateway that only verifies the HMAC signature, serializes the raw event to a RabbitMQ queue, and returns <code>200 OK</code> immediately. I pushed all database persistence downstream to decoupled worker pods.</p>
+            <p><strong>Result:</strong> Webhook response times dropped from <strong>5,000ms to under 8ms</strong>. Twilio retries dropped to zero, and the system ingested 100% of callback events with zero dropped calls.</p>
+          </div>
+        </div>
+
+        <!-- STAR Story 2 -->
+        <div style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.5rem; margin-bottom: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <h3 style="font-size: 1.15rem; font-weight: 700; color: #0f172a; margin: 0;">
+              ⚖️ STAR Case 2: Eliminating Telco Rate Violations via Distributed Token Bucket
+            </h3>
+            <span class="badge badge-emerald">High Concurrency</span>
+          </div>
+          <div style="font-size: 0.88rem; color: #334155; line-height: 1.7;">
+            <p><strong>Situation:</strong> Japanese telecom regulations impose strict limits on outbound Calls Per Second (CPS). Exceeding 100 CPS triggers automatic account suspension. With 50 worker pods dialing concurrently, in-memory rate limiters allowed bursts to exceed the quota, risking a critical enterprise account ban.</p>
+            <p><strong>Task:</strong> Build a globally synchronized rate limiter that guarantees strict CPS limits across 50 distributed pods with sub-millisecond overhead.</p>
+            <p><strong>Action:</strong> I designed a distributed Token Bucket rate limiter in Redis using an atomic Lua script. Before dialing, worker pods execute the script to verify and consume tokens atomically. If tokens are unavailable, workers gracefully hold the task in queue rather than flooding the carrier.</p>
+            <p><strong>Result:</strong> CPS adhered <strong>100% strictly</strong> to the 100 CPS limit across all pods with zero quota violations, protecting enterprise customer accounts.</p>
+          </div>
+        </div>
+
+        <!-- STAR Story 3 -->
+        <div style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.5rem; margin-bottom: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <h3 style="font-size: 1.15rem; font-weight: 700; color: #0f172a; margin: 0;">
+              🔄 STAR Case 3: Fixing Out-of-Order Webhook Race Conditions
+            </h3>
+            <span class="badge badge-blue">Distributed Systems</span>
+          </div>
+          <div style="font-size: 0.88rem; color: #334155; line-height: 1.7;">
+            <p><strong>Situation:</strong> Over public cellular networks, Twilio status callbacks occasionally arrive out of chronological order (for example, <code>completed</code> arriving milliseconds before <code>in-progress</code> due to network routing). Worker pods processing these simultaneously caused race conditions, overwriting final call states with intermediate states.</p>
+            <p><strong>Task:</strong> Prevent out-of-order state corruption without degrading worker concurrency.</p>
+            <p><strong>Action:</strong> I implemented a dual safeguard: (1) Workers acquire a <strong>Redis Redlock</strong> on the unique <code>CallSid</code> before updating state, and (2) The call state machine enforces monotonic transitions, rejecting backward transitions if the call is already marked completed.</p>
+            <p><strong>Result:</strong> Eliminated 100% of call state corruption, ensuring perfectly accurate billing duration records.</p>
+          </div>
+        </div>
+
+        <!-- STAR Story 4 -->
+        <div style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.5rem; margin-bottom: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <h3 style="font-size: 1.15rem; font-weight: 700; color: #0f172a; margin: 0;">
+              💰 STAR Case 4: Cloud FinOps — Cutting S3 Media Storage Costs by 75%
+            </h3>
+            <span class="badge badge-amber">FinOps Optimization</span>
+          </div>
+          <div style="font-size: 0.88rem; color: #334155; line-height: 1.7;">
+            <p><strong>Situation:</strong> Japanese telecom regulations require recording audio to be stored for 3 years for compliance audits. Storing 50,000+ uncompressed audio files persistently in AWS S3 Standard caused monthly cloud storage expenses to surge by 40% every quarter.</p>
+            <p><strong>Task:</strong> Reduce AWS S3 storage expenditure while maintaining immediate compliance access for regulatory audits.</p>
+            <p><strong>Action:</strong> I analyzed access patterns and discovered that 99.2% of audio files are accessed within the first 14 days. I configured an automated AWS S3 Lifecycle Rule that moves audio files from S3 Standard to <strong>S3 Glacier Flexible Retrieval after 30 days</strong>, with automated Glacier expedited retrieval workflows for audits.</p>
+            <p><strong>Result:</strong> Reduced ongoing audio storage expenses by <strong>75%</strong>, saving thousands of dollars monthly while remaining 100% compliant with Japanese financial data retention laws.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 10: TOP 20 RAPID-FIRE INTERVIEW Q&A -->
+      <section id="sec-qa-matrix" class="section-card">
+        <div class="badge-row">
+          <span class="badge badge-purple">SECTION 10</span>
+          <span class="badge badge-blue">STAFF INTERVIEW MASTERCLASS</span>
+          <span class="badge badge-emerald">TOP 20 RAPID-FIRE Q&amp;A</span>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-top: 0.5rem; margin-bottom: 1rem;">
+          <div>
+            <h2 style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin: 0;">
+              Top 20 Rapid-Fire Senior &amp; Staff Architect Interview Q&amp;A
+            </h2>
+            <p style="color: #475569; font-size: 0.95rem; margin-top: 0.35rem;">
+              Master these 20 high-frequency architecture questions. Use <strong>Rehearsal Mode</strong> to test your recall or reveal all answers.
+            </p>
+          </div>
+          <button id="qa-expand-all" class="btn btn-purple" style="font-size: 0.85rem; padding: 0.5rem 1rem;">
+            👁️ Toggle All Answers (Flashcard Mode)
+          </button>
+        </div>
+
+        <!-- 20 Q&A Items Container -->
+        <div id="qa-container" style="display: flex; flex-direction: column; gap: 1.25rem;">
+
+          <!-- Q1 -->
+          <div class="qa-card" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; cursor: pointer;" class="qa-toggle-btn">
+              <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                <span class="qa-num-badge">Q01</span>
+                <div>
+                  <h4 class="qa-question" style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0;">
+                    Why choose Self-Hosted RabbitMQ on EKS over AWS Amazon MQ or AWS SQS?
+                  </h4>
+                  <div class="qa-trap">⚠️ TRAP: Assuming managed AWS services are always superior for high-throughput messaging.</div>
+                </div>
+              </div>
+              <span class="qa-chevron" style="font-size: 0.9rem; color: #64748b;">▼</span>
+            </div>
+            <div class="qa-body" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-light);">
+              <div class="qa-answer">
+                <p>
+                  "While AWS SQS is easy to set up, it lacks fine-grained exchange routing and has high per-request costs at 100,000 CCU. Amazon MQ for RabbitMQ imposes strict IOPS caps and expensive managed fees.
+                </p>
+                <p>
+                  We deployed a <strong>Self-Hosted RabbitMQ Cluster via the RabbitMQ Operator on AWS EKS</strong> for three engineering reasons:
+                  <br>
+                  1. <strong>IOPS &amp; Performance:</strong> We attached dedicated EBS gp3 NVMe volumes with customized IOPS, cutting message broker infrastructure costs by <strong>65%</strong>.
+                  <br>
+                  2. <strong>3-Tier DLX Control:</strong> We built exact TTL delay queues (10s and 60s) for fault-tolerant retries.
+                  <br>
+                  3. <strong>VPC Co-Location:</strong> Running inside the same EKS VPC dropped publish latency to <strong>under 0.5 milliseconds</strong>."
+                </p>
+              </div>
+              <div class="callout callout-tip" style="margin-top: 0.75rem; padding: 0.75rem 1rem; font-size: 0.82rem;">
+                <strong>🇻🇳 Chiến thuật:</strong> Nhấn mạnh 3 từ khóa: <strong>Dedicated gp3 IOPS</strong>, <strong>65% Cost Reduction</strong>, và <strong>&lt;0.5ms VPC Latency</strong>. Điều này chứng minh bạn có tư duy FinOps và tối ưu hiệu năng sâu sắc.
+              </div>
+            </div>
+          </div>
+
+          <!-- Q2 -->
+          <div class="qa-card" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; cursor: pointer;" class="qa-toggle-btn">
+              <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                <span class="qa-num-badge">Q02</span>
+                <div>
+                  <h4 class="qa-question" style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0;">
+                    How do you enforce strict CPS (Calls Per Second) limits across 50 distributed pods?
+                  </h4>
+                  <div class="qa-trap">⚠️ TRAP: Proposing in-memory rate limiters like express-rate-limit.</div>
+                </div>
+              </div>
+              <span class="qa-chevron" style="font-size: 0.9rem; color: #64748b;">▼</span>
+            </div>
+            <div class="qa-body" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-light);">
+              <div class="qa-answer">
+                <p>
+                  "In-memory limiters fail across distributed pods because each pod is blind to other pods' outbound volume, easily leading to carrier bans.
+                </p>
+                <p>
+                  We implemented a <strong>Distributed Token Bucket using an atomic Redis Lua Script</strong>. Before any pod fires an outbound call, it calls the Lua script. Redis calculates elapsed time, adds new tokens based on our CPS limit (e.g., 100/sec), and decrements a token atomically in a single Redis turn without race conditions. If no tokens remain, the pod pauses and retries via queue, ensuring 100% adherence to carrier quotas."
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q3 -->
+          <div class="qa-card" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; cursor: pointer;" class="qa-toggle-btn">
+              <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                <span class="qa-num-badge">Q03</span>
+                <div>
+                  <h4 class="qa-question" style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0;">
+                    How do you handle 10,000 Twilio callback webhooks per second without timing out?
+                  </h4>
+                  <div class="qa-trap">⚠️ TRAP: Doing database updates or business logic inside the webhook handler.</div>
+                </div>
+              </div>
+              <span class="qa-chevron" style="font-size: 0.9rem; color: #64748b;">▼</span>
+            </div>
+            <div class="qa-body" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-light);">
+              <div class="qa-answer">
+                <p>
+                  "We separate webhook ingestion from webhook processing completely.
+                </p>
+                <p>
+                  Our <strong>Webhook Ingestion Service</strong> is a lightweight Node.js gateway that does only two fast tasks:
+                  1. Validates the HMAC-SHA1 signature in <code>X-Twilio-Signature</code> in under 1ms.
+                  2. Serializes the raw event and pushes it straight to a high-throughput RabbitMQ queue.
+                  <br>
+                  It responds with <code>200 OK</code> in <strong>under 10 milliseconds</strong>. All database writes, state machine transitions, and billing calculations are performed asynchronously by decoupled background workers."
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q4 -->
+          <div class="qa-card" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; cursor: pointer;" class="qa-toggle-btn">
+              <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                <span class="qa-num-badge">Q04</span>
+                <div>
+                  <h4 class="qa-question" style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0;">
+                    Why use Python FastAPI alongside Node.js, and why gRPC over REST?
+                  </h4>
+                  <div class="qa-trap">⚠️ TRAP: Using one single language for everything, or using slow JSON REST for internal microservices.</div>
+                </div>
+              </div>
+              <span class="qa-chevron" style="font-size: 0.9rem; color: #64748b;">▼</span>
+            </div>
+            <div class="qa-body" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-light);">
+              <div class="qa-answer">
+                <p>
+                  "Node.js has a single-threaded event loop that excels at non-blocking I/O, but heavy statistical calculations (like Answer-Seizure Ratio and campaign cost matrices) block the loop.
+                </p>
+                <p>
+                  We offloaded data science and analytics to <strong>Python FastAPI</strong>. To bridge Node.js and Python, we used <strong>gRPC over HTTP/2 with Protobuf binary serialization</strong> instead of JSON REST. This eliminated JSON text parsing overhead and <strong>reduced inter-service communication latency by 30%</strong>."
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q5 -->
+          <div class="qa-card" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; cursor: pointer;" class="qa-toggle-btn">
+              <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                <span class="qa-num-badge">Q05</span>
+                <div>
+                  <h4 class="qa-question" style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0;">
+                    How do you prevent out-of-order webhook callbacks from corrupting call state?
+                  </h4>
+                  <div class="qa-trap">⚠️ TRAP: Relying on webhook delivery timestamps or assuming network packets always arrive in order.</div>
+                </div>
+              </div>
+              <span class="qa-chevron" style="font-size: 0.9rem; color: #64748b;">▼</span>
+            </div>
+            <div class="qa-body" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-light);">
+              <div class="qa-answer">
+                <p>
+                  "Callbacks over mobile networks frequently arrive out of sequence (e.g., <code>completed</code> arriving before <code>in-progress</code>).
+                </p>
+                <p>
+                  We solved this with two mechanisms:
+                  1. <strong>Redis Redlock:</strong> Workers acquire a distributed lock on <code>lock:call:${CallSid}</code> before processing, eliminating concurrent race conditions.
+                  2. <strong>Monotonic State Machine:</strong> Call states only transition forward: <code>initiated ➔ ringing ➔ in-progress ➔ completed</code>. If an <code>in-progress</code> event arrives after the call is already marked <code>completed</code>, the state machine recognizes the regression and safely ignores it."
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q6 -->
+          <div class="qa-card" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; cursor: pointer;" class="qa-toggle-btn">
+              <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                <span class="qa-num-badge">Q06</span>
+                <div>
+                  <h4 class="qa-question" style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0;">
+                    Why MongoDB Atlas over AWS DocumentDB or self-hosting on EC2?
+                  </h4>
+                  <div class="qa-trap">⚠️ TRAP: Saying DocumentDB is 100% compatible with MongoDB.</div>
+                </div>
+              </div>
+              <span class="qa-chevron" style="font-size: 0.9rem; color: #64748b;">▼</span>
+            </div>
+            <div class="qa-body" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-light);">
+              <div class="qa-answer">
+                <p>
+                  "AWS DocumentDB emulates an older MongoDB API and lacks critical aggregation pipeline operators and Change Streams that our real-time analytics require. Self-hosting MongoDB on EC2 requires significant SRE toil for replica set failovers and backup validation.
+                </p>
+                <p>
+                  We chose <strong>MongoDB Atlas (M60)</strong> because it provides 100% native feature parity, automated Point-in-Time Recovery (PITR), and private VPC Peering, freeing our team to focus on business features."
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q7 -->
+          <div class="qa-card" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; cursor: pointer;" class="qa-toggle-btn">
+              <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                <span class="qa-num-badge">Q07</span>
+                <div>
+                  <h4 class="qa-question" style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0;">
+                    How did you tune MongoDB connection pooling to prevent socket exhaustion?
+                  </h4>
+                  <div class="qa-trap">⚠️ TRAP: Leaving maxPoolSize at default (100) across 50 pods.</div>
+                </div>
+              </div>
+              <span class="qa-chevron" style="font-size: 0.9rem; color: #64748b;">▼</span>
+            </div>
+            <div class="qa-body" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-light);">
+              <div class="qa-answer">
+                <p>
+                  "Default MongoDB drivers allocate up to 100 connections per pod. When KEDA autoscaled our cluster to 50 pods during a dial surge, this would have created 5,000+ connections, choking the primary database node.
+                </p>
+                <p>
+                  We applied the connection sizing formula:
+                  <br>
+                  <code>maxPoolSize = 25</code> for Call Orchestrators ($50 	imes 25 = 1,250$), <code>maxPoolSize = 15</code> for Analytics ($20 	imes 15 = 300$), and <code>maxPoolSize = 5</code> for Ingestion ($10 	imes 5 = 50$). Total peak connections capped at <strong>~1,600</strong>, ensuring zero socket exhaustion."
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q8 -->
+          <div class="qa-card" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; cursor: pointer;" class="qa-toggle-btn">
+              <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                <span class="qa-num-badge">Q08</span>
+                <div>
+                  <h4 class="qa-question" style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0;">
+                    Explain your MongoDB Write Concern strategy: why {w: 1} vs {w: "majority"}?
+                  </h4>
+                  <div class="qa-trap">⚠️ TRAP: Using {w: "majority"} everywhere or {w: 1} everywhere.</div>
+                </div>
+              </div>
+              <span class="qa-chevron" style="font-size: 0.9rem; color: #64748b;">▼</span>
+            </div>
+            <div class="qa-body" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-light);">
+              <div class="qa-answer">
+                <p>
+                  "We segregated write concerns based on data durability requirements:
+                  <br>
+                  1. <strong>Raw Call Logs:</strong> We used <code>{ w: 1, j: false }</code>. This acknowledges writes in primary RAM immediately, achieving <strong>100,000+ ops/second</strong> throughput.
+                  <br>
+                  2. <strong>Campaign Metadata &amp; Billing Records:</strong> We enforced <code>{ w: 'majority', j: true }</code>. This ensures writes are committed to the majority of replica nodes and written to the journal disk before returning success, guaranteeing zero rollbacks during failover."
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q9 -->
+          <div class="qa-card" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; cursor: pointer;" class="qa-toggle-btn">
+              <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                <span class="qa-num-badge">Q09</span>
+                <div>
+                  <h4 class="qa-question" style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0;">
+                    Why KEDA event-driven autoscaling instead of Kubernetes CPU/Memory HPA?
+                  </h4>
+                  <div class="qa-trap">⚠️ TRAP: Believing CPU usage spikes quickly enough for sudden batch traffic.</div>
+                </div>
+              </div>
+              <span class="qa-chevron" style="font-size: 0.9rem; color: #64748b;">▼</span>
+            </div>
+            <div class="qa-body" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-light);">
+              <div class="qa-answer">
+                <p>
+                  "CPU and RAM metrics are trailing indicators; when a campaign starts dialing 100,000 numbers, CPU takes several minutes to climb, by which time queues are choked.
+                </p>
+                <p>
+                  <strong>KEDA (Kubernetes Event-driven Autoscaling)</strong> monitors RabbitMQ queue depth directly. When pending messages exceed 1,000, KEDA triggers HPA to scale pods from <strong>5 to 50 within seconds</strong>. This preemptive scaling eliminates queue backlogs before performance degrades."
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q10 -->
+          <div class="qa-card" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; cursor: pointer;" class="qa-toggle-btn">
+              <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                <span class="qa-num-badge">Q10</span>
+                <div>
+                  <h4 class="qa-question" style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0;">
+                    How does the 3-Tier RabbitMQ Dead Letter Exchange (DLX) retry architecture work?
+                  </h4>
+                  <div class="qa-trap">⚠️ TRAP: Not explaining message TTL and DLX re-routing mechanics.</div>
+                </div>
+              </div>
+              <span class="qa-chevron" style="font-size: 0.9rem; color: #64748b;">▼</span>
+            </div>
+            <div class="qa-body" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-light);">
+              <div class="qa-answer">
+                <p>
+                  "Instead of immediate re-queueing, our RabbitMQ DLX pipeline has three tiers:
+                  <br>
+                  • <strong>Tier 1:</strong> Failed tasks route to <code>call.retry.10s</code> with TTL=10,000ms. When TTL expires, the Dead Letter Exchange routes the message back to the main queue for retry.
+                  <br>
+                  • <strong>Tier 2:</strong> If it fails again, it routes to <code>call.retry.60s</code> with TTL=60,000ms for a longer recovery window.
+                  <br>
+                  • <strong>Tier 3:</strong> If retries exhaust, it moves to <code>call.poison.dlq</code>. An alert fires, and engineers inspect the message without worker CPU burn."
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q11 -->
+          <div class="qa-card" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; cursor: pointer;" class="qa-toggle-btn">
+              <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                <span class="qa-num-badge">Q11</span>
+                <div>
+                  <h4 class="qa-question" style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0;">
+                    What is Exponential Backoff with Full Jitter, and why is it superior?
+                  </h4>
+                  <div class="qa-trap">⚠️ TRAP: Forgetting to mention why plain exponential backoff causes the Thundering Herd problem.</div>
+                </div>
+              </div>
+              <span class="qa-chevron" style="font-size: 0.9rem; color: #64748b;">▼</span>
+            </div>
+            <div class="qa-body" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-light);">
+              <div class="qa-answer">
+                <p>
+                  "Plain exponential backoff (e.g. 2s, 4s, 8s) spaces retries, but if 1,000 calls fail at the same moment, all 1,000 retry simultaneously at the 2-second mark, hammering the recovering downstream service.
+                </p>
+                <p>
+                  <strong>Full Jitter</strong> applies a random multiplier: <code>random(0, min(Max, Base * 2^attempt))</code>. This completely smooths out the retry wave across the entire time window, eliminating traffic spikes."
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q12 -->
+          <div class="qa-card" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; cursor: pointer;" class="qa-toggle-btn">
+              <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                <span class="qa-num-badge">Q12</span>
+                <div>
+                  <h4 class="qa-question" style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0;">
+                    How does the Circuit Breaker protect the system during external carrier outages?
+                  </h4>
+                  <div class="qa-trap">⚠️ TRAP: Not knowing the three states (Closed, Open, Half-Open).</div>
+                </div>
+              </div>
+              <span class="qa-chevron" style="font-size: 0.9rem; color: #64748b;">▼</span>
+            </div>
+            <div class="qa-body" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-light);">
+              <div class="qa-answer">
+                <p>
+                  "We wrap Twilio API calls with the <strong>Opossum Circuit Breaker</strong> in Node.js:
+                  <br>
+                  • <strong>CLOSED:</strong> Normal operation.
+                  <br>
+                  • <strong>OPEN:</strong> If error rates exceed 50% over a 10-second window, the circuit opens. Subsequent calls fail immediately without touching the external network, freeing worker threads and firing alerts.
+                  <br>
+                  • <strong>HALF-OPEN:</strong> After a 30-second cooldown, it lets 5% of traffic through. If successful, it closes; if failures persist, it re-opens."
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q13 -->
+          <div class="qa-card" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; cursor: pointer;" class="qa-toggle-btn">
+              <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                <span class="qa-num-badge">Q13</span>
+                <div>
+                  <h4 class="qa-question" style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0;">
+                    How did you reduce AWS S3 storage costs by 75% for 50,000+ audio recordings?
+                  </h4>
+                  <div class="qa-trap">⚠️ TRAP: Deleting audit files or not explaining retrieval access patterns.</div>
+                </div>
+              </div>
+              <span class="qa-chevron" style="font-size: 0.9rem; color: #64748b;">▼</span>
+            </div>
+            <div class="qa-body" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-light);">
+              <div class="qa-answer">
+                <p>
+                  "Japanese regulations mandate storing call audio for 3 years, but analysis showed 99% of access occurs in the first 14 days.
+                </p>
+                <p>
+                  We implemented an <strong>AWS S3 Lifecycle Rule</strong> that automatically transitions audio recordings from S3 Standard to <strong>S3 Glacier Flexible Retrieval after 30 days</strong>. This lowered our per-gigabyte storage cost from $0.023/GB to $0.0036/GB, achieving an overall <strong>75% cost reduction</strong> while keeping files accessible for compliance audits."
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q14 -->
+          <div class="qa-card" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; cursor: pointer;" class="qa-toggle-btn">
+              <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                <span class="qa-num-badge">Q14</span>
+                <div>
+                  <h4 class="qa-question" style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0;">
+                    How do you pass security and tracing context between Node.js, Python, and async workers?
+                  </h4>
+                  <div class="qa-trap">⚠️ TRAP: Passing context manually through every function argument.</div>
+                </div>
+              </div>
+              <span class="qa-chevron" style="font-size: 0.9rem; color: #64748b;">▼</span>
+            </div>
+            <div class="qa-body" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-light);">
+              <div class="qa-answer">
+                <p>
+                  "We use <strong>Context Propagation via Async Storage</strong>:
+                  <br>
+                  • In Node.js, we use <code>AsyncLocalStorage</code>; in Python, we use <code>contextvars</code> to hold tenant metadata and W3C <code>traceparent</code> IDs.
+                  <br>
+                  • HTTP and gRPC client interceptors automatically read this context and inject <code>X-User-Context</code> and trace headers into outgoing calls.
+                  <br>
+                  • For RabbitMQ, workers pack context into message headers and unpack it on consume, guaranteeing end-to-end distributed tracing across all languages."
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q15 -->
+          <div class="qa-card" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; cursor: pointer;" class="qa-toggle-btn">
+              <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                <span class="qa-num-badge">Q15</span>
+                <div>
+                  <h4 class="qa-question" style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0;">
+                    How do you ensure zero-downtime releases without dropping ongoing calls?
+                  </h4>
+                  <div class="qa-trap">⚠️ TRAP: Relying only on standard Kubernetes rolling updates without handling SIGTERM in code.</div>
+                </div>
+              </div>
+              <span class="qa-chevron" style="font-size: 0.9rem; color: #64748b;">▼</span>
+            </div>
+            <div class="qa-body" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-light);">
+              <div class="qa-answer">
+                <p>
+                  "We combine Kubernetes Rolling Updates with application-level <strong>SIGTERM Graceful Shutdown</strong>:
+                  <br>
+                  1. When K8s initiates a pod replacement, the pod receives <code>SIGTERM</code>.
+                  <br>
+                  2. The worker immediately calls <code>channel.cancel()</code> to stop accepting new jobs from RabbitMQ.
+                  <br>
+                  3. The pod waits up to <strong>30 seconds</strong> to finish executing active in-flight calls and push final states to Redis/MongoDB.
+                  <br>
+                  4. The process exits cleanly, ensuring zero dropped calls during deployments."
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q16 -->
+          <div class="qa-card" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; cursor: pointer;" class="qa-toggle-btn">
+              <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                <span class="qa-num-badge">Q16</span>
+                <div>
+                  <h4 class="qa-question" style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0;">
+                    How did you achieve zero-downtime migration of millions of historical call records into MongoDB?
+                  </h4>
+                  <div class="qa-trap">⚠️ TRAP: Running a big-bang script during production hours.</div>
+                </div>
+              </div>
+              <span class="qa-chevron" style="font-size: 0.9rem; color: #64748b;">▼</span>
+            </div>
+            <div class="qa-body" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-light);">
+              <div class="qa-answer">
+                <p>
+                  "We designed a high-throughput <strong>chunked ETL migration pipeline</strong>:
+                  <br>
+                  1. Historical records were sliced by indexed date ranges into manageable chunks of 5,000 documents.
+                  <br>
+                  2. Workers streamed records through strict schema validation and wrote in bulk via <code>unordered bulkWrite</code>, avoiding write locks.
+                  <br>
+                  3. We ran migration workers during off-peak hours with bounded connection pools, achieving complete migration of millions of records with <strong>zero application downtime</strong>."
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q17 -->
+          <div class="qa-card" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; cursor: pointer;" class="qa-toggle-btn">
+              <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                <span class="qa-num-badge">Q17</span>
+                <div>
+                  <h4 class="qa-question" style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0;">
+                    How does the AngularJS operator dashboard stay responsive without freezing the browser DOM?
+                  </h4>
+                  <div class="qa-trap">⚠️ TRAP: Binding WebSockets directly to $scope.$apply() on every raw packet.</div>
+                </div>
+              </div>
+              <span class="qa-chevron" style="font-size: 0.9rem; color: #64748b;">▼</span>
+            </div>
+            <div class="qa-body" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-light);">
+              <div class="qa-answer">
+                <p>
+                  "If 5,000 WebSocket events arrive every second, triggering Angular's digest cycle on each event freezes the browser.
+                </p>
+                <p>
+                  We solved this with <strong>Client-Side Buffering &amp; 500ms Throttling</strong>:
+                  <br>
+                  Incoming WebSocket metric updates are pushed into an in-memory client buffer. A throttled timer flushes and updates the AngularJS UI only once every 500 milliseconds, keeping browser CPU low and the dashboard silky smooth."
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q18 -->
+          <div class="qa-card" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; cursor: pointer;" class="qa-toggle-btn">
+              <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                <span class="qa-num-badge">Q18</span>
+                <div>
+                  <h4 class="qa-question" style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0;">
+                    How do you investigate a production incident where phone calls drop or latency spikes?
+                  </h4>
+                  <div class="qa-trap">⚠️ TRAP: Saying 'I SSH into the server and grep log files'.</div>
+                </div>
+              </div>
+              <span class="qa-chevron" style="font-size: 0.9rem; color: #64748b;">▼</span>
+            </div>
+            <div class="qa-body" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-light);">
+              <div class="qa-answer">
+                <p>
+                  "I follow a top-down incident triage protocol:
+                  <br>
+                  1. <strong>Datadog APM Flame Graphs:</strong> Inspect traces with elevated p99 latency to identify whether the bottleneck is NGINX Ingress, RabbitMQ queuing delay, or MongoDB lock contention.
+                  <br>
+                  2. <strong>Trace-Log Correlation:</strong> Jump directly from the failing trace to correlated container logs via injected <code>trace_id</code>.
+                  <br>
+                  3. <strong>Infrastructure Health:</strong> Check CloudWatch for Kubernetes pod restarts, node memory pressure (OOMKilled 137), and RabbitMQ unacknowledged message counts."
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q19 -->
+          <div class="qa-card" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; cursor: pointer;" class="qa-toggle-btn">
+              <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                <span class="qa-num-badge">Q19</span>
+                <div>
+                  <h4 class="qa-question" style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0;">
+                    Why choose Pod IP Targeting over NodePort or kube-proxy routing in AWS EKS?
+                  </h4>
+                  <div class="qa-trap">⚠️ TRAP: Not understanding how AWS VPC CNI interacts with the Application Load Balancer.</div>
+                </div>
+              </div>
+              <span class="qa-chevron" style="font-size: 0.9rem; color: #64748b;">▼</span>
+            </div>
+            <div class="qa-body" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-light);">
+              <div class="qa-answer">
+                <p>
+                  "In traditional Kubernetes NodePort routing, the load balancer sends traffic to a worker node's high port, and <code>kube-proxy</code> uses iptables to forward the packet to another node where the pod actually runs, introducing double hops.
+                </p>
+                <p>
+                  With <strong>AWS VPC CNI and ALB Pod IP targeting</strong>, every pod gets a real IP from the AWS VPC subnet. The ALB routes traffic directly to the pod's IP, eliminating iptables overhead and shaving <strong>2 to 5 milliseconds off every status webhook</strong>."
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q20 -->
+          <div class="qa-card" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; cursor: pointer;" class="qa-toggle-btn">
+              <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                <span class="qa-num-badge">Q20</span>
+                <div>
+                  <h4 class="qa-question" style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0;">
+                    If you were redesigning S4 Campaign today from scratch, what would you improve?
+                  </h4>
+                  <div class="qa-trap">⚠️ TRAP: Saying 'nothing, the architecture is perfect', which shows a lack of seniority.</div>
+                </div>
+              </div>
+              <span class="qa-chevron" style="font-size: 0.9rem; color: #64748b;">▼</span>
+            </div>
+            <div class="qa-body" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-light);">
+              <div class="qa-answer">
+                <p>
+                  "While our architecture handled 100,000 CCU flawlessly, there are two enhancements I would implement today:
+                  <br>
+                  1. <strong>Apache Kafka for Analytics Ingestion:</strong> While RabbitMQ is ideal for worker task distribution, streaming raw call event history into an Apache Kafka topic would allow long-term analytics and ML voice model training without loading MongoDB.
+                  <br>
+                  2. <strong>eBPF-based Networking (Cilium):</strong> Replacing traditional iptables and standard kube-proxy with Cilium eBPF would further accelerate pod-to-pod network throughput and provide kernel-level observability for microsecond latency tracking."
+                </p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- SECTION 11: 5-PILLAR CLOSING ARCHITECT PITCH -->
+      <section id="sec-closing-pitch" class="section-card" style="background: linear-gradient(135deg, #ffffff 0%, #faf5ff 100%); border-left: 6px solid #7c3aed;">
+        <div class="badge-row">
+          <span class="badge badge-purple">CLOSING PITCH</span>
+          <span class="badge badge-blue">STAFF ARCHITECT SUMMARY</span>
+          <span class="badge badge-emerald">EXECUTIVE WRAP-UP</span>
+        </div>
+
+        <h2 style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin-top: 0.5rem; margin-bottom: 0.75rem;">
+          The 5-Pillar Closing Architect Pitch (Bản Tuyên Ngôn Khép Lại Phỏng Vấn)
+        </h2>
+        <p style="color: #475569; margin-bottom: 1.25rem;">
+          When the interview ends and they ask: <em>"Do you have anything else to summarize your architectural approach?"</em>, deliver this 5-pillar wrap-up:
+        </p>
+
+        <div class="spoken-script">
+          <div class="spoken-header">
+            <span>🎙️ Spoken Script — 5-Pillar Executive Closing</span>
+          </div>
+          <div class="spoken-content">
+            <p>
+              "To conclude, our work on S4 Campaign exemplifies our engineering philosophy across <strong>five foundational pillars</strong>:
+            </p>
+            <p>
+              <strong>1. High-Throughput Telephony:</strong> We designed a decoupled ingestion pipeline that receives 10,000+ Twilio callbacks per second in under 10ms, scaling to 100,000 concurrent calls with zero gateway timeouts.
+            </p>
+            <p>
+              <strong>2. Telco Compliance &amp; Precision:</strong> We built distributed Token Bucket rate limiters via Redis Lua scripts, strictly honoring Japanese carrier CPS quotas across 50 distributed pods.
+            </p>
+            <p>
+              <strong>3. Deep Fault Tolerance:</strong> We implemented 3-tier RabbitMQ Dead Letter Exchanges, Full Jitter backoff, and Opossum Circuit Breakers to absorb downstream carrier outages without worker crashloops.
+            </p>
+            <p>
+              <strong>4. Pragmatic Polyglot Performance:</strong> We paired Node.js for high-speed I/O with Python for CPU-heavy statistical analysis, connecting them via gRPC over HTTP/2 to cut inter-service latency by 30%.
+            </p>
+            <p>
+              <strong>5. Enterprise FinOps &amp; Security:</strong> We automated AWS S3 Glacier archiving to cut media costs by 75%, applied secretless OIDC CI/CD, and established KEDA event-driven autoscaling.
+            </p>
+            <p>
+              This is the same rigor, performance focus, and architectural discipline I look forward to bringing to your engineering team."
+            </p>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- Page Footer -->
+      <footer style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border-light); text-align: center; color: var(--text-muted); font-size: 0.85rem;">
+        <p>
+          <strong>S4 Campaign &bull; Distributed Telephony &amp; Real-Time Voice Platform Architecture</strong>
+        </p>
+        <p style="margin-top: 0.35rem;">
+          Designed &amp; Maintained by <strong>Trần Văn Thành Công</strong> &bull; Senior / Staff Fullstack &amp; Cloud Architect
+        </p>
+        <div style="margin-top: 1rem; display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+          <a href="index.html" style="color: var(--accent-blue); text-decoration: none; font-weight: 600;">🏠 AI Interview Portal Home</a>
+          <span>&bull;</span>
+          <a href="architecture.html" style="color: var(--accent-blue); text-decoration: none; font-weight: 600;">🚢 ONE E-Payment Architecture</a>
+          <span>&bull;</span>
+          <a href="interview_pitch_guide.html" style="color: var(--accent-blue); text-decoration: none; font-weight: 600;">🎙️ Interview Pitch Guide</a>
+        </div>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+
+document.addEventListener('DOMContentLoaded', () => {
+  // 1. Initialize Mermaid
+  if (window.mermaid) {
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'neutral',
+      themeVariables: {
+        fontFamily: 'Inter, -apple-system, sans-serif',
+        primaryColor: '#e0f2fe',
+        primaryTextColor: '#0f172a',
+        primaryBorderColor: '#0284c7',
+        lineColor: '#64748b',
+        secondaryColor: '#f1f5f9',
+        tertiaryColor: '#ffffff'
+      }
+    });
+  }
+
+  // 2. Copy Code / Diagram to Clipboard
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetId = btn.getAttribute('data-target');
+      let text = '';
+      if (targetId) {
+        const el = document.getElementById(targetId);
+        if (el) text = el.innerText;
+      } else {
+        const parent = btn.closest('.diagram-container, .code-container');
+        if (parent) {
+          const pre = parent.querySelector('pre');
+          if (pre) text = pre.innerText;
+        }
+      }
+      if (text) {
+        navigator.clipboard.writeText(text).then(() => {
+          const original = btn.innerText;
+          btn.innerText = '✓ Copied!';
+          btn.style.color = '#059669';
+          setTimeout(() => {
+            btn.innerText = original;
+            btn.style.color = '';
+          }, 2000);
+        });
+      }
+    });
+  });
+
+  // 3. Sidebar Table of Contents Filter
+  const searchInput = document.getElementById('toc-filter');
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      const val = e.target.value.toLowerCase().trim();
+      document.querySelectorAll('.toc-link').forEach(link => {
+        const text = link.innerText.toLowerCase();
+        if (text.includes(val)) {
+          link.style.display = 'flex';
+        } else {
+          link.style.display = 'none';
+        }
+      });
+      // Handle group titles
+      document.querySelectorAll('.toc-group-title').forEach(title => {
+        let sibling = title.nextElementSibling;
+        let anyVisible = false;
+        while (sibling && !sibling.classList.contains('toc-group-title')) {
+          if (sibling.classList.contains('toc-link') && sibling.style.display !== 'none') {
+            anyVisible = true;
+            break;
+          }
+          sibling = sibling.nextElementSibling;
+        }
+        title.style.display = (val === '' || anyVisible) ? 'block' : 'none';
+      });
+    });
+  }
+
+  // 4. Scrollspy for Active TOC Link
+  const sections = document.querySelectorAll('section[id], h2[id]');
+  const navLinks = document.querySelectorAll('.toc-link');
+
+  const observerOptions = {
+    root: null,
+    rootMargin: '-80px 0px -70% 0px',
+    threshold: 0
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.getAttribute('id');
+        navLinks.forEach(link => {
+          if (link.getAttribute('href') === '#' + id) {
+            link.classList.add('active');
+            link.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+          } else {
+            link.classList.remove('active');
+          }
+        });
+      }
+    });
+  }, observerOptions);
+
+  sections.forEach(sec => observer.observe(sec));
+
+  // 5. Back to Top Button
+  const btt = document.getElementById('back-to-top-btn');
+  if (btt) {
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 400) {
+        btt.classList.add('visible');
+      } else {
+        btt.classList.remove('visible');
+      }
+    });
+    btt.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+
+  // 6. Interview Mode Toggle
+  const toggleBtn = document.getElementById('toggle-interview-mode');
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', () => {
+      document.body.classList.toggle('interview-mode-active');
+      const isActive = document.body.classList.contains('interview-mode-active');
+      toggleBtn.classList.toggle('active', isActive);
+      if (isActive) {
+        toggleBtn.innerHTML = '<span>🎙️</span> Exit Rehearsal Mode';
+        // Scroll smoothly to first spoken script
+        const firstScript = document.querySelector('.spoken-script');
+        if (firstScript) {
+          firstScript.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      } else {
+        toggleBtn.innerHTML = '<span>🎙️</span> Interview Rehearsal Mode';
+      }
+    });
+  }
+
+  // 7. Self-Test / Flashcard Mode Toggle for Top 20 Q&A
+  const qaToggleBtn = document.getElementById('toggle-qa-answers');
+  if (qaToggleBtn) {
+    let answersHidden = false;
+    qaToggleBtn.addEventListener('click', () => {
+      answersHidden = !answersHidden;
+      document.querySelectorAll('.qa-card').forEach(card => {
+        const ans = card.querySelector('.qa-answer');
+        if (ans) {
+          if (answersHidden) {
+            ans.style.display = 'none';
+            card.classList.add('qa-hidden-mode');
+            let btn = card.querySelector('.reveal-btn');
+            if (!btn) {
+              btn = document.createElement('button');
+              btn.className = 'reveal-btn btn btn-sm';
+              btn.style.marginTop = '0.75rem';
+              btn.style.fontSize = '0.8rem';
+              btn.style.padding = '0.35rem 0.75rem';
+              btn.style.background = '#f1f5f9';
+              btn.style.border = '1px solid #cbd5e1';
+              btn.style.borderRadius = '6px';
+              btn.style.cursor = 'pointer';
+              btn.style.fontWeight = '600';
+              btn.style.color = '#0284c7';
+              btn.innerHTML = '<span>👁️</span> Reveal Model Answer';
+              btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (ans.style.display === 'none') {
+                  ans.style.display = 'block';
+                  btn.innerHTML = '<span>🙈</span> Hide Answer';
+                  btn.style.color = '#64748b';
+                } else {
+                  ans.style.display = 'none';
+                  btn.innerHTML = '<span>👁️</span> Reveal Model Answer';
+                  btn.style.color = '#0284c7';
+                }
+              });
+              card.appendChild(btn);
+            } else {
+              btn.style.display = 'inline-flex';
+              btn.innerHTML = '<span>👁️</span> Reveal Model Answer';
+              btn.style.color = '#0284c7';
+            }
+          } else {
+            ans.style.display = 'block';
+            card.classList.remove('qa-hidden-mode');
+            const btn = card.querySelector('.reveal-btn');
+            if (btn) btn.style.display = 'none';
+          }
+        }
+      });
+      qaToggleBtn.innerHTML = answersHidden 
+        ? '<span>👁️</span> Exit Self-Test (Show All Answers)' 
+        : '<span>🧠</span> Self-Test Mode: Hide Answers (Flashcards)';
+      qaToggleBtn.classList.toggle('active', answersHidden);
+    });
+  }
+});
+
+  </script>
+</body>
+</html>
