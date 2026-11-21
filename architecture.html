@@ -938,6 +938,36 @@ tr:hover td {
 }
 
 /* Responsive adjustments */
+
+@media (max-width: 768px) {
+  .top-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+  }
+  .brand-wrapper {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .header-meta {
+    display: none;
+  }
+  .header-actions {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+  }
+  .header-actions .btn {
+    white-space: nowrap;
+    font-size: 0.75rem;
+    padding: 0.35rem 0.6rem;
+  }
+}
+
 @media (max-width: 1024px) {
   .sidebar {
     display: none;
@@ -957,7 +987,7 @@ tr:hover td {
   <!-- Top Header Navigation -->
   <header class="top-header">
     <div class="brand-wrapper">
-      <a href="#" class="brand-logo">
+      <a href="index.html" class="brand-logo">
         <span class="brand-badge">ONE</span>
         <span>Global Maritime Carrier & FinTech Group</span>
       </a>
@@ -4851,6 +4881,26 @@ document.addEventListener('DOMContentLoaded', () => {
       qaToggleBtn.classList.toggle('active', answersHidden);
     });
   }
+
+  // 8. Individual QA Card Accordion Toggle
+  document.querySelectorAll('.qa-toggle-btn, .qa-q-row').forEach(header => {
+    header.style.cursor = 'pointer';
+    header.addEventListener('click', () => {
+      const card = header.closest('.qa-card');
+      if (card) {
+        const ans = card.querySelector('.qa-answer');
+        if (ans) {
+          const isHidden = window.getComputedStyle(ans).display === 'none';
+          ans.style.display = isHidden ? 'block' : 'none';
+          const revealBtn = card.querySelector('.reveal-btn');
+          if (revealBtn) {
+            revealBtn.innerHTML = isHidden ? '<span>🙈</span> Hide Answer' : '<span>👁️</span> Reveal Model Answer';
+          }
+        }
+      }
+    });
+  });
+
 });
 
   </script>
