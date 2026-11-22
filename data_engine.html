@@ -2954,7 +2954,7 @@ SETTINGS index_granularity = 8192;
                 <p>
                   <strong>2. Why NOT Apache Kafka? (Avoiding the Double-Hop Anti-Pattern):</strong>
                   <br>
-                  GA4 mobile devices already stream directly into Google Cloud BigQuery intraday tables. BigQuery is already a globally distributed, durable buffer. Inserting Kafka between BigQuery and ClickHouse would create an unnecessary broker hop (<code>Mobile &rarr; BigQuery &rarr; Kafka &rarr; ClickHouse</code>), serializing/deserializing twice, managing ZooKeeper/KRaft quorum, and monitoring consumer lag. Furthermore, ClickHouse thrives on <strong>50k-row batch bursts</strong>, not row-by-row streaming.
+                  GA4 mobile devices already stream directly into Google Cloud BigQuery intraday tables. BigQuery is already a globally distributed, durable buffer. Inserting Kafka between BigQuery and ClickHouse would create an unnecessary broker hop (<code>Mobile &rarr; BigQuery &rarr; Kafka &rarr; ClickHouse</code>), serializing/deserializing twice, managing ZooKeeper/KRaft quorum, and monitoring consumer lag. In addition, ClickHouse is built specifically for <strong>50k-row batch bursts</strong>, not row-by-row streaming.
                 </p>
                 <p>
                   <strong>3. Why NOT Apache Airflow? (Lean Ingestion Daemon over Operational Bloat):</strong>

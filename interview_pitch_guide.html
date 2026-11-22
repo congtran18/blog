@@ -545,31 +545,28 @@
         <!-- FULL VERSION -->
         <div id="proudest-content-full" class="bg-slate-50 dark:bg-slate-950 rounded-2xl p-5 sm:p-7 border border-slate-200 dark:border-slate-800 space-y-5">
 <p class="leading-relaxed">
-            "My proudest project is definitely the <span class="keyword">Global E-Payment and AI FinOps Platform</span> for <span class="keyword">ONE</span>. ONE is a top container shipping line operating across 120 countries.
+            "So, the flagship system I led was the <span class="keyword">Global E-Payment and AI FinOps Platform</span> for <span class="keyword">Ocean Network Express (ONE)</span>.
           </p>
           <p class="leading-relaxed">
-            To give you some business context: ocean freight orders are huge, ranging from <span class="keyword">10,000 to 500,000 dollars</span> per booking.
+            To understand the real-world stakes: ONE ships over 1.8 million containers globally. When a freight forwarder clears a shipment, a single B2B invoice easily runs between <span class="keyword">$50,000 and $100,000 USD</span>. Under the legacy system, forwarders had to make offline wire transfers, email deposit slips, and wait <span class="keyword">24 to 48 hours</span> for accounting clerks to verify and clear the hold in SAP. Meanwhile, containers sat at port gates accumulating heavy demurrage penalties at midnight.
           </p>
           <p class="leading-relaxed">
-            In the past, customers paid through slow offline bank transfers. It took 2 to 3 days to confirm payments, which delayed container releases and caused heavy port penalty fees.
-          </p>
-          <p class="leading-relaxed">
-            I led backend initiatives across four critical technical areas:
+            We solved this by building an end-to-end clearing engine with four key architectural decisions:
           </p>
           <p class="leading-relaxed pl-3 border-l-2 border-indigo-400">
-            <strong>1. Direct Bank Rails & Fast Webhooks:</strong> We integrated directly with corporate bank APIs like HSBC Omni, PromptPay, and VietQR. This saved the company over <span class="keyword">25 million dollars</span> in transaction fees each year. To handle sudden webhook spikes, I built a Golang broker that verifies bank RSA signatures and Redis idempotency in under <span class="keyword">5 milliseconds</span>. This completely stopped duplicate payment retries.
+            <strong>1. Direct Bank Rails vs. Aggregators:</strong> We bypassed payment aggregators like Stripe. At our $50k ticket size, Stripe's 2.9% fee would bleed tens of millions in margin. By integrating Direct Bank Rails with HSBC Omni at ~0.8% Interchange++, we saved the company over <span class="keyword">$25 million USD annually</span> and achieved T+0 treasury liquidity.
           </p>
           <p class="leading-relaxed pl-3 border-l-2 border-indigo-400">
-            <strong>2. Distributed Workflows with Temporal.io:</strong> We cannot use standard DB transactions across external banks and our SAP ERP. I used Temporal to orchestrate a Saga workflow. This cut container release time from <span class="keyword">48 hours down to under 60 seconds</span>. It guaranteed zero duplicate charges and automated refunds if credit checks failed.
+            <strong>2. Sub-5ms Go Webhook Broker:</strong> After bank weekend maintenance, webhook deliveries arrived in massive bursts. Node.js event loops were choking on RSA-256 signature verifications. So I built a compiled Go webhook broker that validates signatures and locks Redis idempotency in parallel across CPU cores—responding to banks in <span class="keyword">4.2 milliseconds flat</span> with zero duplicate payments.
           </p>
           <p class="leading-relaxed pl-3 border-l-2 border-indigo-400">
-            <strong>3. AI FinOps Pipeline for Tax Invoices:</strong> Thai customs requires strict tax invoice tables. We used OpenCV to clean and crop invoice photos. Gemini 2.0 Flash with Context Caching extracted tables in <span class="keyword">250 milliseconds</span>. Finally, Redis Vector Search mapped local Thai charges to SAP codes in 1 millisecond with a <span class="keyword">98.4% automation rate</span>.
+            <strong>3. Multimodal AI FinOps Pipeline:</strong> Thai and regional customs require strict withholding tax certificates. We built a multimodal AI pipeline using OpenCV and Gemini Flash with Vertex RAM context caching, extracting structured tax data in <span class="keyword">258 milliseconds</span> and matching SAP codes via Redis vector search with <span class="keyword">98.4% accuracy</span>.
           </p>
           <p class="leading-relaxed pl-3 border-l-2 border-indigo-400">
-            <strong>4. SRE Database Performance Tuning:</strong> During a peak month-end crisis where MongoDB CPU spiked to 94%, I diagnosed WiredTiger connection pool contention. I capped connections to 15 per pod and routed read queries to secondary replicas. This dropped database CPU to <span class="keyword">32%</span> and cut query latency from 4.2 seconds to just <span class="keyword">8.4 milliseconds</span>.
+            <strong>4. Resolving WiredTiger Concurrency Bottlenecks:</strong> When our MongoDB cluster experienced a peak CPU crisis spiking to 94%, I diagnosed thread context switching on WiredTiger's 128 read tickets caused by oversized connection pools. Bounding the pools to 15 sockets per pod and routing dashboards to secondary replicas cooled CPU to <span class="keyword">32%</span> and cut query latency from 4.2 seconds to <span class="keyword">6 milliseconds</span>.
           </p>
-          <p class="leading-relaxed">
-            In the end, we achieved <span class="keyword">99.99% system uptime</span> and saved millions of dollars. We eliminated all double payments across hundreds of millions in transaction volume."
+          <p class="leading-relaxed font-semibold text-indigo-600 dark:text-indigo-400">
+            In the end, we brought container release times down from 48 hours to under 60 seconds across 14 countries. I can walk through the Go broker's concurrency model, or how we handled distributed sagas with SAP—which part would you like to hear first?"
           </p>
         </div>
 
@@ -664,34 +661,28 @@
         <!-- FULL VERSION -->
         <div id="proudest2-content-full" class="bg-slate-50 dark:bg-slate-950 rounded-2xl p-5 sm:p-7 border border-slate-200 dark:border-slate-800 space-y-5">
 <p class="leading-relaxed">
-            "A second project that I am really proud of is <span class="keyword">4SCAMPAIGN</span>.
+            "A second project I'm really proud of is <span class="keyword">4SCAMPAIGN</span>, an automated outbound telephony and IVR platform built for enterprise clients in <span class="keyword">Japan</span>.
           </p>
           <p class="leading-relaxed">
-            It is a high-availability automated outbound call platform that we built for enterprise clients in <span class="keyword">Japan</span>.
+            The core challenge was that Japanese corporate clients needed to trigger massive outbound phone campaigns—such as urgent payment reminders, post-purchase surveys, and appointment confirmations—reaching over <span class="keyword">100,000 recipients</span> within tight time windows. When people answered, the system had to play interactive voice menus and dynamically branch call logic based on DTMF keypad inputs in real time.
           </p>
           <p class="leading-relaxed">
-            To give you the business context: Japanese enterprises needed a reliable system for massive outbound voice campaigns. Common uses included customer surveys, payment reminders, and appointment confirmations.
+            The hardest part was telephony concurrency: if you dump 100,000 calls at once, carrier trunks get throttled, Twilio returns 429 errors, and carrier bills skyrocket.
           </p>
-          <p class="leading-relaxed">
-            When a customer answers the phone, our system plays custom interactive voice menus (IVR) and routes calls based on keypad inputs.
+          <p class="leading-relaxed pl-3 border-l-2 border-amber-400">
+            <strong>1. Asynchronous Queueing with Token Bucket Throttling:</strong> I designed a tiered queueing pipeline using RabbitMQ and BullMQ with a Token Bucket rate-limiter, dispatching calls at an exact sustainable pace while handling webhook callbacks (ringing, answered, busy, voicemail) through an idempotent state machine.
           </p>
-          <p class="leading-relaxed">
-            I owned four core backend and cloud areas on this project:
+          <p class="leading-relaxed pl-3 border-l-2 border-amber-400">
+            <strong>2. Polyglot Microservices via gRPC:</strong> To give enterprise managers live visibility without slowing down active call dispatching, I decoupled the architecture: Node.js handles telephony I/O, while Python FastAPI calculates live campaign metrics. Connecting the two services over gRPC with Protobuf instead of REST cut inter-service communication latency by <span class="keyword">30%</span>.
           </p>
-          <p class="leading-relaxed pl-3 border-l-2 border-indigo-400">
-            <strong>1. High-Concurrency Task Pipeline:</strong> To trigger 100,000 automated calls safely, I designed an asynchronous pipeline using RabbitMQ, Redis, and BullMQ. This prevented crashes on downstream telephony providers. I built an event-driven state machine with idempotent webhook handlers to track real-time call states and retries.
+          <p class="leading-relaxed pl-3 border-l-2 border-amber-400">
+            <strong>3. Zero-Downtime Data Migration:</strong> We migrated several million historical call logs from MySQL into MongoDB for faster reporting. I wrote an asynchronous ETL pipeline with schema validation that ran concurrently with live production campaigns, completing the migration with zero downtime and zero data loss.
           </p>
-          <p class="leading-relaxed pl-3 border-l-2 border-indigo-400">
-            <strong>2. High-Speed Analytics with Python FastAPI & gRPC:</strong> While Node.js handled call connections, I built a data analytics engine in Python FastAPI. It computed live campaign metrics in real time. By connecting Node.js and Python over gRPC instead of standard REST, I cut inter-service communication latency by <span class="keyword">30%</span>.
+          <p class="leading-relaxed pl-3 border-l-2 border-amber-400">
+            <strong>4. Cloud Storage Optimization:</strong> Audio recordings were accumulating rapidly. I configured S3 lifecycle transitions to automatically push audio older than 30 days into Glacier, cutting our monthly storage costs by <span class="keyword">35%</span>.
           </p>
-          <p class="leading-relaxed pl-3 border-l-2 border-indigo-400">
-            <strong>3. Zero-Downtime Data Migration:</strong> I built an ETL data pipeline to migrate millions of historical call logs into MongoDB with schema validation. We ran the migration during active campaigns with zero downtime and zero data loss.
-          </p>
-          <p class="leading-relaxed pl-3 border-l-2 border-indigo-400">
-            <strong>4. AWS Cloud Cost Optimization:</strong> Audio recordings accumulate quickly. I configured AWS S3 lifecycle rules to transition older audio into cold Glacier storage. This cut our monthly S3 storage bill by <span class="keyword">35%</span>.
-          </p>
-          <p class="leading-relaxed">
-            This project proved that our architecture could reliably handle high telephony concurrency while maintaining strict Japanese enterprise quality standards."
+          <p class="leading-relaxed font-semibold text-amber-600 dark:text-amber-400">
+            We ended up delivering 99.95% call completion rates with zero dropped webhooks. I'd be happy to dive deeper into the RabbitMQ backpressure mechanism or the gRPC service boundaries—which part would you like to explore?"
           </p>
         </div>
 
@@ -1181,7 +1172,7 @@
         <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
           <div>
             <span class="px-2.5 py-1 rounded-md bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 text-xs font-bold uppercase font-mono">
-              Phần 4: Ứng dụng AI đột phá (x3 Năng suất &amp; Extreme Ownership)
+              Phần 4: Ứng dụng AI trong Quy trình Kỹ thuật (Tăng tốc &amp; Làm chủ Chất lượng)
             </span>
             <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mt-1">
               "How do you use AI to 3x your velocity, drive product ownership, and optimize systems?"
@@ -1210,7 +1201,7 @@
         <!-- QUICK VERSION -->
         <div id="ai-content-quick" class="hidden bg-slate-50 dark:bg-slate-950 rounded-xl p-5 sm:p-6 border border-slate-200 dark:border-slate-800">
           <p class="leading-relaxed">
-            "I treat AI as a <span class="keyword">3x force multiplier</span> that transforms me from a feature coder into a true Product Owner.
+            "I look at AI as a high-leverage engineering accelerator that handles boilerplate, syntax, and initial exploration, freeing me up to focus on architecture, system trade-offs, and product requirements.
           </p>
           <p class="leading-relaxed">
             First, I use AI copilots to <span class="keyword">map complex codebases</span>, quickly grasping the big architecture and critical bottlenecks.
@@ -1235,7 +1226,7 @@
             I don't look at AI as a simple code autocomplete.
           </p>
           <p class="leading-relaxed">
-            For me, <span class="keyword">AI is a 3x force multiplier</span>. It helps me think like a Tech Lead and act like a Product Owner.
+            For me, AI is a practical engineering accelerator. It helps me explore unfamiliar domains faster and anticipate edge-case failure modes.
           </p>
           <p class="leading-relaxed">
             Here are the three practical ways I use modern AI in my daily engineering workflow:
@@ -1307,7 +1298,7 @@
             <strong>Triết lý Senior:</strong> AI mang lại tốc độ và độ bao phủ của cả một team nhỏ. Nhưng là một Senior Engineer, em chịu trách nhiệm 100% về độ bền bỉ kiến trúc, tính bảo mật và hiệu quả kinh doanh.
           </div>
           <div class="pt-3 border-t border-purple-200 dark:border-purple-800/60 text-xs text-purple-900 dark:text-purple-300 font-medium">
-            💡 <strong>Chiến thuật ghi điểm Senior:</strong> Trả lời một cách tự nhiên, mạch lạc theo đúng phong thái Tech Lead / Product Owner: Kết hợp linh hoạt các công cụ đỉnh cao hiện nay (Copilot để đọc codebase ➔ NotebookLM để bắt lỗi spec Jira cùng PM ➔ MCP &amp; Playwright để bao phủ ca biên ➔ Extreme Ownership chịu trách nhiệm cuối cùng). Đây là câu trả lời toàn diện, thể hiện bạn đi đầu về xu hướng làm việc năng suất cao nhưng cực kỳ vững vàng về trách nhiệm kỹ thuật.
+            💡 <strong>Chiến thuật ghi điểm Senior:</strong> Trả lời một cách tự nhiên, mạch lạc theo đúng phong thái Tech Lead / Product Owner: Kết hợp linh hoạt các công cụ đỉnh cao hiện nay (Copilot để đọc codebase ➔ NotebookLM để bắt lỗi spec Jira cùng PM ➔ MCP &amp; Playwright để bao phủ ca biên ➔ luôn chịu trách nhiệm cuối cùng về chất lượng code). Đây là câu trả lời toàn diện, thể hiện bạn đi đầu về xu hướng làm việc năng suất cao nhưng cực kỳ vững vàng về trách nhiệm kỹ thuật.
           </div>
         </div>
 
@@ -1630,7 +1621,7 @@
             Here are my three core practices for managing time effectively:
           </p>
           <p class="leading-relaxed pl-3 border-l-2 border-indigo-400">
-            <strong>1. Treat Time Like an Agile Backlog:</strong> At the start of each week, I identify my top two mission-critical deliverables. I protect morning hours for deep coding and architectural design, scheduling routine meetings in the afternoon.
+            <strong>1. Treat Time Like an Agile Backlog:</strong> At the start of each week, I identify my top two high-priority architecture deliverables. I protect morning hours for deep coding and architectural design, scheduling routine meetings in the afternoon.
           </p>
           <p class="leading-relaxed pl-3 border-l-2 border-indigo-400">
             <strong>2. Async Communication Over Unnecessary Meetings:</strong> For status updates and technical proposals, I write clear, concise documentation with diagrams in Slack or Notion. This saves hours of meeting time and creates a permanent knowledge base for the entire engineering team.
@@ -3212,7 +3203,7 @@
 
       <!-- Quick Overview Banner -->
       <div class="bg-rose-50/70 dark:bg-rose-950/20 rounded-2xl p-4 sm:p-5 border border-rose-200 dark:border-rose-900/50 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-        🛡️ <strong>Tại sao Tab 16 cực kỳ quan trọng:</strong> Ở vòng phỏng vấn với Tech Lead / Engineering Manager / CTO, họ luôn hỏi 3 câu này để phân biệt một lập trình viên chỉ biết viết tính năng (Feature Coder) với một <strong>Senior Engineer thực thụ</strong> biết chịu trách nhiệm khi có lỗi production, biết bảo mật dòng tiền và biết xây dựng quy trình CI/CD an toàn.
+        🛡️ <strong>Tại sao Tab 16 cực kỳ quan trọng:</strong> Ở vòng phỏng vấn với Tech Lead / Engineering Manager / CTO, họ luôn hỏi 3 câu này để đánh giá một kỹ sư có tư duy làm chủ hệ thống thực thụ: biết chịu trách nhiệm khi có lỗi production, biết bảo mật dòng tiền và biết xây dựng quy trình CI/CD an toàn.
       </div>
 
       <!-- SEC1: Production Bug / Mistake & Post-mortem -->
@@ -3455,7 +3446,7 @@
 
       <!-- Quick Overview Banner -->
       <div class="bg-sky-50/70 dark:bg-sky-950/20 rounded-2xl p-4 sm:p-5 border border-sky-200 dark:border-sky-900/50 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-        💻 <strong>Tại sao Tab 17 là "Vũ khí bí mật" vòng Technical:</strong> Trong CV của bạn có cả <strong>Node.js (TypeScript / NestJS)</strong>, <strong>Python (FastAPI)</strong> và <strong>Golang</strong>. Ở vòng phỏng vấn kỹ thuật, Tech Lead chắc chắn sẽ hỏi 3 câu dưới đây để kiểm tra xem bạn có thực sự hiểu sâu cơ chế hoạt động bên dưới (Event Loop, Memory Leak, và lý do chọn từng ngôn ngữ) hay không.
+        💻 <strong>Điểm then chốt ở vòng Phỏng vấn Kỹ thuật:</strong> Trong CV của bạn có cả <strong>Node.js (TypeScript / NestJS)</strong>, <strong>Python (FastAPI)</strong> và <strong>Golang</strong>. Ở vòng phỏng vấn kỹ thuật, Tech Lead chắc chắn sẽ hỏi 3 câu dưới đây để kiểm tra xem bạn có thực sự hiểu sâu cơ chế hoạt động bên dưới (Event Loop, Memory Leak, và lý do chọn từng ngôn ngữ) hay không.
       </div>
 
       <!-- TECH1: Node.js Single-Threaded Event Loop & High Concurrency -->
@@ -5091,7 +5082,7 @@
             <span class="text-2xl sm:text-3xl">🧭</span>
             <div>
               <span class="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-indigo-500/30 text-indigo-300 border border-indigo-400/30">
-                Core Business Domain Mastery
+                Core Business Domain Foundation
               </span>
               <h3 class="text-base sm:text-xl font-black text-white mt-0.5">
                 Cẩm Nang Nghiệp Vụ: Vận Tải Biển Quốc Tế & Dòng Tiền FinTech Doanh Nghiệp
@@ -5187,7 +5178,7 @@
               <span class="text-xs text-slate-500 dark:text-slate-400">Thời lượng: 60 - 90 giây</span>
             </div>
             <h3 class="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white mt-1">
-              Bản Pitch Mở Màn Dự Án & Quy Mô Khủng (Executive Opening Pitch & Global Scale)
+              Bản Pitch Mở Màn Dự Án & Quy Mô Doanh Nghiệp (Executive Opening Pitch & Enterprise Scale)
             </h3>
           </div>
           <div class="flex items-center gap-2 shrink-0">
@@ -5212,25 +5203,25 @@
         <!-- Full Version -->
         <div id="epay1-content-full" class="p-5 rounded-2xl bg-indigo-50/40 dark:bg-slate-950/60 border border-indigo-100/80 dark:border-indigo-900/40 text-slate-800 dark:text-slate-100 text-sm sm:text-base leading-relaxed space-y-3 font-medium">
           <p class="leading-relaxed">
-            The flagship system in my career is the Global E-Payment and AI FinOps platform for Ocean Network Express.
+            "The system I’m most proud of leading is the Global E-Payment and AI FinOps platform for Ocean Network Express (ONE).
           </p>
           <p class="leading-relaxed">
-            This is not a simple CRUD website. It is the core financial engine that processes billions of dollars in freight revenue across 14 countries.
+            In container shipping, orders aren't small shopping carts—our freight forwarders pay $50,000 to $100,000 per invoice for entire shiploads of cargo. In our legacy flow, payments were made via offline bank wires and verified by accounting clerks over 2 to 3 days, causing massive port demurrage penalties while trucks sat stranded outside port gates.
           </p>
           <p class="leading-relaxed">
-            Our company moves over 1.8 million shipping containers, and each B2B invoice ranges from ten thousand to five hundred thousand dollars.
+            I helped re-architect this into a real-time, event-driven clearing platform:
+          </p>
+          <p class="leading-relaxed pl-3 border-l-2 border-indigo-400">
+            First, we bypassed third-party payment aggregators to integrate <strong>Direct Bank Rails with HSBC Omni</strong>, cutting merchant fees by over <strong>$25 million USD annually</strong> with T+0 treasury liquidity.
+          </p>
+          <p class="leading-relaxed pl-3 border-l-2 border-indigo-400">
+            Second, we built a <strong>Go broker handling bank webhooks in 4.2 milliseconds</strong> and an <strong>AI FinOps pipeline using Gemini Flash to verify withholding tax certificates in 258 milliseconds</strong>.
+          </p>
+          <p class="leading-relaxed pl-3 border-l-2 border-indigo-400">
+            And third, we used <strong>Temporal distributed sagas</strong> to clear receivables into SAP S/4HANA and trigger port container release in <strong>under 60 seconds</strong>.
           </p>
           <p class="leading-relaxed">
-            I am proud of this platform for three clear reasons:
-          </p>
-          <p class="leading-relaxed pl-3 border-l-2 border-indigo-400">
-            First, mission-critical financial scale: At this volume, a tiny calculation error or race condition could cost millions of dollars in real money.
-          </p>
-          <p class="leading-relaxed pl-3 border-l-2 border-indigo-400">
-            Second, high-performance distributed architecture: We combined a high-speed Go webhook broker, an APISIX edge gateway, Temporal workflows, and Gemini AI vision.
-          </p>
-          <p class="leading-relaxed pl-3 border-l-2 border-indigo-400">
-            Third, concrete business impact: We saved over 25 million dollars annually in bank fees. We achieved a 98.4% auto-clearing rate and cut container release time from 48 hours to under one minute.
+            It eliminated manual paper bottlenecks across 14 countries with zero financial leaks."
           </p>
         </div>
 
@@ -5883,7 +5874,7 @@
               <span class="text-xs text-slate-500 dark:text-slate-400">Thời lượng: 60 - 90 giây</span>
             </div>
             <h3 class="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white mt-1">
-              Bản Đúc Kết 5 Trụ Cột Kiến Trúc Sư & Chiến Lược Chinh Phục C-Level
+              Bản Đúc Kết 3 Trụ Cột Kiến Trúc Hệ Thống (Core Engineering Principles)
             </h3>
           </div>
           <div class="flex items-center gap-2 shrink-0">
@@ -5908,25 +5899,19 @@
         <!-- Full Version -->
         <div id="epay10-content-full" class="p-5 rounded-2xl bg-indigo-50/40 dark:bg-slate-950/60 border border-indigo-100/80 dark:border-indigo-900/40 text-slate-800 dark:text-slate-100 text-sm sm:text-base leading-relaxed space-y-3 font-medium">
           <p class="leading-relaxed">
-            In conclusion, the success of our E-Payment platform comes down to five foundational engineering pillars:
+            "If I had to summarize the engineering philosophy behind this platform in 3 core principles, they would be:
           </p>
           <p class="leading-relaxed pl-3 border-l-2 border-indigo-400">
-            Pillar 1 is Fast and Secure Edge Infrastructure: Using Cloud Armor, Google Cloud load balancers, and APISIX in-memory authentication.
+            <strong>1. Pragmatic FinOps over Vendor Shortcuts:</strong> We avoided third-party payment gateways like Stripe and built Direct Bank Rails with HSBC Omni at ~0.8% IC++, saving $25M annually and gaining T+0 liquidity.
           </p>
           <p class="leading-relaxed pl-3 border-l-2 border-indigo-400">
-            Pillar 2 is Database Concurrency: Scientific pool sizing eliminates lock contention, paired with Keyset Cursor Pagination on 25 million records.
+            <strong>2. Decoupled High-Speed Edge from Heavy Core ERP:</strong> Our Go webhook broker absorbs bank traffic bursts in 4.2ms, while Temporal distributed sagas handle the heavy SAP S/4HANA clearing asynchronously, keeping port releases under 60 seconds.
           </p>
           <p class="leading-relaxed pl-3 border-l-2 border-indigo-400">
-            Pillar 3 is GitOps and Progressive Delivery: Strict repository separation, ArgoCD sync waves, and automated canary rollbacks.
+            <strong>3. Governed AI with Zero Blind Trust:</strong> We wrapped Gemini Flash in a production pipeline with OpenCV compression and Vertex RAM caching for 258ms latency, backstopped by a 5% random human accountant post-audit for full SOX 404 compliance.
           </p>
-          <p class="leading-relaxed pl-3 border-l-2 border-indigo-400">
-            Pillar 4 is Direct Bank Rails and Idempotency: Saving 25 million dollars annually, protected by Redis MSETNX distributed locks.
-          </p>
-          <p class="leading-relaxed pl-3 border-l-2 border-indigo-400">
-            Pillar 5 is Multimodal AI FinOps: Sub-300ms tax receipt vision with Gemini Flash, paired with mandatory 5% human audit sampling.
-          </p>
-          <p class="leading-relaxed">
-            This balance between real business cost savings, rock-solid stability, and deep technical craft is how I approach all software architecture.
+          <p class="leading-relaxed font-semibold text-indigo-600 dark:text-indigo-400">
+            Great architecture isn't about using trendy tools—it's about making deliberate trade-offs that protect revenue and deliver real business velocity."
           </p>
         </div>
 
@@ -5941,10 +5926,10 @@
 
         <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs sm:text-sm text-slate-600 dark:text-slate-300 space-y-2">
           <div class="font-bold text-indigo-700 dark:text-indigo-400 flex items-center gap-1.5">
-            <span>🏆</span> Lời Kết Chinh Phục C-Level & Tech Lead:
+            <span>🏆</span> Lời Kết Phỏng Vấn (Engineering Philosophy):
           </div>
           <p>
-            Đây là câu trả lời hoàn hảo cho câu hỏi: <em>"Tại sao chúng tôi nên tuyển bạn làm Senior / Staff Engineer?"</em> — Bạn chứng minh được khả năng làm chủ toàn bộ bức tranh: từ chi phí FinOps, kiến trúc Cloud GCP, thuật toán khóa phân tán, tối ưu hóa Database Engine, đến bảo mật và quản trị AI.
+            Thể hiện tư duy của một kỹ sư giải quyết bài toán lớn: không chạy theo công nghệ hợp thời mà biết cân nhắc bài toán kinh tế (FinOps $25M), bảo vệ hệ thống cốt lõi (Go broker đỡ đòn cho SAP), và ứng dụng AI có kiểm chứng an toàn (Zero Blind Trust).
           </p>
         </div>
       </div>

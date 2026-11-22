@@ -1060,7 +1060,7 @@ tr:hover td {
           Automated Outbound Voice &amp; Dynamic IVR Campaign Platform
         </h1>
         <p style="font-size: 1.1rem; color: #475569; max-width: 950px; line-height: 1.6; margin-bottom: 1.5rem;">
-          High-concurrency outbound telephony platform built for the Japanese market. Orchestrates over <strong>100,000 automated calls</strong> at peak, ingests carrier webhooks in <strong>under 10 milliseconds</strong>, strictly enforces telco CPS rate limits using Redis Token Bucket, and handles transient carrier failures via a resilient 3-tier RabbitMQ Dead Letter Exchange.
+          High-concurrency outbound telephony platform built for the Japanese market. Processes over <strong>100,000 automated calls</strong> at peak, ingests carrier webhooks in <strong>under 10 milliseconds</strong>, strictly enforces telco CPS rate limits using Redis Token Bucket, and handles transient carrier failures via a resilient 3-tier RabbitMQ Dead Letter Exchange.
         </p>
 
         <!-- Key Metrics Grid -->
@@ -1169,7 +1169,7 @@ tr:hover td {
           </div>
           <div class="spoken-content">
             <p>
-              "At S4 Campaign, we built a <strong>high-concurrency outbound telephony platform</strong> that orchestrates over <strong>100,000 automated phone calls</strong> across Japan. To handle this scale reliably, I structured the system into <strong>four clean architectural blocks</strong>:
+              "At S4 Campaign, we built a <strong>high-concurrency outbound telephony platform</strong> that executes over <strong>100,000 automated phone calls</strong> across Japan. To handle this scale reliably, I structured the system into <strong>four clean architectural blocks</strong>:
             </p>
             <p>
               <strong>First, Edge and Ingress:</strong> We use an AWS Application Load Balancer with Pod IP targeting via VPC CNI, paired with NGINX Ingress to strip untrusted headers and inject verified user context.
@@ -1563,7 +1563,7 @@ tr:hover td {
         <ul style="color: #334155; font-size: 0.9rem; line-height: 1.7; margin-left: 1.25rem; margin-bottom: 1.25rem;">
           <li><strong>Clean Path Separation:</strong> Splits incoming traffic into three dedicated paths: high-frequency webhook ingestion, persistent WebSockets for live operator telemetry, and standard REST management APIs.</li>
           <li><strong>Header Sanitization &amp; Context Enrichment:</strong> Strips out any untrusted external <code>X-User-*</code> headers sent from public clients. It validates the user JWT and injects an authenticated <code>X-User-Context</code> header carrying user ID, tenant ID, and permissions down to internal pods.</li>
-          <li><strong>WebSocket Protocol Upgrades:</strong> Handles HTTP 101 Switching Protocols seamlessly to power the live AngularJS real-time call monitoring dashboard.</li>
+          <li><strong>WebSocket Protocol Upgrades:</strong> Handles HTTP 101 Switching Protocols reliably to power the live AngularJS real-time call monitoring dashboard.</li>
         </ul>
 
         <!-- 🎙️ Spoken Script for Section 1 -->
