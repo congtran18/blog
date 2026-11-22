@@ -1063,7 +1063,7 @@ tr:hover td {
           Firebase Analytics &rarr; ClickHouse High-Throughput Data Engine
         </h1>
         <p style="font-size: 1.1rem; color: #475569; max-width: 950px; line-height: 1.6; margin-bottom: 1.5rem;">
-          A mission-critical, enterprise-grade columnar data engine written in Go. Implements a <strong>3-tier Medallion Architecture (Bronze &rarr; Silver &rarr; Gold)</strong> ingesting billions of GA4 mobile events from BigQuery across multi-tenant projects into a self-hosted ClickHouse warehouse. Cuts storage by <strong>39.6x</strong>, slashes query latency from &gt;20s timeouts to <strong>under 70 milliseconds</strong>, achieves <strong>Zero-Allocation memory buffering (<code>buf = buf[:0]</code>)</strong>, and guarantees <strong>Exactly-Once Semantics (EOS)</strong> through atomic metadata partition swaps.
+          A high-performance columnar data engine built with Go and ClickHouse. Implements a <strong>3-tier Medallion Architecture (Bronze &rarr; Silver &rarr; Gold)</strong> syncing tens of millions of mobile events daily from BigQuery into a self-hosted ClickHouse warehouse. Cuts storage by <strong>39.6x</strong> (from 3,024 to 76 bytes/row), slashes dashboard latency from &gt;20s timeouts to <strong>under 70 milliseconds</strong>, and eliminates memory jitter with <strong>Zero-Allocation Go buffers (<code>buf = buf[:0]</code>)</strong> and atomic 15ms partition swaps.
         </p>
 
         <!-- Key Metrics Grid -->
@@ -1164,19 +1164,19 @@ tr:hover td {
           </div>
           <div class="spoken-content">
             <p>
-              "We engineered a <strong>high-throughput Go data engine</strong> implementing a <strong>3-tier Medallion Architecture</strong> that syncs billions of Firebase Analytics events from BigQuery into a self-hosted <strong>ClickHouse columnar warehouse</strong>. To solve previous database timeouts and massive storage bloat, I designed the platform around <strong>four core architectural blocks</strong>:
+              "So, this project actually started from a painful bottleneck we had. We were managing analytics for about 50 mobile apps, handling tens of millions of events daily. The original setup just dumped raw JSON blobs straight into Postgres.
             </p>
             <p>
-              <strong>First, Bronze Extraction and Deduplication:</strong> We query BigQuery across multi-tenant Firebase projects. For streaming intraday exports, we eliminate duplicates using a scalar <code>QUALIFY ROW_NUMBER()</code> window filter without expensive unnesting, cutting query scan costs to zero.
+              Obviously, that didn't scale. Our dashboards were taking 20-plus seconds to load, and our storage bills were crazy high — mostly just storing repeated JSON keys over and over.
             </p>
             <p>
-              <strong>Second, Memory-Buffered Load Path:</strong> In Go, we buffer <strong>50,000 rows in RAM</strong> using <strong>Zero-Allocation slicing (<code>buf = buf[:0]</code>)</strong> before opening an insert connection to ClickHouse. Decoupling the slow cloud read from the local insert completely eliminated server receive timeouts and GC pauses.
+              So I redesigned the pipeline: we migrated to ClickHouse, shredded those JSON blobs into typed columns and maps, and built a custom Go ingestion worker to pull data from BigQuery in 50k-row batches.
             </p>
             <p>
-              <strong>Third, Silver Column Shredding and Atomic Swap:</strong> Instead of storing bulky raw JSON, we shredded events into typed columns and four typed Maps, <strong>reducing storage by 39.6 times</strong> from 3,024 to 76 bytes per row. We stream batches into a staging table, verify row counts at a pre-swap quality gate, and perform an <strong>atomic metadata-only REPLACE PARTITION</strong> in 15 milliseconds with zero downtime.
+              It ended up cutting our storage by almost <strong>40x</strong>, and brought query times down to <strong>under 70 milliseconds</strong>.
             </p>
-            <p>
-              <strong>Fourth, Gold Rollups and State Bookkeeping:</strong> Postgres tracks sync states with a strict 'Swap First, Mark Later' rule, while pre-aggregating a <code>user_daily</code> rollup table that is <strong>125 times smaller</strong> than raw events, bringing dashboard query latency down from 20-second timeouts to <strong>under 70 milliseconds</strong>."
+            <p style="font-weight: 600; color: #0284c7;">
+              I can dive deeper into how the Go worker handles network timeouts, or how we designed the ClickHouse tables — which part would you like to hear first?"
             </p>
           </div>
         </div>
@@ -1750,10 +1750,13 @@ QUALIFY ROW_NUMBER() OVER (
           </div>
           <div class="spoken-content">
             <p>
-              "In GA4, streaming intraday tables have a 0.64% duplicate rate due to mobile network retries. Rather than downloading raw duplicates and cleaning them in ClickHouse, we deduplicate them directly in BigQuery.
+              "One tricky thing with GA4 is that the streaming intraday tables have about a 0.6% duplicate rate because mobile devices retry sending on patchy cellular connections.
             </p>
             <p>
-              We use a <code>QUALIFY ROW_NUMBER()</code> window function partitioned over the five scalar batch coordinates Google attaches to each event. Because these are scalar columns, this operation costs zero extra query scan dollars and guarantees clean data before rows ever touch our network."
+              Instead of pulling millions of duplicate rows over the public internet and cleaning them inside ClickHouse, we push the deduplication directly to BigQuery using a scalar <code>QUALIFY ROW_NUMBER()</code> window filter.
+            </p>
+            <p>
+              Because we partition strictly over five scalar batch coordinates without unnesting arrays, BigQuery scans zero extra bytes, so we get 100% clean data before it even hits our network."
             </p>
           </div>
         </div>
@@ -1877,13 +1880,13 @@ for row := range bigqueryRows {
           </div>
           <div class="spoken-content">
             <p>
-              "Earlier pipeline iterations crashed on large days with ClickHouse error 209 (receive timeout). The root cause was that code kept an insert batch open while reading from BigQuery over the WAN. If a network blip occurred during the read, the idle connection timed out.
+              "When we first launched, we ran into ClickHouse error 209 — connection receive timeouts — on heavy traffic days.
             </p>
             <p>
-              We solved this by <strong>decoupling the read and send clocks</strong> in Go: we accumulate a full 50,000-row batch in RAM first, and only then open the ClickHouse batch to transmit locally in milliseconds.
+              The culprit was that our code kept an open insert batch to ClickHouse while streaming data from BigQuery over the WAN. If BigQuery stuttered for a few seconds, ClickHouse gave up and killed the connection, crashing the entire load.
             </p>
             <p>
-              Furthermore, to prevent Go Garbage Collector pauses under high throughput, we implemented <strong>zero-allocation slice reuse (<code>buf = buf[:0]</code>)</strong>. By resetting the slice length without reallocating the underlying 50,000-pointer heap chunk, heap allocation between batches is exactly zero, ensuring flat memory consumption."
+              To fix this, we decoupled the read and write loops in Go: we pull 50,000 rows into RAM first using a reusable slice (<code>buf = buf[:0]</code> to avoid GC pauses), and only when that batch is full do we open the ClickHouse connection and flush it locally in about 150 milliseconds. After that, we had zero timeouts."
             </p>
           </div>
         </div>
@@ -2041,13 +2044,16 @@ SETTINGS index_granularity = 8192;
           </div>
           <div class="spoken-content">
             <p>
-              "In our previous system, storing raw JSON documents in TimescaleDB wasted 88% of our storage footprint on repeated property names. 18 of our 53 Metabase dashboard cards timed out because JSON extraction forced full table scans.
+              "The biggest win on this project came from getting rid of raw JSON.
             </p>
             <p>
-              We solved this through <strong>Column Shredding</strong>: we dismantled each event into first-class typed columns and four typed ClickHouse Maps.
+              In our v1 database, we were storing the full event as a JSONB blob in Postgres. When we analyzed disk usage, 88% of our storage was literally just repeated string keys — things like 'event_name' and 'event_timestamp' written millions of times.
             </p>
             <p>
-              This reduced physical storage by <strong>39.6 times</strong>, from 3,024 bytes down to 76.3 bytes per row. Query latency plummeted from 20-second timeouts to <strong>45ms for MAU distinct counts</strong>. Furthermore, our sparse primary key on <code>(app_id, event_name)</code> skips 99.8% of disk blocks on typical analytical filters."
+              So we shredded every event: core fields became typed columns, and dynamic parameters went into four typed ClickHouse Maps for strings, ints, and floats.
+            </p>
+            <p>
+              That alone shrunk our storage by nearly 40x — from 3,000 bytes down to 76 bytes per row — and dropped dashboard queries from 20-second timeouts to around 45 to 70 milliseconds."
             </p>
           </div>
         </div>
@@ -2113,16 +2119,16 @@ SETTINGS index_granularity = 8192;
           </div>
           <div class="spoken-content">
             <p>
-              "In our v1 system, loading a single day took 4 hours inside a massive Postgres transaction that held row locks, blocking dashboard users.
+              "Another big issue with the old system was that loading a single day took over 4 hours inside one massive transaction, locking tables and making dashboards crawl.
             </p>
             <p>
-              In our v2 ClickHouse architecture, we completely decoupled ingestion into an isolated staging table. We stream 50,000-row batches into <code>events_staging</code> with zero production locks.
+              In ClickHouse, we completely separated loading from querying: we ingest batches into an <code>events_staging</code> table where nobody can see it.
             </p>
             <p>
-              Before publishing, an automated <strong>Quality Assertion Gate</strong> verifies that rows written match BigQuery's reported total.
+              Once the batch is fully written, we run an automated sanity check against BigQuery's reported row count. If it matches, we execute an <code>ALTER TABLE REPLACE PARTITION</code>.
             </p>
             <p>
-              Finally, we execute an <code>ALTER TABLE events REPLACE PARTITION FROM events_staging</code>. This is an <strong>atomic, metadata-only O(1) operation</strong> that swaps disk directory pointers in 15 milliseconds. It gives us Exactly-Once Semantics, 100% idempotent re-runs, and zero dashboard downtime."
+              Because it's a metadata-only swap, it takes about 15 milliseconds. Dashboard users never experience a lock, and if a load ever fails halfway, production is completely untouched."
             </p>
           </div>
         </div>
@@ -2987,25 +2993,13 @@ SETTINGS index_granularity = 8192;
           </div>
           <div class="spoken-content">
             <p>
-              "To conclude, our work on the Firebase Analytics Data Engine demonstrates our data architecture philosophy across <strong>five foundational pillars</strong>:
+              "To wrap up, what I'm most proud of with this project isn't just the raw numbers — it's how reliable and low-maintenance the system turned out to be.
             </p>
             <p>
-              <strong>1. Columnar Efficiency over Storage Waste:</strong> We eliminated raw JSON blobs and shredded events into typed columns and maps, achieving a <strong>39.6x storage reduction</strong> and sub-70ms dashboard query latency.
+              By making three pragmatic decisions — <strong>shredding JSON into typed columns</strong>, <strong>keeping the ingestion path lock-free with atomic partition swaps</strong>, and <strong>decoupling our network buffers in Go</strong> — we turned a system that was constantly timing out and burning cash into one that runs silently, scales easily, and delivers sub-100ms dashboards for our product team every single day.
             </p>
             <p>
-              <strong>2. Atomic, Lock-Free Ingestion:</strong> We replaced fragile long-lived transactions with staging tables and <strong>O(1) metadata partition swaps</strong>, guaranteeing zero dashboard downtime during massive batch loads.
-            </p>
-            <p>
-              <strong>3. Resilient Decoupled Buffering:</strong> We decoupled WAN network reads from database insert batches in Go, eliminating receive timeouts and ensuring predictable high throughput.
-            </p>
-            <p>
-              <strong>4. Automated Correctness and Self-Healing:</strong> We built automated metadata polling that detects Google backfills and repairs historical partitions without human intervention.
-            </p>
-            <p>
-              <strong>5. Pragmatic Analytical Modeling:</strong> We pre-aggregated multi-tier rollups like <code>user_daily</code> to accelerate 90% of business reporting, while preserving raw events for fine-grained funnel analysis.
-            </p>
-            <p>
-              This is the same rigor, performance focus, and architectural discipline I bring to every data platform I build."
+              That's the kind of practical, production-first engineering mindset I try to bring to every system I build."
             </p>
           </div>
         </div>
