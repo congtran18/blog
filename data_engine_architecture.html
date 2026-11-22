@@ -2921,6 +2921,48 @@ SETTINGS index_granularity = 8192;
             </div>
           </div>
 
+          <!-- Q21 -->
+          <div class="qa-card" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; cursor: pointer;" class="qa-toggle-btn">
+              <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                <span class="qa-num-badge" style="background: #7c3aed;">Q21</span>
+                <div>
+                  <h4 class="qa-question" style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0;">
+                    Why did you NOT use Apache Spark, Kafka, and Airflow? Isn't that the industry standard Big Data stack?
+                  </h4>
+                  <div class="qa-trap">⚠️ TRAP: Saying 'we did not have time' or 'we did not know Spark'. A Staff Engineer justifies architectural minimalism through workload sizing, compute pushdown, and operational TCO.</div>
+                </div>
+              </div>
+              <span class="qa-chevron" style="font-size: 0.9rem; color: #64748b;">▼</span>
+            </div>
+            <div class="qa-body" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-light);">
+              <div class="qa-answer">
+                <p>
+                  "We deliberately avoided the <strong>'Enterprise Resume-Driven Development'</strong> trap. Introducing Spark, Kafka, and Airflow for this pipeline would have created massive operational bloat, higher cloud infrastructure bills, and worse latency:
+                </p>
+                <p>
+                  <strong>1. Why NOT Apache Spark? (Compute Pushdown &amp; C++ Vectorisation):</strong>
+                  <br>
+                  Our volume is 4M to 50M rows per day per tenant (billions per year). Spark is designed for multi-node distributed MapReduce across petabytes where data exceeds single-node capacity. For our scale, we pushed deduplication down to <strong>BigQuery's serverless engine</strong> via <code>QUALIFY ROW_NUMBER() = 1</code> ($0 extra scan cost), and loaded into <strong>ClickHouse's C++ SIMD vectorised engine</strong>, which aggregates 100M+ rows/second on a single server &mdash; 5x to 10x faster than Spark JVM overhead without paying for idle EMR/Databricks clusters.
+                </p>
+                <p>
+                  <strong>2. Why NOT Apache Kafka? (Avoiding the Double-Hop Anti-Pattern):</strong>
+                  <br>
+                  GA4 mobile devices already stream directly into Google Cloud BigQuery intraday tables. BigQuery is already a globally distributed, durable buffer. Inserting Kafka between BigQuery and ClickHouse would create an unnecessary broker hop (<code>Mobile &rarr; BigQuery &rarr; Kafka &rarr; ClickHouse</code>), serializing/deserializing twice, managing ZooKeeper/KRaft quorum, and monitoring consumer lag. Furthermore, ClickHouse thrives on <strong>50k-row batch bursts</strong>, not row-by-row streaming.
+                </p>
+                <p>
+                  <strong>3. Why NOT Apache Airflow? (Lean Ingestion Daemon over Operational Bloat):</strong>
+                  <br>
+                  Airflow requires a webserver, scheduler daemon, Celery worker pool, and Redis/RabbitMQ broker. Our Go ETL daemon is a <strong>single 20MB compiled binary</strong> that runs as a lightweight Kubernetes CronJob or background ticker. It uses PostgreSQL <code>etl.sync_state</code> for atomic row-level state machine transitions. It provides zero-overhead, sub-second error recovery without the massive operational maintenance of Airflow.
+                </p>
+                <p>
+                  <em>Senior engineering is about choosing the leanest, most reliable architecture for the business problem, not stacking unnecessary buzzwords.</em>"
+                </p>
+              </div>
+            </div>
+          </div>
+
+
         </div>
       </section>
 
