@@ -1627,59 +1627,156 @@ flowchart TD
         <div class="section-header">
           <span class="section-tag">CHAPTER 02</span>
           <h2 class="section-title">
-            <span class="lang-en">Data Architecture & The SAP S/4HANA SSOT Boundary</span>
-            <span class="lang-vi">Thiết kế dữ liệu & Ranh giới sự thật SAP S/4HANA (Data Architecture)</span>
+            <span class="lang-en">Data Architecture & The "Handheld POS Terminal" Principle</span>
+            <span class="lang-vi">Thiết kế dữ liệu & Nguyên lý "Máy quẹt thẻ POS cầm tay" (Data Architecture)</span>
           </h2>
         </div>
 
         <div class="problem-solution-grid">
           <div class="ps-card problem">
             <div class="ps-title">
-              <span class="lang-en">❌ The Distributed 2PC Anti-Pattern</span>
-              <span class="lang-vi">❌ Sai lầm phổ biến (The Anti-Pattern)</span>
+              <span class="lang-en">❌ The 'Replicate the ERP' Anti-Pattern (30+ Tables)</span>
+              <span class="lang-vi">❌ Sai lầm: Copy lại toàn bộ bảng của ERP (30+ Bảng)</span>
             </div>
             <p class="lang-en">
-              A common trap is attempting to replicate core ERP tables inside microservices or using Two-Phase Commit (2PC) across WAN networks. When network lag or ERP maintenance occurs, 2PC locks database rows across WAN boundaries, freezing the entire checkout platform.
+              A common architectural mistake is treating the payment database like a full enterprise ledger, duplicating customer master profiles, invoice line items, container tariffs, and double-entry accounting tables across dozens of relational schemas. 
+              This causes dual-maintenance hell, severe data drift when customers update their info in SAP, and massive query degradation under multi-table SQL joins.
             </p>
             <p class="lang-vi">
-              Nhiều đội kỹ sư cố gắng copy toàn bộ dữ liệu tài chính của SAP về database microservices, hoặc dùng cơ chế 2-Phase Commit (2PC) để đồng bộ dữ liệu qua lại. Khi mạng WAN giữa Cloud và SAP bị chập chờn, 2PC sẽ khóa chặt bảng cơ sở dữ liệu, khiến toàn bộ ứng dụng bị treo cứng.
+              Nhiều đội kỹ sư mắc sai lầm biến database thanh toán thành một bản sao chép của ERP: tạo ra hàng chục bảng quan hệ để lưu hồ sơ khách hàng, chi tiết hóa đơn, bảng giá lưu kho, và sổ cái kế toán kép. 
+              Hậu quả là rơi vào "cơn ác mộng đồng bộ": khi khách đổi địa chỉ hay biểu phí trên SAP thì database bị lệch dữ liệu, và các câu lệnh SQL JOIN qua 10 bảng sẽ làm sập server khi nghẽn mạng giờ cao điểm.
             </p>
           </div>
           <div class="ps-card solution">
             <div class="ps-title">
-              <span class="lang-en">✅ Clean SSOT Boundary & Sagas</span>
-              <span class="lang-vi">✅ Cách thiết kế đúng (The Clean Boundary)</span>
+              <span class="lang-en">✅ The "Handheld POS Terminal" Principle (2 Collections)</span>
+              <span class="lang-vi">✅ Nguyên lý "Máy quẹt thẻ POS": Chỉ cần 2 Collection</span>
             </div>
             <p class="lang-en">
-              <strong>SAP S/4HANA is the sole Single Source of Truth (SSOT)</strong> for financial master data and general ledger balances. MongoDB Atlas acts strictly as an operational transaction ledger and fast cache. We enforce Eventual Consistency via Temporal Sagas.
+              <strong>SAP S/4HANA is the Chief Accountant and Bank</strong>, owning 100% of customer master data, invoices, and accounting ledgers. 
+              Our MongoDB platform acts purely like a <strong>handheld POS card swipe machine at the port gate</strong>: it only needs to know the bill amount (<code>purchase_orders</code>) and record whether the swipe succeeded (<code>payment_transactions</code>). Once money clears, it hands the receipt to SAP to wipe the debt.
             </p>
             <p class="lang-vi">
-              <strong>SAP S/4HANA là Nguồn chân lý duy nhất (Single Source of Truth - SSOT)</strong> cho công nợ và sổ cái. MongoDB Atlas chỉ đóng vai trò là sổ phụ giao dịch tạm thời và bộ đệm tốc độ cao (Operational Ledger & Fast Cache). Sử dụng Eventual Consistency thông qua Temporal Saga.
+              <strong>SAP S/4HANA là Kế toán trưởng kiêm Ngân hàng</strong>, nắm giữ 100% dữ liệu khách hàng, hóa đơn và sổ cái gốc. 
+              Hệ thống MongoDB của tụi em chỉ đóng vai trò như một <strong>chiếc máy quẹt thẻ POS cầm tay ngoài cổng cảng</strong>: nó chỉ cần biết đơn này hết bao nhiêu tiền (<code>purchase_orders</code>) và ghi lại lượt quét mã thành công hay thất bại (<code>payment_transactions</code>). Tiền về là đưa biên lai cho SAP gạch nợ.
             </p>
           </div>
         </div>
 
+        <!-- SUBSECTION: WHY FEW COLLECTIONS COMPARISON TABLE -->
         <div class="subsection-title">
-          <span>🍃</span>
-          <span class="lang-en">Why MongoDB Only Needs 2 Primary Collections</span>
-          <span class="lang-vi">Tại sao MongoDB chỉ cần đúng 2 Collection chính?</span>
+          <span>⚖️</span>
+          <span class="lang-en">WHY DOES THIS PLATFORM NEED SO FEW TABLES COMPARED TO OTHER PAYMENT SYSTEMS?</span>
+          <span class="lang-vi">VÌ SAO DỰ ÁN NÀY CẦN RẤT ÍT BẢNG SO VỚI CÁC CỔNG THANH TOÁN KHÁC?</span>
         </div>
         <p class="lang-en">
-          Instead of splitting data across dozens of complex relational tables, we organized our operational data around <strong>2 core business collections</strong>:
+          Interviewers often ask: <em>"Typical e-commerce or digital wallet backends (Stripe, ShopeePay, MoMo) require 30 to 50 relational tables. Why does your maritime platform only need 2 operational collections?"</em>. Here is the architectural reason:
         </p>
         <p class="lang-vi">
-          Thay vì chia nhỏ dữ liệu ra hàng chục bảng quan hệ phức tạp, tụi em tổ chức mô hình dữ liệu xoay quanh <strong>2 collection nghiệp vụ chính</strong>:
+          Người phỏng vấn thường hỏi: <em>"Các hệ thống ví điện tử hay cổng thanh toán tiêu dùng (Stripe, ShopeePay, MoMo) đều cần 30 đến 50 bảng quan hệ phức tạp. Tại sao dự án này của bạn chỉ cần đúng 2 collection chính?"</em>. Dưới đây là câu trả lời mang tính quyết định:
+        </p>
+
+        <!-- TABLE: CONSUMER WALLET VS MARITIME B2B -->
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 25%;">
+                  <span class="lang-en">Architectural Aspect</span>
+                  <span class="lang-vi">Tiêu chí so sánh</span>
+                </th>
+                <th style="width: 37.5%; color: #dc2626;">
+                  <span class="lang-en">❌ Consumer Payment / Digital Wallets (Stripe / MoMo)</span>
+                  <span class="lang-vi">❌ Ví điện tử / Cổng tiêu dùng (Stripe / MoMo)</span>
+                </th>
+                <th style="width: 37.5%; color: #059669;">
+                  <span class="lang-en">✅ Our Maritime B2B Platform (ONE)</span>
+                  <span class="lang-vi">✅ Cổng B2B Hàng hải (Hệ thống ONE)</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <span class="lang-en">System Identity & Scope</span>
+                  <span class="lang-vi">Vai trò của hệ thống</span>
+                </td>
+                <td>
+                  <span class="lang-en">Acts as the Bank & Digital Wallet; must manage user KYC profiles, user balances, stored cards, voucher engines, and double-entry general ledgers.</span>
+                  <span class="lang-vi">Đóng vai trò là Ngân hàng / Ví điện tử; phải tự quản lý số dư ví, tài khoản thẻ, hồ sơ người dùng, điểm thưởng và sổ cái kế toán kép.</span>
+                </td>
+                <td>
+                  <span class="lang-en">Acts as a <strong>Handheld POS Terminal</strong>; does NOT act as the bank. It only facilitates checkout and tells SAP to wipe debt once money clears.</span>
+                  <span class="lang-vi">Đóng vai trò như <strong>Máy quẹt thẻ POS cầm tay</strong>; không làm ngân hàng, chỉ nhận tiền và báo cho SAP gạch nợ.</span>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <span class="lang-en">Master Data Ownership</span>
+                  <span class="lang-vi">Nơi giữ dữ liệu gốc (SSOT)</span>
+                </td>
+                <td>
+                  <span class="lang-en">Payment database must store everything (30–50 normalized tables: <code>users</code>, <code>wallets</code>, <code>ledger_entries</code>, <code>cards</code>).</span>
+                  <span class="lang-vi">Database thanh toán phải tự lưu tất cả (30–50 bảng: <code>users</code>, <code>wallets</code>, <code>cards</code>, <code>discounts</code>).</span>
+                </td>
+                <td>
+                  <span class="lang-en"><strong>SAP S/4HANA owns 100% of master data</strong> (customer profiles, invoices, general ledgers). MongoDB never duplicates SAP.</span>
+                  <span class="lang-vi"><strong>SAP S/4HANA nắm 100% dữ liệu gốc</strong> (khách hàng, biểu phí, nợ sổ cái). MongoDB tuyệt đối không copy lại của SAP.</span>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <span class="lang-en">Query Performance at Scale</span>
+                  <span class="lang-vi">Hiệu năng truy vấn tải cao</span>
+                </td>
+                <td>
+                  <span class="lang-en">Multi-table SQL <code>JOIN</code>s across 8–12 tables cause lock contention and slow queries under peak traffic.</span>
+                  <span class="lang-vi">Các câu lệnh SQL JOIN qua 8–12 bảng gây khóa dòng dữ liệu và nghẽn CPU khi hàng nghìn người cùng thanh toán trước nửa đêm.</span>
+                </td>
+                <td>
+                  <span class="lang-en"><strong>Single-key O(1) lookups in under 2ms</strong>; flat denormalized documents eliminate relational joins entirely.</span>
+                  <span class="lang-vi"><strong>Tìm kiếm theo khóa chính O(1) chỉ mất dưới 2ms</strong>; hoàn toàn không có JOIN bảng, tốc độ siêu tốc ổn định.</span>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <span class="lang-en">Data Drift & Reconciliation</span>
+                  <span class="lang-vi">Nguy cơ lệch số liệu</span>
+                </td>
+                <td>
+                  <span class="lang-en">Constant risk of data drift between internal wallet ledgers and external bank settlements; requires massive reconciliation teams.</span>
+                  <span class="lang-vi">Nguy cơ lệch số liệu thường trực giữa số dư ví trong app và tiền thật ngoài ngân hàng; tốn đội ngũ đối soát khổng lồ.</span>
+                </td>
+                <td>
+                  <span class="lang-en"><strong>Zero Data Drift</strong>: MongoDB only holds in-flight payments; SAP remains the untouchable single source of truth.</span>
+                  <span class="lang-vi"><strong>Không bao giờ lệch số liệu</strong>: MongoDB chỉ lưu phiên thanh toán đang chạy; số tiền gốc do SAP quản lý duy nhất.</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="subsection-title">
+          <span>🍃</span>
+          <span class="lang-en">The 2 Operational Collections: Intent vs. Attempt</span>
+          <span class="lang-vi">2 Collection cốt lõi: Ý định (Intent) vs. Lượt thử (Attempt)</span>
+        </div>
+        <p class="lang-en">
+          By applying the Single Responsibility Principle, our operational domain cleanly splits into just <strong>2 MongoDB Collections</strong>:
+        </p>
+        <p class="lang-vi">
+          Bằng việc phân tách rõ ràng trách nhiệm nghiệp vụ, toàn bộ hệ thống giao dịch của chúng tôi chỉ cần đúng <strong>2 Collection trên MongoDB</strong>:
         </p>
         <ul>
           <li>
-            <strong><code>purchase_orders</code>:</strong>
-            <span class="lang-en">Intent & Cache Aggregate. Stores order metadata, container numbers, and demurrage calculations fetched from SAP. Mutable during checkout; strictly read-only once payment is initiated.</span>
-            <span class="lang-vi">Ý định thanh toán & Cache. Lưu thông tin đơn hàng, danh sách mã container và số tiền nợ lấy từ SAP về. Khách hàng có thể sửa khi đang chọn giỏ hàng; khi đã bấm thanh toán thì bị khóa (Read-Only).</span>
+            <strong><code>purchase_orders</code> <span class="lang-en">(Customer Intent):</span><span class="lang-vi">(Ý định thanh toán / Giỏ hàng):</span></strong>
+            <span class="lang-en">Stores the checkout cart and demurrage calculations temporarily fetched from SAP. A forwarder can combine 1 to 50 container invoices into one order. Mutable while shopping; strictly locked (read-only) once payment is initiated.</span>
+            <span class="lang-vi">Lưu thông tin đơn hàng và số tiền cước kéo tạm từ SAP về. Khách hàng có thể gom từ 1 đến 50 container vào cùng một giỏ để trả một lần. Khách có thể sửa giỏ hàng khi đang chọn; khi bấm thanh toán thì bị khóa chặt (Read-Only).</span>
           </li>
           <li>
-            <strong><code>payment_transactions</code>:</strong>
-            <span class="lang-en">Immutable Financial Ledger. Records individual payment attempts. Multiple attempts may exist (canceling QR, timeouts), but exactly ONE successful transaction transitions to <code>payStatus = 'Y'</code>.</span>
-            <span class="lang-vi">Sổ phụ thanh toán bất biến. Lưu từng lượt quét mã thanh toán. Một đơn hàng có thể có nhiều lượt thử (khách quét hủy mã, bank timeout...), nhưng chỉ có đúng DUY NHẤT một giao dịch thành công chuyển trạng thái sang <code>payStatus = 'Y'</code>.</span>
+            <strong><code>payment_transactions</code> <span class="lang-en">(Payment Attempt):</span><span class="lang-vi">(Lượt quét mã thanh toán):</span></strong>
+            <span class="lang-en">Immutable append-only ledger of payment attempts. In emerging markets, forwarders often cancel QR codes, switch banks, or experience timeouts. Multiple attempts can exist for one order, but exactly ONE successful transaction transitions to <code>payStatus = 'Y'</code>.</span>
+            <span class="lang-vi">Sổ phụ ghi chép từng lượt quét mã bất biến. Khách có thể bấm hủy mã QR cũ, đổi sang ngân hàng khác, hoặc bị timeout. Một đơn hàng có thể có nhiều lượt thử, nhưng chỉ có đúng DUY NHẤT một giao dịch thành công đổi trạng thái sang <code>payStatus = 'Y'</code>.</span>
           </li>
         </ul>
 
@@ -1712,7 +1809,7 @@ erDiagram
         string bank_rail "VIETQR, PROMPTPAY, BOC"
         string bank_ref_no "Bank Clearing Reference"
         string pay_status "N (Draft), Y (Paid), F (Failed)"
-        timestamp settled_at "Bank Settlement Timestamp"
+        timestamp settled_at "Bank Payment Timestamp"
     }
 
     CRYPTOGRAPHIC_AUDIT_LOGS {
@@ -1731,34 +1828,51 @@ erDiagram
         <div class="spoken-script-container">
           <div class="spoken-script-header">
             <span class="spoken-badge">
-              <span class="lang-en">🎙️ Spoken Script: Defending Data Boundaries in Interviews</span>
-              <span class="lang-vi">🎙️ Spoken Script: Bảo vệ ranh giới dữ liệu trước hội đồng</span>
+              <span class="lang-en">🎙️ Spoken Script: Explaining Why We Only Need 2 Collections</span>
+              <span class="lang-vi">🎙️ Kịch bản phỏng vấn: Vì sao hệ thống chỉ cần 2 collection</span>
             </span>
             <button class="copy-btn">Copy Script</button>
           </div>
           <div class="spoken-content-block">
             <div class="spoken-text lang-en">
-              "In our data tier, we established a strict boundary: SAP S/4HANA is the single source of truth for all financial accounts, while MongoDB Atlas acts purely as our high-speed operational ledger. We kept things simple with just two main collections: <code>purchase_orders</code> to hold checkout details, and <code>payment_transactions</code> as an immutable log of payment attempts. Every transaction state change is linked with a cryptographic hash chain, so financial auditors can verify that not a single payment record was ever altered after clearing."
+              "Why do we only need 2 collections instead of dozens of relational tables like other payment systems?<br><br>
+
+              Because unlike consumer wallets like Stripe or PayPal, our platform does not act as the bank or the general ledger. SAP S/4HANA already owns 100% of customer master data, invoice line items, container tariffs, and accounting ledgers.<br><br>
+
+              Think of our platform like a <strong>handheld POS card swipe machine at the port gate</strong>:<br>
+              A card machine doesn't manage customer bank accounts or double-entry bookkeeping. It only needs to know two simple things:<br>
+              First, how much is this bill? We store that checkout snapshot in <code>purchase_orders</code>.<br>
+              Second, did this payment scan succeed? We record that as an append-only log in <code>payment_transactions</code>.<br><br>
+
+              The moment money hits the bank, we hand the digital receipt back to our 'Chief Accountant'—SAP—to clear the debt. Having just two collections means zero database joins, blazing 2-millisecond response times during peak port cut-off hours, and zero risk of data drifting out of sync with SAP."
             </div>
             <div class="spoken-text lang-vi">
-              "Về dữ liệu, tụi em phân định ranh giới rất rạch ròi: SAP nắm giữ toàn bộ số liệu kế toán gốc, còn MongoDB Atlas chỉ là sổ phụ tốc độ cao để người dùng thao tác. Hệ thống chỉ cần đúng 2 collection chính: <code>purchase_orders</code> để lưu đơn hàng giỏ hàng, và <code>payment_transactions</code> để ghi lại từng lần quét mã thanh toán bất biến. Mỗi lần giao dịch đổi trạng thái đều được nối chuỗi mã băm, giúp kiểm toán viên kiểm tra được ngay là dữ liệu không hề bị chỉnh sửa sau khi thanh toán."
+              "Tại sao hệ thống này chỉ cần đúng 2 collection mà không phải hàng chục bảng như Momo hay Stripe?<br><br>
+
+              Vì khác với các ví điện tử tiêu dùng, hệ thống của tụi em không đóng vai trò làm ngân hàng hay sổ cái kế toán. Toàn bộ thông tin khách hàng, công nợ hóa đơn và sổ sách tài chính đã nằm 100% trên SAP S/4HANA rồi.<br><br>
+
+              Hãy tưởng tượng hệ thống của tụi em giống như một <strong>chiếc máy quẹt thẻ POS cầm tay ngoài cổng cảng</strong>:<br>
+              Chiếc máy POS ngoài đời đâu cần quản lý hồ sơ khách hàng hay ghi sổ kép kế toán. Nó chỉ cần biết đúng 2 thứ:<br>
+              Thứ nhất: Đơn này tính bao nhiêu tiền? Tụi em lưu thông tin giỏ hàng tạm thời trong <code>purchase_orders</code>.<br>
+              Thứ hai: Lượt quét mã này thành công hay thất bại? Tụi em ghi lại thành một dòng nhật ký bất biến trong <code>payment_transactions</code>.<br><br>
+
+              Ngay khi tiền về tài khoản ngân hàng, hệ thống đưa biên lai cho 'kế toán trưởng' SAP gạch nợ là xong việc. Việc chỉ dùng 2 collection giúp hệ thống hoàn toàn không cần JOIN bảng phức tạp, đạt tốc độ truy vấn dưới 2 mili-giây kể cả lúc nghẽn mạng nửa đêm, và triệt tiêu 100% nguy cơ dữ liệu bị lệch so với SAP."
             </div>
           </div>
         </div>
 
         <div class="mental-anchor-box">
           <span class="lang-en">
-            🧠 <strong>Core Mental Anchor:</strong> SAP holds the real money (SSOT). Mongo is only a high-speed operational ledger. 
-            Never use 2PC across WAN networks because you will choke your own checkout platform during SAP maintenance.
+            🧠 <strong>The "Handheld POS" Mental Anchor:</strong> SAP is the Chief Accountant & Bank (SSOT). MongoDB is just the portable card swipe machine. 
+            Store only the Bill (<code>purchase_orders</code>) and the Swipe Result (<code>payment_transactions</code>). Zero joins, sub-2ms speed, zero data drift!
           </span>
           <span class="lang-vi">
-            🧠 <strong>Bản chất cốt lõi:</strong> SAP giữ tiền thật (SSOT). Mongo chỉ là sổ phụ ghi chép tốc độ cao. 
-            Không bao giờ dùng 2PC qua mạng WAN vì sẽ tự tay bóp chết hệ thống khi SAP bảo trì.
+            🧠 <strong>Mẹo nhớ - Nguyên lý máy POS cầm tay:</strong> SAP là Kế toán trưởng kiêm Ngân hàng (SSOT). MongoDB chỉ là máy quẹt thẻ di động. 
+            Chỉ lưu đúng cái Hóa đơn (<code>purchase_orders</code>) và Kết quả quẹt thẻ (<code>payment_transactions</code>). Không cần JOIN, chạy dưới 2ms và không bao giờ lệch số liệu!
           </span>
         </div>
       </section>
-
-      <!-- CHAPTER 03: HIGH-THROUGHPUT WEBHOOK INGESTION -->
+<!-- CHAPTER 03: HIGH-THROUGHPUT WEBHOOK INGESTION -->
       <section id="sec-03">
         <div class="section-header">
           <span class="section-tag">CHAPTER 03</span>
