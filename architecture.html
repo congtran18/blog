@@ -845,6 +845,18 @@ tr:hover td {
           </h2>
         </div>
 
+        <!-- CORE PROJECT IDENTITY & ELEVATOR PITCH -->
+        <div class="mental-anchor-box" style="margin-bottom: 2rem;">
+          <span class="lang-en">
+            🎯 <strong>Core Project Mission & Identity:</strong> This platform is <strong>NOT</strong> an internal back-office debt collection or billing system. It is the <strong>Maritime E-Payment & Instant Cargo Release Platform</strong>. 
+            Its mission is to bridge bank payments directly with physical seaport gates, shrinking the container release lifecycle from 3 days of manual paperwork down to <strong>under 60 seconds end-to-end</strong>.
+          </span>
+          <span class="lang-vi">
+            🎯 <strong>Bản chất thực tế & Sứ mệnh của dự án:</strong> Đây <strong>KHÔNG PHẢI</strong> là một phần mềm kế toán thu nợ nội bộ đơn thuần. Đây là <strong>Cổng thanh toán điện tử & Tự động giải phóng hàng container tại cảng biển</strong> (Maritime E-Payment & Instant Cargo Release Platform). 
+            Sứ mệnh cốt lõi của hệ thống là nối liền luồng tiền ngân hàng với barie cổng cảng, rút ngắn thời gian nhả container từ 3 ngày làm giấy tờ thủ công xuống còn <strong>dưới 60 giây hoàn toàn tự động</strong>.
+          </span>
+        </div>
+
         <p class="lang-en">
           When asked in a System Design or Staff Architect interview to <em>"sketch the global system architecture on a whiteboard in 2 minutes"</em>, mentally partition the entire platform into <strong>4 decoupled physical layers</strong>. Each layer owns a single responsibility, scales independently, and prevents downstream failures from cascading upstream:
         </p>
@@ -2077,67 +2089,198 @@ flowchart LR
         <div class="section-header">
           <span class="section-tag">CHAPTER 05</span>
           <h2 class="section-title">
-            <span class="lang-en">Distributed Saga Orchestration & SAP S/4HANA Clearing</span>
-            <span class="lang-vi">Điều phối Saga phân tán & Gạch nợ tự động trên SAP S/4HANA</span>
+            <span class="lang-en">Temporal Saga Orchestration & End-to-End Cargo Release Flow</span>
+            <span class="lang-vi">Điều phối Temporal Saga: 5 Bước giải phóng hàng & Cơ chế tự phục hồi</span>
           </h2>
+        </div>
+
+        <!-- CORE PROJECT IDENTITY CALLOUT -->
+        <div class="mental-anchor-box" style="margin-bottom: 2rem;">
+          <span class="lang-en">
+            🎯 <strong>Core Project Identity:</strong> This is <strong>NOT</strong> an internal back-office accounting or debt-collection tool. It is an <strong>End-to-End E-Payment & Physical Cargo Release Platform</strong>. 
+            The system bridges three disconnected worlds: <strong>Commercial Banks</strong> (money transferred) ➔ <strong>SAP S/4HANA ERP</strong> (accounts receivable cleared) ➔ <strong>Port Terminal Operating Systems (TOS)</strong> (physical container cranes and truck gate barriers unlocked in &lt; 60 seconds).
+          </span>
+          <span class="lang-vi">
+            🎯 <strong>Bản chất thực tế của dự án:</strong> Đây <strong>KHÔNG PHẢI</strong> là phần mềm kế toán thu hồi nợ nội bộ thông thường. Đây là <strong>Cổng thanh toán điện tử & Tự động giải phóng hàng container tại cảng biển</strong> (E-Payment & Automated Cargo Release Platform). 
+            Hệ thống đóng vai trò cầu nối xuyên suốt 3 thế giới độc lập: <strong>Ngân hàng</strong> (tiền đã về) ➔ <strong>ERP SAP S/4HANA</strong> (gạch nợ sổ cái) ➔ <strong>Hệ thống Cảng biển TOS</strong> (cẩu hàng nhấc container 40 feet lên xe tải ngoài cảng trong chưa đầy 60 giây).
+          </span>
         </div>
 
         <div class="problem-solution-grid">
           <div class="ps-card problem">
             <div class="ps-title">
-              <span class="lang-en">❌ Downstream ERP/Port Failures After Payment</span>
-              <span class="lang-vi">❌ Tiền đã trừ nhưng SAP hoặc Cảng bị lỗi</span>
+              <span class="lang-en">❌ The 'Cron & DB State Machine Hell'</span>
+              <span class="lang-vi">❌ Bẫy 'Địa ngục State Machine & Cron Job'</span>
             </div>
             <p class="lang-en">
-              In financial systems, what happens during failures is 10 times more critical than the happy path. Customer funds have already cleared at the partner bank, but downstream SAP FI-AR times out or port terminal systems (TOS) are undergoing maintenance. SQL rollbacks are impossible because money has already settled into the bank account!
+              A standard microservices approach uses message queues (Kafka/RabbitMQ) and database flags (<code>status=PAYING</code>, <code>status=SAP_PENDING</code>) with scheduled cron jobs checking for stuck records every 5 minutes. 
+              When a worker pod crashes mid-transaction or when SAP goes down for 4 hours of maintenance, state machines break down: queues pile up, cron jobs cause race conditions, and transactions become permanently orphaned ("zombie states").
             </p>
             <p class="lang-vi">
-              Trong giao dịch tài chính, việc khó nhất không phải là luồng chạy thành công (happy path), mà là khi có lỗi xảy ra. Khách đã bị trừ tiền ở ngân hàng, nhưng khi gọi sang SAP gạch nợ thì SAP bị timeout, hoặc hệ thống cảng TOS đang bảo trì không nhả được lệnh e-D/O. Không thể dùng rollback database thông thường vì tiền đã nằm ở tài khoản ngân hàng rồi!
+              Cách làm thông thường là dùng hàng đợi (Kafka/RabbitMQ) kết hợp cắm cờ database (<code>status=PAYING</code>, <code>status=SAP_PENDING</code>) và viết hàng chục cron job quét lại mỗi 5 phút. 
+              Khi một Pod bị sập giữa chừng hoặc SAP bảo trì 4 tiếng cuối tuần, giải pháp này biến thành thảm họa: hàng đợi bị nghẽn, cron job chạy tranh chấp dữ liệu, và giao dịch bị kẹt vĩnh viễn ở trạng thái "treo" (zombie transactions).
             </p>
           </div>
           <div class="ps-card solution">
             <div class="ps-title">
-              <span class="lang-en">✅ Temporal Saga Compensating Refunds</span>
-              <span class="lang-vi">✅ Temporal Saga bù trừ tự động (Compensating Actions)</span>
+              <span class="lang-en">✅ Temporal Durable Execution & Sagas</span>
+              <span class="lang-vi">✅ Giải pháp Temporal: Thực thi bền bỉ (Durable Execution)</span>
             </div>
             <p class="lang-en">
-              We deployed <strong>Temporal.io as our distributed Saga orchestrator</strong> across 14 countries. If SAP clearing or port e-D/O dispatch fails after exponential retries, Temporal automatically executes a 5-step compensating action: refunding funds back to the customer's bank account, reversing SAP documents, and voiding port reservations in under 3 minutes.
+              Temporal turns complex asynchronous workflows into clean, linear code. If a pod crashes at Step 3, another worker resumes at that exact line of code with zero state loss. 
+              If SAP is down, Temporal puts the workflow to sleep and retries with exponential backoff for hours without burning CPU or database sockets. If the port gate rejects the cargo, it executes an automatic compensating refund in reverse order.
             </p>
             <p class="lang-vi">
-              Triển khai <strong>Temporal.io</strong> để điều phối giao dịch phân tán tại 14 quốc gia. Nếu bước gạch nợ SAP hoặc cấp lệnh e-D/O thất bại sau các lần tự thử lại (exponential retries), Temporal tự động kích hoạt chuỗi hành động bù trừ (Saga Compensation): hoàn tiền về tài khoản ngân hàng của khách, hủy chứng từ trên SAP và thu hồi mã giữ chỗ tại cảng trong vòng dưới 3 phút.
+              Temporal biến toàn bộ quy trình phân tán phức tạp thành các dòng code tuần tự, dễ đọc. Nếu Pod bị crash ở Bước 3, một Pod khác sẽ tự động chạy tiếp đúng dòng code đó mà không mất dữ liệu. 
+              Nếu SAP bảo trì, Temporal tự động đưa workflow vào giấc ngủ đông và thử lại theo số mũ trong nhiều giờ mà không tốn CPU hay connection. Nếu cổng cảng từ chối nhả hàng, nó tự động kích hoạt chuỗi bù trừ hoàn tiền theo thứ tự ngược lại.
             </p>
           </div>
         </div>
 
-        <!-- FIGURE 7: SAGA COMPENSATING REFUND -->
+        <!-- SUBSECTION: WHY TEMPORAL COMPARISON TABLE -->
+        <div class="subsection-title">
+          <span>⚖️</span>
+          <span class="lang-en">ARCHITECTURAL DECISION: WHY TEMPORAL OVER KAFKA + CRON?</span>
+          <span class="lang-vi">BÀI TOÁN KIẾN TRÚC: VÌ SAO CHỌN TEMPORAL THAY VÌ KAFKA + CRON JOB?</span>
+        </div>
+        <p class="lang-en">
+          In System Design interviews, candidates are always challenged: <em>"Why introduce Temporal instead of just publishing events to Kafka and using database status flags?"</em>. Here is the concrete technical comparison:
+        </p>
+        <p class="lang-vi">
+          Khi phỏng vấn Senior/Staff Architect, hội đồng luôn hỏi: <em>"Tại sao phải dùng thêm Temporal mà không bắn event qua Kafka rồi cập nhật trạng thái trong database?"</em>. Dưới đây là bảng đối chiếu kỹ thuật cốt lõi:
+        </p>
+
+        <!-- TABLE: TRADITIONAL VS TEMPORAL -->
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 25%;">
+                  <span class="lang-en">Architectural Criterion</span>
+                  <span class="lang-vi">Tiêu chí kỹ thuật</span>
+                </th>
+                <th style="width: 37.5%; color: #dc2626;">
+                  <span class="lang-en">❌ Traditional (Kafka + DB Flags + Cron)</span>
+                  <span class="lang-vi">❌ Truyền thống (Kafka + DB Flags + Cron)</span>
+                </th>
+                <th style="width: 37.5%; color: #059669;">
+                  <span class="lang-en">✅ Temporal Saga Orchestrator (ONE)</span>
+                  <span class="lang-vi">✅ Giải pháp Temporal (Hệ thống ONE)</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <span class="lang-en">Distributed Coordination</span>
+                  <span class="lang-vi">Điều phối nhiều hệ thống</span>
+                </td>
+                <td>
+                  <span class="lang-en">Dozens of scattered DB status flags; unmaintainable event choreography across services.</span>
+                  <span class="lang-vi">Phải tạo hàng chục cờ trạng thái; các service gọi chéo nhau qua Kafka rất khó quản lý luồng.</span>
+                </td>
+                <td>
+                  <span class="lang-en"><strong>Single declarative workflow file</strong> in clean linear code; centralized visibility into the full transaction.</span>
+                  <span class="lang-vi"><strong>Toàn bộ quy trình gói gọn trong 1 file workflow</strong> tuần tự, dễ đọc, nhìn rõ luồng đi từ đầu đến cuối.</span>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <span class="lang-en">Worker Crash Resilience</span>
+                  <span class="lang-vi">Khả năng chịu lỗi khi sập server</span>
+                </td>
+                <td>
+                  <span class="lang-en">Pods crashing mid-flight leave orphaned database rows and phantom transactions requiring manual cleanup.</span>
+                  <span class="lang-vi">Pod chết giữa chừng làm bản ghi bị treo lơ lửng, tạo ra giao dịch "ma", kế toán phải vào sửa tay.</span>
+                </td>
+                <td>
+                  <span class="lang-en"><strong>Durable Execution</strong>: another worker instantly replays event history and resumes from the exact line of code.</span>
+                  <span class="lang-vi"><strong>Thực thi bền bỉ (Durable Execution)</strong>: Pod khác tự động nhận việc và chạy tiếp đúng dòng code dở dang, không mất 1 byte dữ liệu.</span>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <span class="lang-en">Long-Duration Outages (SAP Maintenance)</span>
+                  <span class="lang-vi">Khi SAP bảo trì nhiều tiếng</span>
+                </td>
+                <td>
+                  <span class="lang-en">Message queues overflow; cron jobs repeatedly hammer down systems or dump poison pills to DLQ.</span>
+                  <span class="lang-vi">Queue bị ứ đọng; cron job liên tục dội request làm nghẽn SAP hoặc đẩy tin nhắn vào Dead Letter Queue.</span>
+                </td>
+                <td>
+                  <span class="lang-en"><strong>Zero-resource sleep & exponential backoff</strong>: workflows hibernate in memory for hours until SAP wakes up.</span>
+                  <span class="lang-vi"><strong>Ngủ đông tự động</strong>: workflow tự động ngủ trong RAM/DB nhiều giờ mà không tốn CPU, tự động chạy tiếp khi SAP mở lại.</span>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <span class="lang-en">Failure Rollbacks</span>
+                  <span class="lang-vi">Xử lý hoàn tiền khi lỗi (Rollback)</span>
+                </td>
+                <td>
+                  <span class="lang-en">Ad-hoc compensation scripts; developers manually trace partial failures, risking money leakage.</span>
+                  <span class="lang-vi">Viết script rollback thủ công rất dễ sót trường hợp, dễ làm mất tiền của công ty hoặc khách hàng.</span>
+                </td>
+                <td>
+                  <span class="lang-en"><strong>Built-in Saga Compensation</strong>: automatically triggers registered rollback activities in strict reverse order.</span>
+                  <span class="lang-vi"><strong>Saga bù trừ tự động</strong>: tự động kích hoạt các hàm hoàn tác theo thứ tự ngược lại một cách chuẩn xác 100%.</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- SUBSECTION: THE 5 FORWARD STEPS & THE 5 COMPENSATING STEPS -->
+        <div class="subsection-title">
+          <span>🔄</span>
+          <span class="lang-en">THE COMPLETE TEMPORAL WORKFLOW: 5 FORWARD STEPS & 5 COMPENSATING STEPS</span>
+          <span class="lang-vi">CHI TIẾT WORKFLOW TEMPORAL: 5 BƯỚC LUỒNG THUẬN & 5 BƯỚC BÙ TRỪ KHI LỖI</span>
+        </div>
+        <p class="lang-en">
+          Every payment follows a strictly orchestrated 5-step lifecycle. Below is the breakdown of the <strong>Forward Path (Sub-60-second Cargo Release)</strong> and the <strong>Compensating Path (Automated Refund on Failure)</strong>:
+        </p>
+        <p class="lang-vi">
+          Mỗi giao dịch trong Temporal đều trải qua 5 bước hoạt động (Activities) được điều phối chặt chẽ. Dưới đây là chi tiết <strong>Luồng Thuận (Nhả hàng trong 60 giây)</strong> và <strong>Luồng Nghịch (Tự động hoàn tiền khi gặp sự cố)</strong>:
+        </p>
+
+        <!-- FIGURE 7: SAGA WORKFLOW DIAGRAM -->
         <div class="diagram-container">
           <div class="diagram-header">
-            <span>🛡️ FIGURE 7: THE 5-STEP SAGA COMPENSATING REFUND WORKFLOW</span>
+            <span>🛡️ FIGURE 7: TEMPORAL 5-STEP FORWARD RELEASE & COMPENSATING SAGA FLOW</span>
             <button class="copy-btn">Copy Diagram</button>
           </div>
           <div class="diagram-body">
             <pre class="mermaid">
-sequenceDiagram
-    autonumber
-    participant Temporal as ⏳ Temporal Saga Orchestrator
-    participant Mongo as 🍃 MongoDB (Transaction Snapshot)
-    participant Bank as 🏦 Partner Bank (Refund Rail)
-    participant SAP as 🏛️ SAP S/4HANA (FI-AR Credit Memo)
-    participant TOS as ⚓ Port TOS System
-    actor User as 🚢 Forwarder & Finance Team
+flowchart TD
+    subgraph FORWARD["⚡ 5-STEP FORWARD EXECUTION (HAPPY PATH &lt; 60s)"]
+        F1["1. Validate & Lock<br/>(Freeze invoice & Redis mutex)"] --> F2{"Tax Scan<br/>Attached?"}
+        F2 -- Yes --> F2A["2. AI Tax Extraction<br/>(OpenCV 18ms + Gemini 258ms + Redis 1.2ms)"]
+        F2 -- No --> F3["3. SAP FI-AR Clearing<br/>(RFC/OData post debt clearing)"]
+        F2A --> F3
+        F3 --> F4["4. Port TOS Delivery Order<br/>(Issue encrypted QR e-D/O)"]
+        F4 --> F5["5. Notify Driver & Finalize<br/>(SMS/Email QR & update RELEASED)"]
+    end
 
-    Note over Temporal,TOS: Trigger: Payment succeeded at bank, but SAP Clearing or Port TOS failed after max retries
-    Temporal->>Mongo: Step 1: Lock tx & update payStatus = 'REFUND_IN_PROGRESS'
-    Temporal->>Bank: Step 2: Call Bank Refund API (POST /refunds with idempotent key)
-    Bank-->>Temporal: Bank confirms refund processed to customer bank account
-    Temporal->>SAP: Step 3: Issue FI-AR Credit Memo / Reverse Billing Document (ABAP BAPI)
-    SAP-->>Temporal: SAP reversal document created
-    Temporal->>TOS: Step 4: Revoke temporary e-D/O port release reservation
-    TOS-->>Temporal: e-D/O status confirmed VOID
-    Temporal->>Mongo: Step 5: Update payStatus = 'REFUNDED' & write HMAC-SHA256 audit entry
-    Temporal-->>User: Dispatch Webhook & Email notification: Refund complete (< 3 mins)
+    subgraph COMPENSATE["🛡️ 5-STEP SAGA COMPENSATING ROLLBACK (ON FAILURE &lt; 3 MIN)"]
+        C1["1. Mark REFUND_IN_PROGRESS<br/>(Block manual user edits)"] --> C2["2. Call Bank Refund API<br/>(Return 100% money to customer)"]
+        C2 --> C3["3. SAP Credit Memo Reversal<br/>(Reverse GL document in SAP)"]
+        C3 --> C4["4. Revoke Port e-D/O<br/>(Confirm container hold in TOS)"]
+        C4 --> C5["5. Hash Chain Audit & Notify<br/>(Seal REFUNDED & email customer)"]
+    end
+
+    F4 -. "Port Fails / Customs Hold" .-> C1
+
+    style FORWARD fill:#f0fdf4,stroke:#16a34a,stroke-width:2px
+    style COMPENSATE fill:#fef2f2,stroke:#dc2626,stroke-width:2px
             </pre>
           </div>
+        </div>
+
+        <!-- 5 FORWARD STEPS BREAKDOWN -->
+        <div class="subsection-title" style="margin-top: 1.5rem;">
+          <span>⚡</span>
+          <span class="lang-en">5-Step Forward Execution (The 60-Second Happy Path)</span>
+          <span class="lang-vi">5 Bước Luồng Thuận: Giải phóng hàng trong 60 giây (Happy Path)</span>
         </div>
 
         <div class="flow-breakdown-card">
@@ -2148,10 +2291,10 @@ sequenceDiagram
             </span>
             <div class="flow-step-content">
               <span class="lang-en">
-                <strong>Lock Transaction & Transition to REFUND_IN_PROGRESS:</strong> Temporal initiates the compensating workflow, updating MongoDB records and blocking all manual portal interventions.
+                <strong>ValidateAndLockActivity (0.3s):</strong> Receives the gRPC trigger from the Go Ingestion Broker. Verifies the bank transaction reference, checks the Redis idempotency lock, and captures an AR balance snapshot to freeze invoice tariffs against midnight rate jumps.
               </span>
               <span class="lang-vi">
-                <strong>Khóa giao dịch & Cập nhật trạng thái REFUND_IN_PROGRESS:</strong> Temporal kích hoạt Saga bù trừ, cập nhật bản ghi MongoDB và chặn mọi request can thiệp từ portal.
+                <strong>Khóa giao dịch & Đóng băng số dư (ValidateAndLockActivity • 0.3s):</strong> Nhận tín hiệu gRPC từ Go Ingestion Broker. Kiểm tra số tham chiếu ngân hàng, xác nhận khóa Redis và đóng băng số dư nợ trên hóa đơn để chống việc qua 12h đêm bị nhảy thêm phí phạt lưu bãi.
               </span>
             </div>
           </div>
@@ -2162,10 +2305,10 @@ sequenceDiagram
             </span>
             <div class="flow-step-content">
               <span class="lang-en">
-                <strong>Invoke Idempotent Bank Refund API:</strong> Dispatches refund requests directly to the customer's origin bank account with an idempotent key; bank confirms funds returned.
+                <strong>AiTaxExtractionActivity (258ms • Conditional):</strong> If the forwarder attached a Withholding Tax (WHT) certificate, calls C++ preprocessing (18ms) and Gemini 1.5 Flash on Vertex AI (258ms) to extract tax amounts, followed by Redis Vector search (1.2ms) to resolve the exact SAP tax condition code.
               </span>
               <span class="lang-vi">
-                <strong>Gọi API hoàn tiền ngân hàng với Idempotency Key:</strong> Bắn request hoàn trả trực tiếp về tài khoản ngân hàng của khách kèm khóa chống lặp; ngân hàng xác nhận tiền đã quay về ví/tài khoản khách.
+                <strong>Bóc tách chứng từ thuế bằng AI (AiTaxExtractionActivity • 258ms • Nếu có nộp thuế):</strong> Nếu khách nộp kèm tờ khai thuế (WHT), gọi C++ làm nét ảnh (18ms) và Gemini Flash qua Vertex AI (258ms) đọc tiền thuế, kết hợp Redis Vector (1.2ms) map đúng tên phí sang mã điều kiện SAP.
               </span>
             </div>
           </div>
@@ -2176,10 +2319,10 @@ sequenceDiagram
             </span>
             <div class="flow-step-content">
               <span class="lang-en">
-                <strong>Generate SAP FI-AR Credit Memo:</strong> Invokes ABAP BAPIs on SAP S/4HANA to reverse billing documents and balance general ledgers.
+                <strong>PostSapClearingActivity (1.5s):</strong> Posts an accounts receivable clearing document to SAP S/4HANA FI-AR / BRIM via RFC/OData. If SAP is down for scheduled weekend maintenance, Temporal automatically enters an intentional backoff sleep state and resumes without dropping the transaction.
               </span>
               <span class="lang-vi">
-                <strong>Tạo Credit Memo hủy nợ trên SAP S/4HANA:</strong> Gọi BAPI kế toán trên SAP để đảo ngược chứng từ kế toán, cân bằng sổ cái tài chính.
+                <strong>Gạch nợ sổ cái trên SAP S/4HANA (PostSapClearingActivity • 1.5s):</strong> Gọi RFC/OData sang phân hệ kế toán FI-AR của SAP S/4HANA để gạch nợ hóa đơn. Nếu SAP đang bảo trì cuối tuần, Temporal tự động ngủ đông và thử lại theo số mũ cho đến khi SAP hoạt động trở lại.
               </span>
             </div>
           </div>
@@ -2190,10 +2333,10 @@ sequenceDiagram
             </span>
             <div class="flow-step-content">
               <span class="lang-en">
-                <strong>Void Port Terminal (TOS) Reservation:</strong> Revokes temporary e-D/O holds, guaranteeing uncleared cargo cannot slip past port gates.
+                <strong>IssuePortDeliveryOrderActivity (1.0s):</strong> Uses the SAP accounting document ID to invoke the port Terminal Operating System (TOS) APIs (Cat Lai, Laem Chabang). The port issues an encrypted digital Electronic Delivery Order (e-D/O) authorizing the container to be lifted onto a truck.
               </span>
               <span class="lang-vi">
-                <strong>Hủy lệnh giữ container tại hệ thống cảng TOS:</strong> Thu hồi mã QR e-D/O tạm thời, bảo đảm hàng chưa nộp đủ tiền không thể lọt qua cổng cảng.
+                <strong>Cấp lệnh giao hàng điện tử tại cảng (IssuePortDeliveryOrderActivity • 1.0s):</strong> Dùng mã chứng từ kế toán SAP gọi API hệ thống cảng TOS (Cát Lái, Laem Chabang) để phát hành mã QR lệnh giao hàng điện tử (e-D/O), cho phép xe cẩu nhấc container lên xe tải.
               </span>
             </div>
           </div>
@@ -2204,47 +2347,148 @@ sequenceDiagram
             </span>
             <div class="flow-step-content">
               <span class="lang-en">
-                <strong>Append HMAC-SHA256 Audit Record & Notify Shipper:</strong> Appends final <code>REFUNDED</code> state to the hash chain and notifies the customer via webhook/email in under 3 minutes.
+                <strong>NotifyCustomerAndFinalizeActivity (0.5s):</strong> Sends an SMS and email with the e-D/O QR code directly to the truck driver's mobile phone, updates MongoDB status to <code>RELEASED</code>, appends to the HMAC-SHA256 audit chain, and releases the Redis session lock.
               </span>
               <span class="lang-vi">
-                <strong>Ghi vết nhật ký HMAC-SHA256 & Bắn thông báo:</strong> Chốt trạng thái <code>REFUNDED</code> vào hash chain và gửi email giải trình minh bạch cho chủ hàng trong vòng dưới 3 phút.
+                <strong>Bắn mã QR cho tài xế & Chốt hoàn tất (NotifyCustomerAndFinalizeActivity • 0.5s):</strong> Bắn SMS và Email chứa mã QR e-D/O thẳng về điện thoại tài xế container, cập nhật MongoDB sang trạng thái <code>RELEASED</code>, chốt chuỗi băm HMAC-SHA256 và mở khóa Redis.
               </span>
             </div>
           </div>
+        </div>
 
-          <div class="flow-anchor">
-            <span class="lang-en">
-              🧠 <strong>Interview Memory Takeaway:</strong> Sagas do not use traditional database rollbacks (because funds already left the customer's account). 
-              Sagas execute <strong>Compensating Actions</strong>: Return funds via bank rail ➔ Post Credit Memo to reverse SAP ledger ➔ Void container port reservation.
+        <!-- 5 COMPENSATING STEPS BREAKDOWN -->
+        <div class="subsection-title" style="margin-top: 1.5rem;">
+          <span>🛡️</span>
+          <span class="lang-en">5-Step Compensating Rollback (The Failure Recovery Path)</span>
+          <span class="lang-vi">5 Bước Luồng Bù Trừ: Tự động hoàn tiền khi gặp sự cố (Compensating Saga)</span>
+        </div>
+
+        <div class="flow-breakdown-card">
+          <div class="flow-step">
+            <span class="flow-step-badge" style="background: #dc2626;">
+              <span class="lang-en">STEP 1</span>
+              <span class="lang-vi">BƯỚC 1</span>
             </span>
-            <span class="lang-vi">
-              🧠 <strong>Mẹo nhớ khi phỏng vấn:</strong> SAGA không dùng rollback database truyền thống (vì tiền đã qua ngân hàng rồi). 
-              SAGA dùng <strong>Compensating Actions (Hành động bù trừ)</strong>: Trả lại tiền qua bank ➔ Xuất hóa đơn hủy trên SAP ➔ Hủy mã e-D/O tại cảng.
-            </span>
+            <div class="flow-step-content">
+              <span class="lang-en">
+                <strong>Lock & Mark REFUND_IN_PROGRESS:</strong> If the port terminal rejects the cargo release (e.g. customs hold or terminal network outage), Temporal triggers the compensation saga and updates MongoDB to block any manual customer actions.
+              </span>
+              <span class="lang-vi">
+                <strong>Khóa giao dịch & Đổi trạng thái REFUND_IN_PROGRESS:</strong> Nếu cổng cảng từ chối cấp lệnh (hàng bị hải quan giữ lại hoặc API cảng lỗi vĩnh viễn), Temporal lập tức kích hoạt Saga bù trừ và đổi trạng thái trên MongoDB để tránh can thiệp trùng.
+              </span>
+            </div>
           </div>
+          <div class="flow-step">
+            <span class="flow-step-badge" style="background: #dc2626;">
+              <span class="lang-en">STEP 2</span>
+              <span class="lang-vi">BƯỚC 2</span>
+            </span>
+            <div class="flow-step-content">
+              <span class="lang-en">
+                <strong>Invoke Idempotent Bank Refund API:</strong> Calls the origin bank rail (VietQR / PromptPay / BOC) with a unique idempotency key to return 100% of the funds back to the customer's bank account.
+              </span>
+              <span class="lang-vi">
+                <strong>Gọi API hoàn tiền ngân hàng:</strong> Gọi API ngân hàng (VietQR / PromptPay / BOC) kèm mã chống lặp để hoàn trả 100% số tiền cước về lại tài khoản ngân hàng của khách hàng.
+              </span>
+            </div>
+          </div>
+          <div class="flow-step">
+            <span class="flow-step-badge" style="background: #dc2626;">
+              <span class="lang-en">STEP 3</span>
+              <span class="lang-vi">BƯỚC 3</span>
+            </span>
+            <div class="flow-step-content">
+              <span class="lang-en">
+                <strong>Generate SAP FI-AR Credit Memo:</strong> Calls SAP BAPI to reverse the clearing document, reopen the invoice balance, and post an offsetting Credit Memo in the general ledger.
+              </span>
+              <span class="lang-vi">
+                <strong>Tạo bút toán Credit Memo hủy nợ trên SAP:</strong> Gọi BAPI của SAP S/4HANA để đảo ngược chứng từ gạch nợ, mở lại hóa đơn công nợ và ghi nhận bút toán Credit Memo cân bằng sổ cái.
+              </span>
+            </div>
+          </div>
+          <div class="flow-step">
+            <span class="flow-step-badge" style="background: #dc2626;">
+              <span class="lang-en">STEP 4</span>
+              <span class="lang-vi">BƯỚC 4</span>
+            </span>
+            <div class="flow-step-content">
+              <span class="lang-en">
+                <strong>Revoke Port TOS Release Order:</strong> Dispatches a cancellation signal to the port terminal operating system, ensuring no unauthorized container can pass through the gate.
+              </span>
+              <span class="lang-vi">
+                <strong>Thu hồi lệnh nhả hàng tại hệ thống cảng TOS:</strong> Gửi tín hiệu hủy mã e-D/O sang hệ thống cảng biển, bảo đảm tuyệt đối không có container nào bị nhấc nhầm ra khỏi cảng khi tiền đã hoàn.
+              </span>
+            </div>
+          </div>
+          <div class="flow-step">
+            <span class="flow-step-badge" style="background: #dc2626;">
+              <span class="lang-en">STEP 5</span>
+              <span class="lang-vi">BƯỚC 5</span>
+            </span>
+            <div class="flow-step-content">
+              <span class="lang-en">
+                <strong>Append Audit Record & Notify Forwarder:</strong> Seals the transaction as <code>REFUNDED</code> in the immutable HMAC-SHA256 hash chain and sends an explanatory notification to the customer in under 3 minutes.
+              </span>
+              <span class="lang-vi">
+                <strong>Chốt log kiểm toán HMAC-SHA256 & Bắn thông báo:</strong> Đóng dấu trạng thái <code>REFUNDED</code> vào chuỗi băm kiểm toán bất biến và gửi email thông báo chi tiết cho chủ hàng trong vòng dưới 3 phút.
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flow-anchor">
+          <span class="lang-en">
+            🧠 <strong>Interview Memory Takeaway:</strong> Why Temporal? 
+            <strong>1. Eliminates Cron & State-Machine Hell</strong> ➔ <strong>2. Durable Execution across Pod crashes</strong> ➔ <strong>3. Zero-resource sleep during SAP downtime</strong> ➔ <strong>4. Automatic Saga rollback when port gates reject release</strong>.
+          </span>
+          <span class="lang-vi">
+            🧠 <strong>Mẹo nhớ khi phỏng vấn:</strong> Vì sao cần Temporal? 
+            <strong>1. Thoát khỏi địa ngục Cron & State Machine</strong> ➔ <strong>2. Pod crash không mất dữ liệu (Durable Execution)</strong> ➔ <strong>3. Tự động ngủ đông khi SAP bảo trì</strong> ➔ <strong>4. Tự động hoàn tiền bù trừ nếu cảng từ chối nhả hàng</strong>.
+          </span>
         </div>
 
         <!-- SPOKEN SCRIPT CONTAINER 6 -->
         <div class="spoken-script-container">
           <div class="spoken-script-header">
             <span class="spoken-badge">
-              <span class="lang-en">🎙️ Spoken Script: Pitching Saga Orchestration in Interviews</span>
-              <span class="lang-vi">🎙️ Spoken Script: Trình bày cơ chế điều phối Saga phân tán</span>
+              <span class="lang-en">🎙️ Spoken Script: How to Pitch Temporal & The 5-Step Workflow</span>
+              <span class="lang-vi">🎙️ Kịch bản phỏng vấn: Cách trình bày Temporal & Luồng 5 bước</span>
             </span>
             <button class="copy-btn">Copy Script</button>
           </div>
           <div class="spoken-content-block">
             <div class="spoken-text lang-en">
-              "When connecting modern cloud services to an enterprise SAP ERP, you cannot use Two-Phase Commit because holding database locks across network calls will freeze your application. Instead, we use Temporal to orchestrate distributed Sagas. If SAP or the port terminal system times out after retries, Temporal automatically executes a compensating workflow: it refunds the customer through the bank, reverses accounting entries in SAP via Credit Memos, and cancels the container hold—restoring full consistency in under 3 minutes."
+              "Why did we choose Temporal instead of message queues or cron jobs? Because this platform coordinates three external worlds that move at completely different speeds: instant commercial banks, enterprise SAP ERPs that have scheduled downtime, and private port terminal systems.<br><br>
+
+              If you use Kafka and database status flags, handling a pod crash in the middle of a transaction turns into an unmaintainable state-machine nightmare with zombie retries. Temporal gives us Durable Execution: our workflow code looks like standard linear code. If a server dies at Step 3, another worker seamlessly resumes from that exact line. If SAP is down for 4 hours, Temporal simply sleeps and retries with exponential backoff without burning CPU.<br><br>
+
+              Under the hood, Temporal executes 5 clean steps:<br>
+              First, it validates the payment and freezes the invoice balance.<br>
+              Second, if tax certificates are attached, it triggers AI to extract line items in 258ms.<br>
+              Third, it clears the receivable debt in SAP FI-AR.<br>
+              Fourth, it calls the port terminal API to generate the digital delivery order.<br>
+              Finally, it sends the QR code directly to the truck driver's phone.<br><br>
+
+              And if the port system rejects the release, Temporal automatically runs our Saga compensation in reverse order: it refunds the customer's money, cancels the SAP entry, and revokes the port pass—restoring 100% financial consistency in under 3 minutes."
             </div>
             <div class="spoken-text lang-vi">
-              "Khi nối microservices trên cloud với SAP, tuyệt đối không thể dùng Two-Phase Commit vì việc giữ khóa database qua đường truyền mạng sẽ làm treo cứng hệ thống. Thay vào đó, tụi em dùng Temporal để chạy mô hình Saga. Nếu SAP hoặc cổng cảng bị lỗi sau các lần thử lại, Temporal sẽ tự động chạy quy trình hoàn tiền: trả lại tiền cho khách qua ngân hàng, tạo bút toán đảo ngược trên SAP và hủy lệnh giữ container, đưa mọi thứ về trạng thái cân bằng trong chưa đầy 3 phút."
+              "Tại sao tụi em chọn Temporal thay vì dùng hàng đợi hay cron job? Vì hệ thống này phải điều phối 3 thế giới hoàn toàn khác nhau: ngân hàng phản hồi tức thì, SAP ERP doanh nghiệp có thể bảo trì nhiều tiếng cuối tuần, và hệ thống cảng biển với đường truyền riêng.<br><br>
+
+              Nếu chỉ dùng Kafka và cắm cờ database, việc xử lý khi server bị sập giữa chừng sẽ biến thành một cơn ác mộng state machine với hàng tá cron job sửa lỗi. Temporal mang lại cơ chế Thực thi bền bỉ (Durable Execution): code viết hoàn toàn tuần tự, dễ đọc. Nếu một Pod bị chết ở Bước 3, Pod khác tự động chạy tiếp đúng dòng code đó mà không mất dữ liệu. Nếu SAP bảo trì 4 tiếng, Temporal tự động ngủ đông và thử lại theo số mũ mà không tốn CPU.<br><br>
+
+              Về luồng xử lý, Temporal điều phối đúng 5 bước:<br>
+              Bước 1: Tiếp nhận và đóng băng số dư hóa đơn để tránh phí bãi tăng qua nửa đêm.<br>
+              Bước 2: Nếu có chứng từ thuế, gọi AI bóc tách trong 258ms và map mã SAP.<br>
+              Bước 3: Gọi SAP S/4HANA để gạch nợ công nợ.<br>
+              Bước 4: Gọi hệ thống cảng biển TOS cấp Lệnh giao hàng điện tử e-D/O.<br>
+              Bước 5: Bắn mã QR về điện thoại tài xế xe tải để cẩu hàng ra khỏi cổng cảng.<br><br>
+
+              Và nếu bước cấp lệnh ở cảng gặp sự cố không thể giải phóng container, Temporal tự động chạy chuỗi bù trừ Saga theo thứ tự ngược lại: hoàn lại tiền qua ngân hàng cho khách, hủy bút toán trên SAP và thu hồi mã giữ chỗ tại cảng—đưa toàn bộ hệ thống về trạng thái cân bằng trong chưa đầy 3 phút."
             </div>
           </div>
         </div>
       </section>
-
-      <!-- CHAPTER 06: EDGE GATEWAY & MICROSERVICES -->
+<!-- CHAPTER 06: EDGE GATEWAY & MICROSERVICES -->
       <section id="sec-06">
         <div class="section-header">
           <span class="section-tag">CHAPTER 06</span>
@@ -2730,7 +2974,7 @@ flowchart TD
         <div class="lang-en">
           <p style="margin-bottom: 0.5rem;"><strong>🎙️ Spoken Answer (Read out loud):</strong></p>
           <div style="font-style: italic; color: #1e293b; margin-bottom: 0.75rem; line-height: 1.6;">
-            ""Two-Phase Commit requires holding distributed database locks and SAP table locks across external network roundtrips. In ocean shipping where SAP ERPs handle scheduled maintenance, 2PC causes distributed deadlocks and freezes the entire payment portal. We implement the <strong>Saga Pattern orchestrated by Temporal</strong>: local transactions commit immediately with eventual consistency. If SAP rejects an order downstream, an automated <strong>Compensating Refund Workflow</strong> reverses the bank credit and reopens the invoice for payment.""
+            ""Two-Phase Commit requires holding distributed database locks across external network calls. If SAP goes down for maintenance, 2PC freezes your entire checkout platform. Why Temporal instead of Kafka or cron jobs? Because coordinating 3 external worlds (Banks, SAP, and Port Terminals) with queues and database flags creates a state-machine and cron nightmare with zombie retries when pods crash. Temporal provides Durable Execution: our workflow runs as clean linear code across 5 activities (Validate & Lock ➔ AI Tax Extraction ➔ SAP Clearing ➔ Port TOS Delivery Order ➔ Notify Driver). If a server crashes or SAP sleeps for 4 hours, Temporal resumes from that exact line without state loss, and automatically executes compensating refunds in reverse order if the port rejects cargo.""
           </div>
           <div class="qa-anchor">
             🧠 <strong>Mental Anchor:</strong> 2PC locks database rows across WAN networks; if SAP lags, checkout freezes. Temporal Sagas run asynchronously with automated compensating refunds.
@@ -2739,7 +2983,7 @@ flowchart TD
         <div class="lang-vi">
           <p style="margin-bottom: 0.5rem;"><strong>🎙️ Câu trả lời mẫu (Nói khi phỏng vấn):</strong></p>
           <div style="font-style: italic; color: #1e293b; margin-bottom: 0.75rem; line-height: 1.6;">
-            "Two-Phase Commit bắt buộc phải giữ khóa dòng (row-level locks) trên database và khóa bảng trên SAP xuyên qua các lượt gọi mạng WAN ra ngoài. Trong hệ thống thanh toán hàng hải, nếu SAP bảo trì 30 phút hoặc mạng WAN bị lag, <strong>2PC sẽ biến thành cơ chế khóa đồng bộ chặn đứng toàn bộ cổng thanh toán</strong>, làm cạn kiệt connection pool. Tụi em dùng <strong>Temporal Saga Orchestrator</strong> theo mô hình Eventual Consistency. Mỗi bước gạch nợ SAP là một activity bất đồng bộ có retry theo số mũ. Nếu SAP bị lỗi vĩnh viễn, Saga sẽ tự động kích hoạt quy trình hoàn tiền qua ngân hàng và mở lại hóa đơn cho khách."
+            "Two-Phase Commit bắt buộc phải giữ khóa dòng trên database và khóa bảng trên SAP qua đường truyền mạng. Nếu SAP bảo trì hoặc mạng lag, 2PC sẽ khóa cứng toàn bộ cổng thanh toán. Tại sao dùng Temporal thay vì Kafka hay cron job? Vì điều phối 3 thế giới khác nhau (Ngân hàng, SAP, Cảng biển) bằng hàng đợi và cắm cờ database sẽ tạo ra 'địa ngục state machine' cực kỳ dễ sinh ra giao dịch ma khi server bị sập. Temporal mang lại cơ chế Thực thi bền bỉ (Durable Execution): code chạy tuần tự qua 5 bước (Khóa đơn ➔ AI đọc thuế ➔ Gạch nợ SAP ➔ Cấp e-D/O cảng ➔ Bắn QR cho tài xế). Nếu Pod bị chết giữa chừng hoặc SAP ngủ 4 tiếng, Temporal tự động chạy tiếp đúng dòng code đó mà không mất dữ liệu, và tự động hoàn tiền bù trừ nếu cảng từ chối nhả hàng."
           </div>
           <div class="qa-anchor">
             🧠 <strong>Bản chất cốt lõi:</strong> 2PC bắt giữ khóa DB trên mạng qua SAP, chỉ cần mạng lag là treo cổng thanh toán. Dùng Temporal Saga chạy async, nếu SAP lỗi thì bù trừ hoàn tiền tự động.
