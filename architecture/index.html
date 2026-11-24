@@ -3048,7 +3048,7 @@ flowchart TD
         <div class="lang-en">
           <p style="margin-bottom: 0.5rem;"><strong>🎙️ Spoken Answer (Read out loud):</strong></p>
           <div style="font-style: italic; color: #1e293b; margin-bottom: 0.75rem; line-height: 1.6;">
-            ""At our volume, Stripe's <strong>2.9% fee on a $50,000 freight container invoice costs $1,450 for just one payment</strong>! On billions in shipping volume, percentage fees bleed tens of millions of dollars. By connecting directly to domestic bank rails like VietQR, PromptPay, and BOC, we pay a flat fee of roughly 10 cents per payment instead of a percentage, saving over <strong>$25M USD every year</strong>. On top of that, payment aggregators typically freeze a 5% to 10% cash reserve for months, while direct bank rails deposit funds <strong>straight into our company bank account in seconds</strong> with zero cash lockup.""
+            "At our volume, Stripe's <strong>2.9% fee on a $50,000 freight container invoice costs $1,450 for just one payment</strong>! On billions in shipping volume, percentage fees bleed tens of millions of dollars. By connecting directly to domestic bank rails like VietQR, PromptPay, and BOC, we pay a flat fee of roughly 10 cents per payment instead of a percentage, saving over <strong>$25M USD every year</strong>. On top of that, payment aggregators typically freeze a 5% to 10% cash reserve for months, while direct bank rails deposit funds <strong>straight into our company bank account in seconds</strong> with zero cash lockup."
           </div>
           <div class="qa-anchor">
             🧠 <strong>Mental Anchor:</strong> A 2.9% fee on a $50k invoice costs $1,450. Direct domestic bank rails cost ~10 cents, saving $25M/year with instant deposit and zero cash holdback.
@@ -3088,7 +3088,7 @@ flowchart TD
         <div class="lang-en">
           <p style="margin-bottom: 0.5rem;"><strong>🎙️ Spoken Answer (Read out loud):</strong></p>
           <div style="font-style: italic; color: #1e293b; margin-bottom: 0.75rem; line-height: 1.6;">
-            ""Two-Phase Commit requires holding distributed database locks across external network calls. If SAP goes down for maintenance, 2PC freezes your entire checkout platform. Why Temporal instead of Kafka or cron jobs? Because coordinating 3 external worlds (Banks, SAP, and Port Terminals) with queues and database flags creates a state-machine and cron nightmare with zombie retries when pods crash. Temporal provides Durable Execution: our workflow runs as clean linear code across 5 activities (Validate & Lock ➔ AI Tax Extraction ➔ SAP Clearing ➔ Port TOS Delivery Order ➔ Notify Driver). If a server crashes or SAP sleeps for 4 hours, Temporal resumes from that exact line without state loss, and automatically executes compensating refunds in reverse order if the port rejects cargo.""
+            "Two-Phase Commit requires holding distributed database locks across external network calls. If SAP goes down for maintenance, 2PC freezes your entire checkout platform. Why Temporal instead of Kafka or cron jobs? Because coordinating 3 external worlds (Banks, SAP, and Port Terminals) with queues and database flags creates a state-machine and cron nightmare with zombie retries when pods crash. Temporal provides Durable Execution: our workflow runs as clean linear code across 5 activities (Validate & Lock ➔ AI Tax Extraction ➔ SAP Clearing ➔ Port TOS Delivery Order ➔ Notify Driver). If a server crashes or SAP sleeps for 4 hours, Temporal resumes from that exact line without state loss, and automatically executes compensating refunds in reverse order if the port rejects cargo."
           </div>
           <div class="qa-anchor">
             🧠 <strong>Mental Anchor:</strong> 2PC locks database rows across WAN networks; if SAP lags, checkout freezes. Temporal Sagas run asynchronously with automated compensating refunds.
@@ -3128,7 +3128,7 @@ flowchart TD
         <div class="lang-en">
           <p style="margin-bottom: 0.5rem;"><strong>🎙️ Spoken Answer (Read out loud):</strong></p>
           <div style="font-style: italic; color: #1e293b; margin-bottom: 0.75rem; line-height: 1.6;">
-            ""We prevent duplicate payments using a <strong>Redis <code>MSETNX</code> distributed lock</strong> across all invoices in the batch (<code>lock:invoice:INV_01</code>, TTL 900s). Only the first thread acquires the lock in 0.3ms; concurrent tabs are rejected immediately with HTTP 409 Conflict. If Redis fails, a <strong>MongoDB unique composite index on <code>purchase_order_id + transaction_reference</code></strong> acts as a strict storage backstop, guaranteeing no customer can ever be charged twice.""
+            "We prevent duplicate payments using a <strong>Redis <code>MSETNX</code> distributed lock</strong> across all invoices in the batch (<code>lock:invoice:INV_01</code>, TTL 900s). Only the first thread acquires the lock in 0.3ms; concurrent tabs are rejected immediately with HTTP 409 Conflict. If Redis fails, a <strong>MongoDB unique composite index on <code>purchase_order_id + transaction_reference</code></strong> acts as a strict storage backstop, guaranteeing no customer can ever be charged twice."
           </div>
           <div class="qa-anchor">
             🧠 <strong>Mental Anchor:</strong> When forwarders open multiple tabs to pay before midnight, Redis MSETNX locks invoice keys in 0.3ms while MongoDB unique compound index guarantees exactly-once payment.
@@ -3168,7 +3168,7 @@ flowchart TD
         <div class="lang-en">
           <p style="margin-bottom: 0.5rem;"><strong>🎙️ Spoken Answer (Read out loud):</strong></p>
           <div style="font-style: italic; color: #1e293b; margin-bottom: 0.75rem; line-height: 1.6;">
-            ""When partner banks flush tens of thousands of queued webhooks after weekend maintenance, <strong>Node.js event loops freeze under CPU-bound RSA-SHA256 signature verification</strong>. In Go, lightweight goroutines verify cryptographic signatures across all CPU cores in parallel. The broker locks a Redis idempotency key in 0.3ms, buffers the event to Temporal, and returns 200 OK to the bank in exactly <strong>4.2ms P99</strong>, sustaining 5,000 RPS on just 45MB of RAM per pod.""
+            "When partner banks flush tens of thousands of queued webhooks after weekend maintenance, <strong>Node.js event loops freeze under CPU-bound RSA-SHA256 signature verification</strong>. In Go, lightweight goroutines verify cryptographic signatures across all CPU cores in parallel. The broker locks a Redis idempotency key in 0.3ms, buffers the event to Temporal, and returns 200 OK to the bank in exactly <strong>4.2ms P99</strong>, sustaining 5,000 RPS on just 45MB of RAM per pod."
           </div>
           <div class="qa-anchor">
             🧠 <strong>Mental Anchor:</strong> Bank webhook bursts freeze Node.js single-threaded crypto. Golang goroutines verify RSA on multi-core CPU, responding with 200 OK in 4.2ms using only 45MB RAM.
@@ -3208,7 +3208,7 @@ flowchart TD
         <div class="lang-en">
           <p style="margin-bottom: 0.5rem;"><strong>🎙️ Spoken Answer (Read out loud):</strong></p>
           <div style="font-style: italic; color: #1e293b; margin-bottom: 0.75rem; line-height: 1.6;">
-            ""We engineered a 3-step high-efficiency pipeline: First, <strong>native C++ OpenCV & PyMuPDF</strong> deskews and crops the document in 18ms, compressing it into 4 compact vision tiles. Second, we cache our 3,200-token tax law system prompt on <strong>Vertex AI RAM via Context Caching</strong>, cutting input token costs by <strong>77%</strong> and slashing response latency to <strong>258ms</strong>. Third, we verify that line-item taxes add up exactly to the invoice total before anything touches SAP.""
+            "We engineered a 3-step high-efficiency pipeline: First, <strong>native C++ OpenCV & PyMuPDF</strong> deskews and crops the document in 18ms, compressing it into 4 compact vision tiles. Second, we cache our 3,200-token tax law system prompt on <strong>Vertex AI RAM via Context Caching</strong>, cutting input token costs by <strong>77%</strong> and slashing response latency to <strong>258ms</strong>. Third, we verify that line-item taxes add up exactly to the invoice total before anything touches SAP."
           </div>
           <div class="qa-anchor">
             🧠 <strong>Mental Anchor:</strong> Never send raw PDFs to LLMs. C++ OpenCV deskews and compresses scans to 4 vision tiles (18ms); Vertex AI caches system prompts in RAM (saving 77% cost), and Gemini Flash returns JSON in 258ms.
@@ -3248,7 +3248,7 @@ flowchart TD
         <div class="lang-en">
           <p style="margin-bottom: 0.5rem;"><strong>🎙️ Spoken Answer (Read out loud):</strong></p>
           <div style="font-style: italic; color: #1e293b; margin-bottom: 0.75rem; line-height: 1.6;">
-            ""Shippers submit thousands of localized, typo-ridden descriptions for identical freight charges (e.g., 'Phi ve sinh container', 'Cleaning surcharge', 'Washing fee'). Hardcoded regex breaks constantly, and asking LLMs to classify 500+ SAP condition codes balloons prompt tokens and hallucinations. We pass the extracted description into a <strong>256-dimensional embedding model</strong> and perform <strong>Redis HNSW Cosine Similarity search in 1.2ms</strong>, resolving to the exact SAP condition code with <strong>98.4% accuracy</strong>.""
+            "Shippers submit thousands of localized, typo-ridden descriptions for identical freight charges (e.g., 'Phi ve sinh container', 'Cleaning surcharge', 'Washing fee'). Hardcoded regex breaks constantly, and asking LLMs to classify 500+ SAP condition codes balloons prompt tokens and hallucinations. We pass the extracted description into a <strong>256-dimensional embedding model</strong> and perform <strong>Redis HNSW Cosine Similarity search in 1.2ms</strong>, resolving to the exact SAP condition code with <strong>98.4% accuracy</strong>."
           </div>
           <div class="qa-anchor">
             🧠 <strong>Mental Anchor:</strong> Shippers use countless informal fee descriptions. Putting hundreds of SAP codes in prompts causes latency and hallucinations; Redis HNSW vector search matches descriptions in 1.2ms.
@@ -3288,7 +3288,7 @@ flowchart TD
         <div class="lang-en">
           <p style="margin-bottom: 0.5rem;"><strong>🎙️ Spoken Answer (Read out loud):</strong></p>
           <div style="font-style: italic; color: #1e293b; margin-bottom: 0.75rem; line-height: 1.6;">
-            ""Think of it as a <strong>National Passport versus a Port Security Pass</strong>. Okta proves identity (who you are), but its enterprise tokens are bloated with Active Directory groups (exceeding 4KB), causing HTTP 431 header errors across microservices. At our edge APISIX gateway, we exchange it for a lightweight <strong>400-byte internal token</strong> that injects exact functional scopes (e.g., <code>can_release_container:SGN_PORT</code>, currency approval thresholds). This eliminates header bloat and prevents vendor lock-in.""
+            "Think of it as a <strong>National Passport versus a Port Security Pass</strong>. Okta proves identity (who you are), but its enterprise tokens are bloated with Active Directory groups (exceeding 4KB), causing HTTP 431 header errors across microservices. At our edge APISIX gateway, we exchange it for a lightweight <strong>400-byte internal token</strong> that injects exact functional scopes (e.g., <code>can_release_container:SGN_PORT</code>, currency approval thresholds). This eliminates header bloat and prevents vendor lock-in."
           </div>
           <div class="qa-anchor">
             🧠 <strong>Mental Anchor:</strong> Okta tokens are like national passports (>4KB with enterprise AD groups, causing header overflow). Exchange for a 400-byte internal token with fine-grained port release scopes.
@@ -3328,7 +3328,7 @@ flowchart TD
         <div class="lang-en">
           <p style="margin-bottom: 0.5rem;"><strong>🎙️ Spoken Answer (Read out loud):</strong></p>
           <div style="font-style: italic; color: #1e293b; margin-bottom: 0.75rem; line-height: 1.6;">
-            ""Storing tokens in <code>localStorage</code> leaves them vulnerable to <strong>XSS script attacks</strong>: any injected third-party script or compromised npm package can steal the JWT. We store tokens in <strong>Double HttpOnly cookies with the <code>__Host-</code> prefix and <code>SameSite=Strict</code></strong>. JavaScript cannot access them, and the browser strictly isolates them to our top-level HTTPS origin. We prevent CSRF by validating a custom client header (<code>X-Requested-With</code>) on all mutating state calls.""
+            "Storing tokens in <code>localStorage</code> leaves them vulnerable to <strong>XSS script attacks</strong>: any injected third-party script or compromised npm package can steal the JWT. We store tokens in <strong>Double HttpOnly cookies with the <code>__Host-</code> prefix and <code>SameSite=Strict</code></strong>. JavaScript cannot access them, and the browser strictly isolates them to our top-level HTTPS origin. We prevent CSRF by validating a custom client header (<code>X-Requested-With</code>) on all mutating state calls."
           </div>
           <div class="qa-anchor">
             🧠 <strong>Mental Anchor:</strong> Storing tokens in LocalStorage leaves them vulnerable to XSS theft. HttpOnly cookies with __Host- prefix and SameSite=Strict are unreadable by JavaScript, blocking both XSS and CSRF.
@@ -3368,7 +3368,7 @@ flowchart TD
         <div class="lang-en">
           <p style="margin-bottom: 0.5rem;"><strong>🎙️ Spoken Answer (Read out loud):</strong></p>
           <div style="font-style: italic; color: #1e293b; margin-bottom: 0.75rem; line-height: 1.6;">
-            ""Under high-frequency Kubernetes autoscaling, traditional NGINX Ingress reloads its master and worker processes to update upstream routing tables, causing packet drops and severed WebSockets during traffic spikes. <strong>Apache APISIX uses etcd dynamic watchers to sync routing rules in shared memory with zero worker reloads</strong>. On top of that, APISIX validates public RSA keys (JWKS) directly in worker RAM, completing token authentication in <strong>0.02ms (52,000 RPS per pod)</strong>.""
+            "Under high-frequency Kubernetes autoscaling, traditional NGINX Ingress reloads its master and worker processes to update upstream routing tables, causing packet drops and severed WebSockets during traffic spikes. <strong>Apache APISIX uses etcd dynamic watchers to sync routing rules in shared memory with zero worker reloads</strong>. On top of that, APISIX validates public RSA keys (JWKS) directly in worker RAM, completing token authentication in <strong>0.02ms (52,000 RPS per pod)</strong>."
           </div>
           <div class="qa-anchor">
             🧠 <strong>Mental Anchor:</strong> NGINX reloads worker processes on every Kubernetes pod scaling event, dropping packets. APISIX uses etcd watchers for zero-reload dynamic routing and 0.02ms JWKS token checks.
@@ -3408,7 +3408,7 @@ flowchart TD
         <div class="lang-en">
           <p style="margin-bottom: 0.5rem;"><strong>🎙️ Spoken Answer (Read out loud):</strong></p>
           <div style="font-style: italic; color: #1e293b; margin-bottom: 0.75rem; line-height: 1.6;">
-            ""The bottleneck was not database query execution—it was <strong>WiredTiger Ticket Contention</strong>. MongoDB's WiredTiger engine has only 128 concurrent read tickets. 30 GKE application pods with default <code>maxPoolSize=100</code> opened 3,000 active connections fighting for those 128 tickets, forcing the Linux kernel into heavy context switching. By reducing <code>maxPoolSize=15</code> per pod (450 total sockets) and offloading dashboards to secondary replicas, <strong>available tickets stayed above 70, CPU cooled to 32%, and latency plummeted from 4,200ms to 6ms</strong>.""
+            "The bottleneck was not database query execution—it was <strong>WiredTiger Ticket Contention</strong>. MongoDB's WiredTiger engine has only 128 concurrent read tickets. 30 GKE application pods with default <code>maxPoolSize=100</code> opened 3,000 active connections fighting for those 128 tickets, forcing the Linux kernel into heavy context switching. By reducing <code>maxPoolSize=15</code> per pod (450 total sockets) and offloading dashboards to secondary replicas, <strong>available tickets stayed above 70, CPU cooled to 32%, and latency plummeted from 4,200ms to 6ms</strong>."
           </div>
           <div class="qa-anchor">
             🧠 <strong>Mental Anchor:</strong> When upstream Kafka or Sagas fail, exponential backoff retries without blocking. Dead Letter Queues (DLQ) quarantine poison pills so they never block the queue.
@@ -3448,7 +3448,7 @@ flowchart TD
         <div class="lang-en">
           <p style="margin-bottom: 0.5rem;"><strong>🎙️ Spoken Answer (Read out loud):</strong></p>
           <div style="font-style: italic; color: #1e293b; margin-bottom: 0.75rem; line-height: 1.6;">
-            ""Offset pagination with <code>skip(50000)</code> is slow because MongoDB has to scan and discard 50,000 entries one by one before returning 20 records. In our audit log of 25 million records, that took over 5 seconds. We replaced it with Keyset Pagination using <code>_id &lt; lastSeenId</code>. The database jumps straight to the exact index leaf in <strong>1.62ms flat</strong>, whether you are on page 1 or page 5,000.""
+            "Offset pagination with <code>skip(50000)</code> is slow because MongoDB has to scan and discard 50,000 entries one by one before returning 20 records. In our audit log of 25 million records, that took over 5 seconds. We replaced it with Keyset Pagination using <code>_id &lt; lastSeenId</code>. The database jumps straight to the exact index leaf in <strong>1.62ms flat</strong>, whether you are on page 1 or page 5,000."
           </div>
           <div class="qa-anchor">
             🧠 <strong>Mental Anchor:</strong> Offset pagination in MongoDB is O(N) because B-tree skips rows sequentially. Keyset pagination using {_id: {$lt: lastId}} is O(1) and runs in 1.62ms regardless of page depth.
@@ -3488,7 +3488,7 @@ flowchart TD
         <div class="lang-en">
           <p style="margin-bottom: 0.5rem;"><strong>🎙️ Spoken Answer (Read out loud):</strong></p>
           <div style="font-style: italic; color: #1e293b; margin-bottom: 0.75rem; line-height: 1.6;">
-            ""In container shipping, demurrage and detention tariffs roll over at <strong>23:59:59 local port time</strong> (adding up to $300/day/container). If a forwarder initiates checkout at 23:55 and network latency pushes bank completion past midnight, SAP recalculated receivables drift upward while money is in-flight. We solve this by taking an <strong>AR Balance Snapshot at session creation</strong> and placing a <strong>30-minute Redis Grace Period Lock</strong>, freezing the invoice amount while payment is in-flight so the payment matches the ledger without discrepancies.""
+            "In container shipping, demurrage and detention tariffs roll over at <strong>23:59:59 local port time</strong> (adding up to $300/day/container). If a forwarder initiates checkout at 23:55 and network latency pushes bank completion past midnight, SAP recalculated receivables drift upward while money is in-flight. We solve this by taking an <strong>AR Balance Snapshot at session creation</strong> and placing a <strong>30-minute Redis Grace Period Lock</strong>, freezing the invoice amount while payment is in-flight so the payment matches the ledger without discrepancies."
           </div>
           <div class="qa-anchor">
             🧠 <strong>Mental Anchor:</strong> Port demurrage penalties roll over at midnight. A 15-minute Redis grace period lock freezes the invoice balance so SAP clearing matches without discrepancies.
@@ -3528,19 +3528,19 @@ flowchart TD
         <div class="lang-en">
           <p style="margin-bottom: 0.5rem;"><strong>🎙️ Spoken Answer (Read out loud):</strong></p>
           <div style="font-style: italic; color: #1e293b; margin-bottom: 0.75rem; line-height: 1.6;">
-            ""In Domain-Driven Design, a <strong>Purchase Order represents Customer Intent</strong> (grouping 1 to 50 freight invoices to clear), while <strong>Payment Transactions represent Banking Attempts</strong>. In emerging markets, 20% of online banking attempts fail (insufficient funds, expired QR). If transactions were embedded in POs, repeated failed attempts would cause documents to bloat and trigger lock contention. Decoupling them lets us track multiple payment attempts independently while keeping the PO immutable.""
+            "Why do we only need 2 collections instead of dozens of tables? We apply the <strong>Handheld POS Terminal Principle</strong>: our platform is not the bank and not the ERP. SAP S/4HANA already owns 100% of customer profiles, debt balances, and general ledgers. Think of our platform like a card swipe machine at the port gate: it only needs to know the bill amount (<code>purchase_orders</code> / Customer Intent) and the swipe result (<code>payment_transactions</code> / Payment Attempt). When money arrives, it hands the digital receipt to SAP to clear the debt. Decoupling them allows customers to retry failed bank scans without inflating the purchase order, gives us blazing sub-2ms reads with zero SQL joins, and eliminates any risk of data drifting out of sync with SAP."
           </div>
           <div class="qa-anchor">
-            🧠 <strong>Mental Anchor:</strong> MongoDB documents have a 16MB cap. Separating Purchase Orders (intent) from Payment Transactions (immutable payment attempts) avoids document growth and keeps transactions append-only.
+            🧠 <strong>Mental Anchor:</strong> The Handheld POS Terminal Principle: SAP is the Chief Accountant & Bank (SSOT). MongoDB holds only the Bill (purchase_orders) and the Swipe Result (payment_transactions), achieving O(1) < 2ms queries with zero data drift.
           </div>
         </div>
         <div class="lang-vi">
           <p style="margin-bottom: 0.5rem;"><strong>🎙️ Câu trả lời mẫu (Nói khi phỏng vấn):</strong></p>
           <div style="font-style: italic; color: #1e293b; margin-bottom: 0.75rem; line-height: 1.6;">
-            "Tài liệu MongoDB có giới hạn kích thước tối đa 16MB. Trong ngành hàng hải, một Purchase Order có thể bao gồm hàng trăm container và khách hàng có thể thử thanh toán nhiều lần qua các kênh ngân hàng khác nhau (tạo QR, hủy mã, đổi ngân hàng). Nếu nhúng mảng transactions vào trong PO, document sẽ bị phình to liên tục và gây hiện tượng phân mảnh bộ nhớ khi tài liệu dịch chuyển trên đĩa (document relocation). Tách riêng giúp <code>purchase_orders</code> là thực thể nghiệp vụ tĩnh, còn <code>payment_transactions</code> là sổ phụ ghi chép tài chính append-only bất biến."
+            "Tại sao hệ thống chỉ cần 2 collection mà không cần hàng chục bảng như các app thanh toán khác? Tụi em áp dụng <strong>Nguyên lý Máy quẹt thẻ POS cầm tay</strong>: hệ thống này không phải ngân hàng và không phải ERP. Toàn bộ hồ sơ khách hàng, công nợ hóa đơn và sổ cái kế toán đã nằm 100% trên SAP S/4HANA rồi. Hãy tưởng tượng hệ thống giống như chiếc máy quẹt thẻ POS ngoài cổng cảng: nó chỉ cần biết tiền hóa đơn là bao nhiêu (<code>purchase_orders</code> / Ý định thanh toán) và kết quả quẹt thẻ thành công hay chưa (<code>payment_transactions</code> / Lượt thanh toán). Khách trả xong, máy đưa biên lai cho SAP gạch nợ. Tách riêng 2 bảng giúp khách thử quét QR nhiều lần mà không làm phình đơn hàng, đạt tốc độ truy vấn dưới 2ms không cần JOIN bảng phức tạp, và triệt tiêu hoàn toàn rủi ro bị lệch dữ liệu so với SAP."
           </div>
           <div class="qa-anchor">
-            🧠 <strong>Bản chất cốt lõi:</strong> Nhúng transactions vào PO làm document phình to vượt giới hạn 16MB và phân mảnh bộ nhớ. Tách riêng giúp PO ổn định, còn transactions là sổ phụ append-only bất biến.
+            🧠 <strong>Bản chất cốt lõi:</strong> Nguyên lý Máy quẹt thẻ POS cầm tay: SAP là Kế toán trưởng & Ngân hàng tối cao (SSOT). MongoDB chỉ lưu Tờ hóa đơn (purchase_orders) và Kết quả quẹt (payment_transactions), đạt tốc độ O(1) < 2ms và không bao giờ lệch dữ liệu với SAP.
           </div>
         </div>
       </div>
@@ -3568,7 +3568,7 @@ flowchart TD
         <div class="lang-en">
           <p style="margin-bottom: 0.5rem;"><strong>🎙️ Spoken Answer (Read out loud):</strong></p>
           <div style="font-style: italic; color: #1e293b; margin-bottom: 0.75rem; line-height: 1.6;">
-            ""We combine the <strong>Strategy Pattern with a dynamic Two-Tier CMS</strong>. Regional business teams update non-breaking parameters (VND currency limits, Thai VAT rates, branch offices) via Headless CMS without touching code. The API Gateway is completely stateless: it normalizes incoming banking webhooks and dispatches them to country-specific <strong>Temporal Child Workflows</strong> (e.g., <code>vn-hsbc-omni-to-sap</code> vs. <code>th-ai-wht-document-analysis</code>). Updating banking rules in Vietnam will never break or impact payments in Thailand or China.""
+            "We combine the <strong>Strategy Pattern with a dynamic Two-Tier CMS</strong>. Regional business teams update non-breaking parameters (VND currency limits, Thai VAT rates, branch offices) via Headless CMS without touching code. The API Gateway is completely stateless: it normalizes incoming banking webhooks and dispatches them to country-specific <strong>Temporal Child Workflows</strong> (e.g., <code>vn-hsbc-omni-to-sap</code> vs. <code>th-ai-wht-document-analysis</code>). Updating banking rules in Vietnam will never break or impact payments in Thailand or China."
           </div>
           <div class="qa-anchor">
             🧠 <strong>Mental Anchor:</strong> Strategy Pattern with dynamic configuration. Adding or updating bank rails for Vietnam is isolated and has zero risk of breaking Thailand or China.
@@ -3608,7 +3608,7 @@ flowchart TD
         <div class="lang-en">
           <p style="margin-bottom: 0.5rem;"><strong>🎙️ Spoken Answer (Read out loud):</strong></p>
           <div style="font-style: italic; color: #1e293b; margin-bottom: 0.75rem; line-height: 1.6;">
-            ""In Half-Open mode, we implement <strong>Request-Driven Passive Probing</strong> rather than active background health pings. When the cooldown timer expires (e.g., 30s), the breaker allows exactly one real incoming customer request through as a canary probe. If that real request succeeds, the circuit safely resets to CLOSED. If it fails or times out, the circuit immediately snaps back to OPEN for another 60 seconds. This avoids spamming an already struggling bank server with extra health-check ping traffic.""
+            "In Half-Open mode, we implement <strong>Request-Driven Passive Probing</strong> rather than active background health pings. When the cooldown timer expires (e.g., 30s), the breaker allows exactly one real incoming customer request through as a canary probe. If that real request succeeds, the circuit safely resets to CLOSED. If it fails or times out, the circuit immediately snaps back to OPEN for another 60 seconds. This avoids spamming an already struggling bank server with extra health-check ping traffic."
           </div>
           <div class="qa-anchor">
             🧠 <strong>Mental Anchor:</strong> Circuit breaker Half-Open state uses request-driven passive probing instead of spamming ping requests, allowing gradual recovery without thundering herds.
@@ -3648,7 +3648,7 @@ flowchart TD
         <div class="lang-en">
           <p style="margin-bottom: 0.5rem;"><strong>🎙️ Spoken Answer (Read out loud):</strong></p>
           <div style="font-style: italic; color: #1e293b; margin-bottom: 0.75rem; line-height: 1.6;">
-            ""We apply the <strong>Maritime Bulkhead Pattern</strong> to our database connection pools. Just as a container ship partitions its hull into watertight compartments to prevent sinking, we split our MongoDB connection pool into isolated compartments: <strong>35 dedicated slots for live port checkout and bank webhooks</strong>, 10 slots for heavy finance Excel reports, and 5 slots for background sync jobs. Even if finance queries 10 million audit rows, it saturates only its 10 slots—live QR checkout at port gates never experiences connection starvation.""
+            "We apply the <strong>Maritime Bulkhead Pattern</strong> to our database connection pools. Just as a container ship partitions its hull into watertight compartments to prevent sinking, we split our MongoDB connection pool into isolated compartments: <strong>35 dedicated slots for live port checkout and bank webhooks</strong>, 10 slots for heavy finance Excel reports, and 5 slots for background sync jobs. Even if finance queries 10 million audit rows, it saturates only its 10 slots—live QR checkout at port gates never experiences connection starvation."
           </div>
           <div class="qa-anchor">
             🧠 <strong>Mental Anchor:</strong> Maritime Bulkhead Pattern: partition connection pools so heavy month-end finance Excel exports are quarantined to 10 slots, leaving customer checkout 100% fast in 35 dedicated slots.
@@ -3688,7 +3688,7 @@ flowchart TD
         <div class="lang-en">
           <p style="margin-bottom: 0.5rem;"><strong>🎙️ Spoken Answer (Read out loud):</strong></p>
           <div style="font-style: italic; color: #1e293b; margin-bottom: 0.75rem; line-height: 1.6;">
-            ""Standard <code>Math.round()</code> rounds half-values upwards (2.5 -> 3, 1.5 -> 2), introducing a <strong>systematic positive statistical drift of tens of thousands of dollars annually</strong> across millions of freight items. IEEE 754 floating-point numbers also suffer binary precision errors (<code>0.1 + 0.2 = 0.30000000000000004</code>), failing SAP FI balance checks. We enforce arbitrary-precision math using <code>bignumber.js</code> configured with <strong>Banker's Rounding (<code>ROUND_HALF_EVEN</code>)</strong>, rounding half-values to the nearest even number to match SAP general ledger standards.""
+            "Standard <code>Math.round()</code> rounds half-values upwards (2.5 -> 3, 1.5 -> 2), introducing a <strong>systematic positive statistical drift of tens of thousands of dollars annually</strong> across millions of freight items. IEEE 754 floating-point numbers also suffer binary precision errors (<code>0.1 + 0.2 = 0.30000000000000004</code>), failing SAP FI balance checks. We enforce arbitrary-precision math using <code>bignumber.js</code> configured with <strong>Banker's Rounding (<code>ROUND_HALF_EVEN</code>)</strong>, rounding half-values to the nearest even number to match SAP general ledger standards."
           </div>
           <div class="qa-anchor">
             🧠 <strong>Mental Anchor:</strong> Standard IEEE floating point introduces rounding drift across large invoices. Use integer smallest currency units (cents) and Banker's rounding for penny-perfect financial clearing.
@@ -3728,7 +3728,7 @@ flowchart TD
         <div class="lang-en">
           <p style="margin-bottom: 0.5rem;"><strong>🎙️ Spoken Answer (Read out loud):</strong></p>
           <div style="font-style: italic; color: #1e293b; margin-bottom: 0.75rem; line-height: 1.6;">
-            ""<strong>No, the platform continues operating with zero customer disruption.</strong> Incoming bank webhooks are acknowledged in 4.2ms by Go brokers and safely buffered in <strong>Temporal Task Queues and MongoDB collections</strong>. Containers are provisionally released because the customer's payment is cryptographically verified by the bank. When SAP comes back online, a <strong>Rate-Limited Catch-Up Worker throttles replay to a controlled 50 TPS</strong>. Unique composite constraints on SAP accounting keys guarantee <strong>zero duplicate postings</strong>.""
+            "<strong>No, the platform continues operating with zero customer disruption.</strong> Incoming bank webhooks are acknowledged in 4.2ms by Go brokers and safely buffered in <strong>Temporal Task Queues and MongoDB collections</strong>. Containers are provisionally released because the customer's payment is cryptographically verified by the bank. When SAP comes back online, a <strong>Rate-Limited Catch-Up Worker throttles replay to a controlled 50 TPS</strong>. Unique composite constraints on SAP accounting keys guarantee <strong>zero duplicate postings</strong>."
           </div>
           <div class="qa-anchor">
             🧠 <strong>Mental Anchor:</strong> Platform stays 100% online during 24-hour SAP maintenance. Webhooks are acknowledged in 4.2ms by Go brokers and queued; Temporal Sagas safely resume once SAP comes back online.
@@ -3768,7 +3768,7 @@ flowchart TD
         <div class="lang-en">
           <p style="margin-bottom: 0.5rem;"><strong>🎙️ Spoken Answer (Read out loud):</strong></p>
           <div style="font-style: italic; color: #1e293b; margin-bottom: 0.75rem; line-height: 1.6;">
-            ""We combine the <strong>Expand-Contract (Parallel Run) pattern with ArgoCD Sync Waves</strong>. In <code>Wave 0 (PreSync Hook)</code>, a Kubernetes Job executes the database migration to add new columns without modifying existing fields. If the migration fails, deployment halts before any new service pods are created. In <code>Wave 1</code>, new backend pods deploy and write to both legacy and new fields concurrently. In <code>Wave 2</code>, background workers backfill legacy documents. Only in a subsequent release cycle are legacy fields contracted and removed.""
+            "We combine the <strong>Expand-Contract (Parallel Run) pattern with ArgoCD Sync Waves</strong>. In <code>Wave 0 (PreSync Hook)</code>, a Kubernetes Job executes the database migration to add new columns without modifying existing fields. If the migration fails, deployment halts before any new service pods are created. In <code>Wave 1</code>, new backend pods deploy and write to both legacy and new fields concurrently. In <code>Wave 2</code>, background workers backfill legacy documents. Only in a subsequent release cycle are legacy fields contracted and removed."
           </div>
           <div class="qa-anchor">
             🧠 <strong>Mental Anchor:</strong> Expand-Contract pattern with ArgoCD Sync Waves. PreSync hook expands database schema backward-compatibly, deploys new code, then PostSync hook cleans up old columns with zero downtime.
@@ -3808,7 +3808,7 @@ flowchart TD
         <div class="lang-en">
           <p style="margin-bottom: 0.5rem;"><strong>🎙️ Spoken Answer (Read out loud):</strong></p>
           <div style="font-style: italic; color: #1e293b; margin-bottom: 0.75rem; line-height: 1.6;">
-            ""We enforce <strong>Zero Blind Trust</strong> through 3 structural controls: First, an automated <strong>5% Random Post-Audit Engine</strong> routes 5% of all AI-cleared transactions to human accountants for side-by-side reconciliation. Second, all transaction logs are secured with <strong>Cryptographic HMAC-SHA256 Hash Chaining</strong>, stored in immutable WORM cloud storage with a 7-year retention policy. Third, any document with an AI extraction confidence score below 90% is automatically diverted to human review before SAP clearance, satisfying <strong>100% of Big-4 SOX 404 audit standards</strong>.""
+            "We enforce <strong>Zero Blind Trust</strong> through 3 structural controls: First, an automated <strong>5% Random Post-Audit Engine</strong> routes 5% of all AI-cleared transactions to human accountants for side-by-side reconciliation. Second, all transaction logs are secured with <strong>Cryptographic HMAC-SHA256 Hash Chaining</strong>, stored in immutable WORM cloud storage with a 7-year retention policy. Third, any document with an AI extraction confidence score below 90% is automatically diverted to human review before SAP clearance, satisfying <strong>100% of Big-4 SOX 404 audit standards</strong>."
           </div>
           <div class="qa-anchor">
             🧠 <strong>Mental Anchor:</strong> Zero Blind Trust in AI FinOps: AI never writes directly to SAP. Random 5% post-audit, cryptographic audit chains, and strict confidence thresholds prevent unreviewed clearing.
