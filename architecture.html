@@ -942,7 +942,7 @@ flowchart TB
           <span class="lang-en">
             🧠 <strong>Core Mental Anchor (Interview Formula):</strong> Remember the 4 horizontal layers: 
             <strong>1. Edge (APISIX 0.02ms) ➔ 2. Ingest (Go Broker 4.2ms + Redis Lock) ➔ 3. Process (Temporal + AI FinOps 258ms) ➔ 4. Settle (SAP FI-AR + Port TOS &lt; 60s)</strong>. 
-            Downstream failures never block upstream ingestion; clear layer boundaries strictly contain blast radiuses.
+            Downstream failures never block incoming payments; clear boundaries ensure a failure in one service never brings down the rest of the system.
           </span>
           <span class="lang-vi">
             🧠 <strong>Mẹo ghi nhớ 4 khối (Mental Anchor):</strong><br>
@@ -1007,7 +1007,7 @@ sequenceDiagram
     AIEngine->>AIEngine: 13. C++ OpenCV deskew & CLAHE compress to 280KB (18ms)
     AIEngine->>AIEngine: 14. Vertex AI RAM Context Caching extraction (258ms)
     AIEngine->>AIEngine: 15. Redis Vector HNSW semantic code matching (1.2ms)
-    AIEngine-->>Temporal: 16. Return canonicalized tax lines & math verification
+    AIEngine-->>Temporal: 16. Return extracted tax lines & math verification
 
     Temporal->>SAP: 17. Post FI-AR Clearing (OData/RFC)
     SAP-->>Temporal: 18. 200 OK: Invoices Cleared & Document No generated
@@ -1026,10 +1026,10 @@ sequenceDiagram
             </span>
             <div class="flow-step-content">
               <span class="lang-en">
-                <strong>Session Initialization & Dynamic QR Generation (Edge Gateway • 45ms):</strong> The customer selects the Bill of Lading (B/L) to release. Portal calls APISIX, authenticates JWT in 0.02ms, and invokes domestic bank rails to generate a Dynamic QR code containing the exact amount and unique PO reference. The customer scans and confirms via mobile banking; funds transfer directly into ONE's corporate House Bank account (T+0).
+                <strong>Session Initialization & Dynamic QR Generation (Edge Gateway • 45ms):</strong> The customer selects the shipment (Bill of Lading) to release. The portal calls APISIX, validates the token in 0.02ms, and calls domestic bank rails to generate a dynamic QR code with the exact amount and unique reference. The customer scans the code on mobile banking, and money transfers directly into ONE's company bank account within seconds.
               </span>
               <span class="lang-vi">
-                <strong>Khởi tạo thanh toán & Tạo mã Dynamic QR (Edge Gateway • 45ms):</strong> Khách hàng chọn Bill of Lading (vận đơn) cần giải phóng container. Portal gửi request qua APISIX, xác thực token trong 0.02ms và gọi trực tiếp ngân hàng tạo Dynamic QR code chứa số tiền chính xác và mã PO duy nhất. Khách hàng quét mã trên Mobile Banking, tiền chuyển thẳng vào tài khoản House Bank của hãng tàu tại nước sở tại (T+0).
+                <strong>Khởi tạo thanh toán & Tạo mã Dynamic QR (Edge Gateway • 45ms):</strong> Khách hàng chọn vận đơn (Bill of Lading) cần nhả container. Portal gửi request qua APISIX, xác thực token trong 0.02ms và gọi trực tiếp ngân hàng tạo Dynamic QR code chứa số tiền chính xác và mã PO duy nhất. Khách hàng quét mã trên Mobile Banking, tiền chuyển thẳng vào tài khoản ngân hàng của hãng tàu trong vài giây.
               </span>
             </div>
           </div>
@@ -1054,10 +1054,10 @@ sequenceDiagram
             </span>
             <div class="flow-step-content">
               <span class="lang-en">
-                <strong>AI FinOps Multimodal Extraction & Vector Canonicalization (258ms):</strong> If Withholding Tax (WHT) or port fee certificates are attached, Temporal triggers the AI pipeline: C++ PyMuPDF/OpenCV deskews and optimizes scans in 18ms (compressed to 280KB, strictly 4 Gemini vision tiles); Gemini 1.5 Flash extracts tax JSON in 258ms via 3,200 prompt tokens cached on Vertex AI RAM (cutting token costs by 77%); Redis Vector HNSW maps localized descriptions to standard SAP condition codes in 1.2ms.
+                <strong>AI FinOps Tax Extraction & SAP Code Matching (258ms):</strong> If Withholding Tax (WHT) or port fee receipts are attached, Temporal triggers the AI pipeline: C++ PyMuPDF/OpenCV straightens and optimizes scanned PDFs in 18ms (compressed to 280KB, fitting 4 vision tiles); Gemini 1.5 Flash extracts tax details in 258ms using prompt templates cached in Vertex AI RAM (cutting token costs by 77%); Redis Vector HNSW search matches local fee descriptions to standard SAP tax codes in 1.2ms.
               </span>
               <span class="lang-vi">
-                <strong>AI FinOps trích xuất thuế & Chuẩn hóa mã ERP (258ms):</strong> Nếu đơn hàng có chứng từ khấu trừ thuế (WHT) hoặc phí cảng phụ thu, Temporal gọi AI FinOps pipeline: C++ PyMuPDF/OpenCV tiền xử lý ảnh trong 18ms (nén còn 280KB vừa vặn 4 vision tiles); Gemini 1.5 Flash trích xuất dữ liệu trong 258ms nhờ 3,200 token prompt được cache sẵn trên RAM Vertex AI (tiết kiệm 77% chi phí); Redis Vector HNSW map mô tả phí địa phương ("phí lưu bãi", "THC") sang mã điều kiện SAP chuẩn trong 1.2ms.
+                <strong>AI FinOps trích xuất thuế & Khớp mã SAP (258ms):</strong> Nếu đơn hàng có chứng từ khấu trừ thuế (WHT) hoặc phí cảng phụ thu, Temporal gọi AI FinOps pipeline: C++ PyMuPDF/OpenCV tiền xử lý ảnh trong 18ms (nén còn 280KB vừa vặn 4 vision tiles); Gemini 1.5 Flash trích xuất dữ liệu trong 258ms nhờ 3,200 token prompt được cache sẵn trên RAM Vertex AI (tiết kiệm 77% chi phí); Redis Vector HNSW map mô tả phí địa phương ("phí lưu bãi", "THC") sang mã điều kiện SAP chuẩn trong 1.2ms.
               </span>
             </div>
           </div>
@@ -1131,8 +1131,8 @@ sequenceDiagram
                   <span class="lang-vi">Đấu nối Bank Rails vs. Dùng Stripe/Adyen</span>
                 </td>
                 <td>
-                  <span class="lang-en">Direct domestic clearing rails (VietQR, PromptPay, BOC), flat $0.10/tx, saving <strong>$25M/yr</strong> with T+0 liquidity.</span>
-                  <span class="lang-vi">Đấu nối thẳng cổng ngân hàng nội địa (VietQR, PromptPay, BOC), phí phẳng 10 xu/đơn, tiết kiệm <strong>$25M/năm</strong>, tiền về ngay T+0.</span>
+                  <span class="lang-en">Direct domestic bank rails (VietQR, PromptPay, BOC), flat $0.10/tx, saving <strong>$25M/yr</strong> with instant same-day cash flow.</span>
+                  <span class="lang-vi">Đấu nối thẳng ngân hàng nội địa (VietQR, PromptPay, BOC), phí phẳng 10 xu/đơn, tiết kiệm <strong>$25M/năm</strong>, tiền về ngay tài khoản trong vài giây.</span>
                 </td>
                 <td>
                   <span class="lang-en">Stripe / Adyen: 2.8% + $0.30 fee ($2,800 on a $100k container lot) with 2-day holding delays choking cargo supply chains.</span>
@@ -1341,7 +1341,7 @@ sequenceDiagram
               <tr>
                 <td><strong>WHT (Withholding Tax)</strong></td>
                 <td>
-                  <span class="lang-en">Statutory tax deducted by forwarders before paying shipping lines (e.g. 2% Vietnam, 1% Thailand).</span>
+                  <span class="lang-en">Local withholding tax deducted by forwarders before paying freight invoices (e.g. 2% in Vietnam, 1% in Thailand).</span>
                   <span class="lang-vi">Khoản thuế doanh nghiệp địa phương bắt buộc phải giữ lại nộp cho nhà nước trước khi chuyển tiền trả cho hãng tàu nước ngoài.</span>
                 </td>
                 <td>
@@ -1371,10 +1371,10 @@ sequenceDiagram
               <span class="lang-vi">❌ Vấn đề thực tế (The Bottleneck)</span>
             </div>
             <p class="lang-en">
-              Container shipping operates on thin margins with high ticket sizes ($50,000 to $200,000 per consignment). Using third-party aggregators like Stripe or Adyen charged <strong>2.8% + $0.30 per payment</strong>, costing ONE nearly <strong>$28 million annually</strong>. Even worse, funds were locked up for 2–3 days (T+2/T+3), delaying cargo release and triggering costly port demurrage fees.
+              Container shipping operates on thin margins with high ticket sizes ($50,000 to $200,000 per consignment). Using third-party aggregators like Stripe or Adyen charged <strong>2.8% + $0.30 per payment</strong>, costing ONE nearly <strong>$28 million annually</strong>. Even worse, payments were held for 2 to 3 days, delaying cargo release and causing forwarders to incur expensive storage fees at the port.
             </p>
             <p class="lang-vi">
-              Vận tải container là ngành có biên lợi nhuận mỏng nhưng giá trị giao dịch cực lớn ($50k–$200k/đơn). Sử dụng các cổng thanh toán quốc tế như Stripe hoặc Adyen bị thu phí <strong>2.8% + $0.30</strong>, làm ONE mất gần <strong>$28 triệu USD mỗi năm</strong> tiền phí. Nguy hiểm hơn, tiền bị giam 2–3 ngày (T+2/T+3) mới về tài khoản, khiến container bị nghẽn ở cảng và phát sinh phí phạt lưu kho (Demurrage) đắt đỏ.
+              Vận tải container là ngành có biên lợi nhuận mỏng nhưng giá trị giao dịch cực lớn ($50k–$200k/đơn). Sử dụng các cổng thanh toán quốc tế như Stripe hoặc Adyen bị thu phí <strong>2.8% + $0.30</strong>, làm ONE mất gần <strong>$28 triệu USD mỗi năm</strong> tiền phí. Nguy hiểm hơn, tiền bị giam 2 đến 3 ngày mới vào tài khoản, khiến hàng bị kẹt ở cảng và phát sinh thêm tiền lưu kho bãi rất đắt đỏ.
             </p>
           </div>
           <div class="ps-card solution">
@@ -1383,10 +1383,10 @@ sequenceDiagram
               <span class="lang-vi">✅ Giải pháp kiến trúc (The Architecture Fix)</span>
             </div>
             <p class="lang-en">
-              We connected directly to domestic clearing networks: <strong>VietQR in Vietnam, PromptPay in Thailand, and BOC NetBank in China</strong>. Processing costs dropped from 2.8% to a <strong>flat $0.10 per transaction</strong>. Settlement shifted from T+2 to <strong>instant T+0 liquidity</strong> directly into ONE House Bank accounts, saving $25M annually.
+              We connected directly to domestic clearing networks: <strong>VietQR in Vietnam, PromptPay in Thailand, and BOC NetBank in China</strong>. Processing costs dropped from 2.8% to a <strong>flat $0.10 per transaction</strong>. Money now arrives in seconds instead of waiting 2 to 3 days, landing directly in ONE's company bank account. This saves $25M annually and lets forwarders pick up containers within 60 seconds of payment.
             </p>
             <p class="lang-vi">
-              Đấu nối cổng thanh toán trực tiếp (Direct Bank Rails) với các mạng thanh toán nội địa: <strong>VietQR tại Việt Nam, PromptPay tại Thái Lan, BOC NetBank tại Trung Quốc</strong>. Phí xử lý giảm từ 2.8% xuống còn <strong>phí phẳng 10 xu ($0.10) cho mỗi đơn hàng</strong>. Tiền chảy thẳng vào tài khoản ngân hàng của hãng tàu trong vài giây (<strong>T+0 thanh khoản tức thì</strong>), nhả hàng ngay cho khách.
+              Đấu nối cổng thanh toán trực tiếp (Direct Bank Rails) với các mạng thanh toán nội địa: <strong>VietQR tại Việt Nam, PromptPay tại Thái Lan, BOC NetBank tại Trung Quốc</strong>. Phí xử lý giảm từ 2.8% xuống còn <strong>phí phẳng 10 xu ($0.10) cho mỗi đơn hàng</strong>. Tiền về thẳng tài khoản ngân hàng của hãng tàu trong vài giây thay vì chờ 2–3 ngày, giúp tiết kiệm 25 triệu USD/năm và cho phép khách lấy container chỉ sau 60 giây thanh toán.
             </p>
           </div>
         </div>
@@ -1441,16 +1441,16 @@ sequenceDiagram
               </tr>
               <tr>
                 <td>
-                  <span class="lang-en">Settlement Liquidity</span>
+                  <span class="lang-en">Payout Speed</span>
                   <span class="lang-vi">Thời gian tiền về</span>
                 </td>
                 <td>
-                  <span class="lang-en">T+2 to T+3 rolling settlement; cash held in aggregator accounts.</span>
-                  <span class="lang-vi">Bị giữ tiền T+2 đến T+3 ngày; tiền nằm trong tài khoản của Stripe.</span>
+                  <span class="lang-en">2 to 3 days delay; cash held in third-party aggregator accounts.</span>
+                  <span class="lang-vi">Bị giữ tiền 2 đến 3 ngày; tiền nằm trong tài khoản của bên trung gian.</span>
                 </td>
                 <td>
-                  <span class="lang-en"><strong>T+0 instant settlement</strong> in seconds into ONE House Bank accounts.</span>
-                  <span class="lang-vi"><strong>T+0 tiền vào tài khoản hãng tàu trong 3 giây</strong>, thanh khoản ngay.</span>
+                  <span class="lang-en"><strong>Instant deposit</strong> within seconds directly into ONE's company bank accounts.</span>
+                  <span class="lang-vi"><strong>Tiền về ngay trong 3 giây</strong> thẳng vào tài khoản ngân hàng của công ty.</span>
                 </td>
               </tr>
               <tr>
@@ -1496,10 +1496,10 @@ sequenceDiagram
           </div>
           <div class="spoken-content-block">
             <div class="spoken-text lang-en">
-              "In maritime container logistics, transaction ticket sizes range from $10,000 to $250,000. Paying a 2.8% fee to third-party aggregators was costing ONE nearly $28 million annually. By building direct domestic bank integrations with VietQR in Vietnam, PromptPay in Thailand, and BOC NetBank in China, we dropped our transaction cost to a flat 10 cents per transaction. This immediately unlocked <strong>$25 million in net annual savings</strong> and shifted our treasury settlement from T+2 to T+0 instant liquidity."
+              "In maritime container shipping, transaction ticket sizes range from $10,000 to $250,000. Paying a 2.8% fee to third-party aggregators was costing ONE nearly $28 million annually. By connecting directly to domestic bank rails like VietQR, PromptPay, and BOC NetBank, we cut transaction fees to a flat 10 cents per payment. That gave us <strong>over $25 million in recurring annual savings</strong>, and got money directly into our company bank account in seconds instead of waiting 2 or 3 days."
             </div>
             <div class="spoken-text lang-vi">
-              "Trong ngành logistics hàng hải, mỗi đơn cước container có giá trị rất lớn, từ vài chục nghìn đến hàng trăm nghìn USD. Nếu dùng cổng thanh toán SaaS như Stripe hay Adyen với mức phí 2.8%, mỗi năm công ty mất gần 28 triệu USD tiền phí vô ích. Bằng cách tự đấu nối cổng ngân hàng nội địa như VietQR tại Việt Nam và PromptPay tại Thái Lan, tụi em đưa chi phí xử lý về mức phí phẳng chỉ 10 xu/giao dịch. Giải pháp này giúp công ty <strong>tiết kiệm ròng 25 triệu USD mỗi năm</strong> và dòng tiền về thẳng tài khoản công ty ngay trong ngày (T+0) thay vì bị giam 2-3 ngày."
+              "Trong ngành logistics hàng hải, mỗi đơn cước container có giá trị rất lớn, từ vài chục nghìn đến hàng trăm nghìn USD. Nếu dùng cổng thanh toán SaaS như Stripe hay Adyen với mức phí 2.8%, mỗi năm công ty mất gần 28 triệu USD tiền phí vô ích. Bằng cách tự đấu nối cổng ngân hàng nội địa như VietQR tại Việt Nam và PromptPay tại Thái Lan, tụi em đưa chi phí xử lý về mức phí phẳng chỉ 10 xu/giao dịch. Giải pháp này giúp công ty <strong>tiết kiệm ròng 25 triệu USD mỗi năm</strong>, và tiền đổ thẳng vào tài khoản ngân hàng của công ty chỉ sau vài giây thay vì phải chờ 2–3 ngày như trước."
             </div>
           </div>
         </div>
@@ -1653,10 +1653,10 @@ flowchart TD
           <span class="lang-vi">Tại sao MongoDB chỉ cần đúng 2 Collection chính?</span>
         </div>
         <p class="lang-en">
-          Instead of dozens of normalized relational tables, we consolidated our operational data model into <strong>2 core Aggregate Roots</strong>:
+          Instead of splitting data across dozens of complex relational tables, we organized our operational data around <strong>2 core business collections</strong>:
         </p>
         <p class="lang-vi">
-          Thay vì tạo ra hàng chục bảng quan hệ phức tạp, chúng tôi gom toàn bộ nghiệp vụ thanh toán vào <strong>2 Aggregate Roots cốt lõi</strong>:
+          Thay vì chia nhỏ dữ liệu ra hàng chục bảng quan hệ phức tạp, tụi em tổ chức mô hình dữ liệu xoay quanh <strong>2 collection nghiệp vụ chính</strong>:
         </p>
         <ul>
           <li>
@@ -1951,7 +1951,7 @@ flowchart LR
         S2 --> S2Out["📑 Raw Tax Extraction JSON\n(WHT Rate, Base Amount, Local Fee)"]
     end
     
-    subgraph Step3["Step 3: Redis Vector Semantic Canonicalization (1.2ms)"]
+    subgraph Step3["Step 3: Redis Vector Semantic Code Matching (1.2ms)"]
         S2Out --> S3["🧠 Text-Embedding-004 (256 dims)\n+ Redis Vector HNSW Search\nMatches localized freight descriptions"]
         S3 --> S3Out["🎯 SAP Condition Code\n(ZTHC, ZDMR, ZCLE, ZVAT10)"]
     end
@@ -2227,10 +2227,10 @@ sequenceDiagram
           </div>
           <div class="spoken-content-block">
             <div class="spoken-text lang-en">
-              "In enterprise FinTech, distributed transactions across heterogeneous cloud microservices and legacy SAP ERP systems cannot rely on Two-Phase Commit. We adopted Temporal.io to orchestrate distributed Sagas. If a downstream service like SAP FI-AR or the Port TOS fails after retries, Temporal executes an automated compensating workflow: it triggers an idempotent bank refund, reverses accounting documents in SAP via Credit Memos, and voids the container release reservation, ensuring 100% financial consistency in under 3 minutes."
+              "When orchestrating payments between cloud microservices and an enterprise SAP ERP, you cannot use Two-Phase Commit, because holding locks across external networks will freeze your database. We adopted Temporal.io to orchestrate distributed Sagas. If a downstream service like SAP FI-AR or the Port TOS fails after retries, Temporal executes an automated compensating workflow: it triggers an idempotent bank refund, reverses accounting documents in SAP via Credit Memos, and voids the container release reservation, ensuring 100% financial consistency in under 3 minutes."
             </div>
             <div class="spoken-text lang-vi">
-              "Khi kết nối giữa microservices trên cloud với hệ thống ERP SAP cũ, tuyệt đối không thể dùng 2PC vì sẽ làm khóa chết database. Tụi em dùng Temporal.io để điều phối mô hình Saga phân tán. Nếu downstream như SAP hoặc hệ thống cảng bị lỗi sau các lần retry, Temporal sẽ tự động kích hoạt quy trình bồi hoàn 5 bước: tự động gọi bank hoàn tiền lại cho khách, tạo chứng từ đảo ngược Credit Memo trên SAP và hủy lệnh giữ container ở cảng, đưa hệ thống về trạng thái cân bằng trong vòng dưới 3 phút."
+              "Khi kết nối giữa microservices trên cloud với hệ thống ERP SAP của doanh nghiệp, tuyệt đối không thể dùng 2PC vì sẽ làm khóa chết database. Tụi em dùng Temporal.io để điều phối mô hình Saga phân tán. Nếu downstream như SAP hoặc hệ thống cảng bị lỗi sau các lần retry, Temporal sẽ tự động kích hoạt quy trình bồi hoàn 5 bước: tự động gọi bank hoàn tiền lại cho khách, tạo chứng từ đảo ngược Credit Memo trên SAP và hủy lệnh giữ container ở cảng, đưa hệ thống về trạng thái cân bằng trong vòng dưới 3 phút."
             </div>
           </div>
         </div>
@@ -2317,7 +2317,7 @@ sequenceDiagram
               <span class="lang-vi">❌ Nghẽn 128 vé đọc/ghi của WiredTiger</span>
             </div>
             <p class="lang-en">
-              During load tests simulating 5,000 concurrent forwarders, MongoDB Atlas latency exploded from 12ms to <strong>4,800ms</strong>. CPU utilization was under 35%, yet queries timed out. Root cause: MongoDB's WiredTiger engine has a hard limit of <strong>128 concurrent read tickets and 128 concurrent write tickets</strong>. 30 application pods with default <code>maxPoolSize=100</code> created 3,000 sockets competing for 128 tickets, causing massive thread starvation.
+              During load tests simulating 5,000 concurrent forwarders, MongoDB Atlas latency exploded from 12ms to <strong>4,800ms</strong>. CPU utilization was under 35%, yet queries timed out. Root cause: MongoDB's WiredTiger engine has a hard limit of <strong>128 concurrent read tickets and 128 concurrent write tickets</strong>. 30 application pods with default <code>maxPoolSize=100</code> created 3,000 connections competing for only 128 tickets, causing incoming queries to stall and pile up in queue.
             </p>
             <p class="lang-vi">
               Khi chạy load test 5,000 người dùng đồng thời, độ trễ MongoDB Atlas bất ngờ vọt từ 12ms lên <strong>4,800ms</strong>. CPU server MongoDB mới dùng có 35% mà các câu query đã bị timeout. Nguyên nhân: Engine WiredTiger chỉ có <strong>128 vé đọc và 128 vé ghi</strong> đồng thời trong RAM. 30 Pod backend để cấu hình mặc định <code>maxPoolSize=100</code>, tạo ra 3,000 kết nối TCP lao vào đòi vé, gây giẫm đạp và nghẽn luồng nghiêm trọng.
@@ -2355,7 +2355,7 @@ db.payment_transactions.find({
           </div>
           <div class="spoken-content-block">
             <div class="spoken-text lang-en">
-              "When scaling MongoDB Atlas, more connections do not equal more throughput. WiredTiger has a hard limit of 128 concurrent read and write tickets. With 30 pods at maxPoolSize=100, we were hammering the database with 3,000 connections, exhausting tickets and causing 4.8s queuing delays. By reducing maxPoolSize to 15 per pod, we kept active threads well below the 128-ticket threshold, eliminating queuing delays entirely and stabilizing query latency at 8ms flat."
+              "When scaling MongoDB Atlas, more connections do not equal more throughput. WiredTiger has a hard limit of 128 concurrent read and write tickets. With 30 pods at maxPoolSize=100, we were hammering the database with 3,000 connections, exhausting internal tickets and causing queries to get stuck waiting in line for 4.8 seconds. By reducing maxPoolSize to 15 per pod, we kept active threads well below the 128-ticket threshold, eliminating queuing delays entirely and stabilizing query latency at 8ms flat."
             </div>
             <div class="spoken-text lang-vi">
               "Nhiều người nghĩ database càng mở nhiều connection thì càng chịu tải khỏe, nhưng với MongoDB thì hoàn toàn ngược lại. Engine WiredTiger bị giới hạn cứng đúng 128 vé đọc và 128 vé ghi đồng thời trong RAM. Với 30 Pod backend mà để maxPoolSize=100 là tạo ra 3,000 kết nối lao vào đòi vé, khiến query bị xếp hàng chờ tới 4.8 giây. Em giảm maxPoolSize xuống 15 cho mỗi Pod, giữ số kết nối đồng thời trung bình khoảng 45 luồng, hoàn toàn không bao giờ chạm tới ngưỡng 128 vé. Kết quả là hàng đợi chờ vé về 0ms và độ trễ query giảm phẳng lỳ ở mức 8ms."
@@ -2591,27 +2591,27 @@ flowchart TD
           <span class="lang-vi">STAR Story 1: Cắt giảm $25M tiền phí thanh toán nhờ kết nối Bank Rails trực tiếp</span>
         </div>
         <p class="lang-en"><strong>Situation:</strong> ONE was losing nearly $28M annually in transaction fees to third-party aggregators (2.8% + $0.30 per payment) while experiencing 2-to-3-day settlement delays that stalled cargo release.</p>
-        <p class="lang-en"><strong>Task:</strong> Architect a direct domestic clearing platform across 14 Asia-Pacific countries that integrates native rails (VietQR, PromptPay, BOC NetBank) with T+0 instant liquidity.</p>
+        <p class="lang-en"><strong>Task:</strong> Architect a direct domestic payment platform across 14 Asia-Pacific countries that connects to native bank rails (VietQR, PromptPay, BOC NetBank) and settles funds in seconds.</p>
         <p class="lang-en"><strong>Action:</strong> Designed dynamic QR invoice generation with PO reference hashing, sub-5ms Go webhook ingestion, and a 3-tier resiliency safety net (Webhook ➔ Active Inquiry ➔ Nightly Batch MT940 SFTP).</p>
-        <p class="lang-en"><strong>Result:</strong> Cut transaction costs from 2.8% to a flat $0.10, yielding <strong>$25M in recurring annual savings</strong>, shifting to T+0 cash flow, and slashing container gate-out time to under 60 seconds.</p>
+        <p class="lang-en"><strong>Result:</strong> Cut transaction fees from 2.8% to a flat $0.10, generating <strong>$25M in net annual savings</strong>, getting funds into our bank account instantly, and slashing container pickup time from hours to under 60 seconds.</p>
 
         <p class="lang-vi"><strong>Situation (Hoàn cảnh):</strong> Hãng tàu ONE mất gần 28 triệu USD mỗi năm tiền phí cổng thanh toán cho các bên thứ ba (2.8% + $0.30/đơn) và tiền bị giam 2–3 ngày khiến hàng bị tắc ở cảng.</p>
-        <p class="lang-vi"><strong>Task (Nhiệm vụ):</strong> Thiết kế cổng thanh toán kết nối trực tiếp với mạng ngân hàng nội địa 14 nước (VietQR, PromptPay, BOC NetBank) với chi phí tối thiểu và thanh khoản T+0.</p>
+        <p class="lang-vi"><strong>Task (Nhiệm vụ):</strong> Thiết kế cổng thanh toán kết nối trực tiếp với mạng ngân hàng nội địa 14 nước (VietQR, PromptPay, BOC NetBank) với chi phí thấp nhất và tiền về tài khoản ngay lập tức.</p>
         <p class="lang-vi"><strong>Action (Hành động):</strong> Thiết kế kiến trúc Dynamic QR gán mã đơn hàng duy nhất, Go Ingestion Broker bắt webhook siêu tốc và lưới an toàn 3 tầng (Webhook ➔ Inquiry Polling ➔ Batch SFTP MT940).</p>
-        <p class="lang-vi"><strong>Result (Kết quả):</strong> Hạ chi phí từ 2.8% xuống còn 10 xu/đơn, <strong>tiết kiệm ròng 25 triệu USD/năm</strong>, tiền về ngay T+0 và rút ngắn thời gian nhả hàng xuống dưới 60 giây.</p>
+        <p class="lang-vi"><strong>Result (Kết quả):</strong> Hạ chi phí từ 2.8% xuống còn 10 xu/đơn, <strong>tiết kiệm ròng 25 triệu USD/năm</strong>, tiền đổ về tài khoản ngay lập tức và rút ngắn thời gian nhả hàng từ nhiều tiếng xuống dưới 60 giây.</p>
 
         <div class="subsection-title">
           <span>⭐</span>
-          <span class="lang-en">STAR Story 2: Resolving Node.js Event-Loop Starvation via Compiled Go Broker</span>
+          <span class="lang-en">STAR Story 2: Fixing Node.js CPU Bottlenecks with a Compiled Go Ingestion Broker</span>
           <span class="lang-vi">STAR Story 2: Xử lý nghẽn CPU Node.js bằng Go Ingestion Broker 4.2ms</span>
         </div>
         <p class="lang-en"><strong>Situation:</strong> Under peak logistics cut-off hours, webhook callbacks spiked to 3,500 RPS, pushing Node.js p99 response times to 3.8s and triggering bank retry storms.</p>
-        <p class="lang-en"><strong>Task:</strong> Eliminate CPU event-loop blocking during RSA-SHA256 signature verification and guarantee sub-10ms webhook ingestion.</p>
+        <p class="lang-en"><strong>Task:</strong> Stop CPU-heavy RSA signature checks from freezing the event loop and ensure webhooks respond in under 10ms.</p>
         <p class="lang-en"><strong>Action:</strong> Extracted ingestion into a compiled Go broker running native <code>crypto/rsa</code> over worker goroutines and executing Redis atomic <code>MSETNX</code> locks.</p>
         <p class="lang-en"><strong>Result:</strong> Slashed p99 webhook latency from 3,800ms to <strong>4.2ms flat</strong>, dropping server memory consumption by 65% and eliminating duplicate webhooks.</p>
 
         <p class="lang-vi"><strong>Situation (Hoàn cảnh):</strong> Giờ cao điểm chiều, ngân hàng bắn webhook dồn dập khiến Node.js bị nghẽn đơn luồng ở hàm giải mã RSA, độ trễ tăng vọt lên 3.8s gây retry storm.</p>
-        <p class="lang-vi"><strong>Task (Nhiệm vụ):</strong> Triệt tiêu việc nghẽn CPU và đưa thời gian phản hồi webhook xuống dưới 10ms.</p>
+        <p class="lang-vi"><strong>Task (Nhiệm vụ):</strong> Giải quyết triệt để tình trạng đơ CPU khi giải mã RSA và đưa thời gian phản hồi webhook xuống dưới 10ms.</p>
         <p class="lang-vi"><strong>Action (Hành động):</strong> Tách tầng ingestion sang Golang, tận dụng đa luồng CPU goroutines giải mã RSA và chiếm khóa nguyên tử <code>MSETNX</code> trên Redis.</p>
         <p class="lang-vi"><strong>Result (Kết quả):</strong> Độ trễ p99 giảm từ 3,800ms xuống còn <strong>4.2ms phẳng</strong>, giảm 65% RAM server và loại bỏ hoàn toàn tình trạng thanh toán trùng lặp.</p>
 
@@ -2621,12 +2621,12 @@ flowchart TD
           <span class="lang-vi">STAR Story 3: Tự động hóa bóc tách hóa đơn thuế 258ms với AI FinOps</span>
         </div>
         <p class="lang-en"><strong>Situation:</strong> Manual review of scanned Withholding Tax (WHT) certificates required 45 clerks and took 4 to 8 hours per shipment.</p>
-        <p class="lang-en"><strong>Task:</strong> Automate tax certificate extraction and ERP canonicalization with sub-second latency and enterprise accuracy.</p>
+        <p class="lang-en"><strong>Task:</strong> Automate tax deduction receipt reading and mapping to SAP accounting codes in under a second with 100% financial accuracy.</p>
         <p class="lang-en"><strong>Action:</strong> Built a 4-step pipeline: C++ OpenCV preprocessing (18ms, 280KB 4-tile bound), Vertex AI RAM Context Caching (258ms, 77% token savings), and Redis Vector HNSW search (1.2ms) for SAP code mapping.</p>
         <p class="lang-en"><strong>Result:</strong> Achieved <strong>98.4% zero-touch automated clearing</strong> in 258ms, reducing accounting operational backlog from 8 hours to instantaneous.</p>
 
         <p class="lang-vi"><strong>Situation (Hoàn cảnh):</strong> 45 kế toán phải ngồi đọc thủ công hàng nghìn tờ khai thuế scan mờ mỗi ngày, gây trễ hẹn giao container từ 4–8 tiếng.</p>
-        <p class="lang-vi"><strong>Task (Nhiệm vụ):</strong> Tự động hóa bóc tách hóa đơn thuế và map sang mã kế toán SAP với độ trễ dưới 1 giây và độ chính xác tuyệt đối.</p>
+        <p class="lang-vi"><strong>Task (Nhiệm vụ):</strong> Tự động hóa việc đọc chứng từ khấu trừ thuế và khớp vào đúng mã kế toán SAP trong chưa đầy 1 giây với độ chính xác tuyệt đối.</p>
         <p class="lang-vi"><strong>Action (Hành động):</strong> Xây dựng pipeline 4 bước: C++ OpenCV deskew ảnh 18ms, Vertex AI RAM Context Caching với Gemini Flash 258ms, Redis Vector HNSW 1.2ms và thuật toán kiểm tra số học Banker's rounding.</p>
         <p class="lang-vi"><strong>Result (Kết quả):</strong> Đạt <strong>98.4% tự động hóa hoàn toàn</strong> trong 258ms, tiết kiệm 77% tiền token và giải phóng hoàn toàn thời gian nhập liệu thủ công của kế toán.</p>
       </section>
@@ -2672,19 +2672,19 @@ flowchart TD
         <div class="lang-en">
           <p style="margin-bottom: 0.5rem;"><strong>🎙️ Spoken Answer (Read out loud):</strong></p>
           <div style="font-style: italic; color: #1e293b; margin-bottom: 0.75rem; line-height: 1.6;">
-            ""At our volume, Stripe's <strong>2.9% + $0.30 fee on a $50,000 freight container invoice costs $1,450 in merchant fees for a single payment</strong>! Across billions in freight revenue, that bleeds tens of millions in margin. By connecting <strong>Direct Bank Rails (HSBC Omni, KBank, BOC) on Interchange-Plus (~0.8%)</strong>, we save over <strong>$25M USD annually</strong>. Just as importantly, Stripe holds 5–10% rolling reserves for 90 days, whereas Direct Bank Rails settle <strong>T+0 directly into corporate House Bank accounts</strong> with zero cash lockup.""
+            ""At our volume, Stripe's <strong>2.9% fee on a $50,000 freight container invoice costs $1,450 for just one payment</strong>! On billions in shipping volume, percentage fees bleed tens of millions of dollars. By connecting directly to domestic bank rails like VietQR, PromptPay, and BOC, we pay a flat fee of roughly 10 cents per payment instead of a percentage, saving over <strong>$25M USD every year</strong>. On top of that, payment aggregators typically freeze a 5% to 10% cash reserve for months, while direct bank rails deposit funds <strong>straight into our company bank account in seconds</strong> with zero cash lockup.""
           </div>
           <div class="qa-anchor">
-            🧠 <strong>Mental Anchor:</strong> Đơn hàng container $50k mà trả Stripe 2.9% là mất $1,450/đơn. Kết nối Direct Rails HSBC phí chỉ ~0.8%, tiết kiệm $25M/năm và tiền về ngay T+0 không bị giữ cọc 90 ngày.
+            🧠 <strong>Mental Anchor:</strong> A 2.9% fee on a $50k invoice costs $1,450. Direct domestic bank rails cost ~10 cents, saving $25M/year with instant deposit and zero cash holdback.
           </div>
         </div>
         <div class="lang-vi">
           <p style="margin-bottom: 0.5rem;"><strong>🎙️ Câu trả lời mẫu (Nói khi phỏng vấn):</strong></p>
           <div style="font-style: italic; color: #1e293b; margin-bottom: 0.75rem; line-height: 1.6;">
-            "Với quy mô của ONE, phí của Stripe là <strong>2.9% + $0.30 cho một hóa đơn cước $50,000 sẽ tốn tới $1,450 tiền phí cổng cho đúng một lần thanh toán</strong>! Tính trên quy mô doanh thu hàng tỷ USD của hãng tàu, việc đó làm chảy máu hàng chục triệu USD lợi nhuận. Bằng cách kết nối <strong>trực tiếp với mạng ngân hàng nội địa (HSBC Omni, KBank, BOC) theo cơ chế Interchange-Plus (~0.8%)</strong>, tụi em tiết kiệm hơn <strong>25 triệu USD mỗi năm</strong>. Quan trọng hơn, Stripe giam 5–10% tiền cọc lưu động trong 90 ngày, trong khi cổng ngân hàng nội địa tiền về ngay <strong>T+0 thẳng vào tài khoản công ty</strong>, thanh khoản ngay lập tức."
+            "Với quy mô của hãng tàu ONE, nếu trả phí 2.9% cho Stripe trên một hóa đơn cước $50,000 thì riêng tiền phí đã ngốn tới $1,450 cho đúng một lần thanh toán! Với doanh thu hàng tỷ USD, việc bị cắt phế theo phần trăm làm mất hàng chục triệu USD lợi nhuận. Bằng cách kết nối <strong>trực tiếp với mạng ngân hàng nội địa (VietQR tại Việt Nam, PromptPay tại Thái Lan, BOC tại Trung Quốc)</strong>, phí thanh toán giảm xuống chỉ còn khoảng 10 xu một đơn thay vì bị cắt theo phần trăm, giúp công ty <strong>tiết kiệm hơn 25 triệu USD mỗi năm</strong>. Hơn nữa, các cổng thanh toán quốc tế thường giam 5–10% tiền cọc rủi ro suốt 3 tháng, trong khi cổng ngân hàng nội địa đưa tiền về <strong>ngay lập tức trong vài giây thẳng vào tài khoản công ty</strong> mà không bị giữ lại một đồng nào."
           </div>
           <div class="qa-anchor">
-            🧠 <strong>Bản chất cốt lõi:</strong> Đơn hàng container $50k mà trả Stripe 2.9% là mất $1,450/đơn. Kết nối Direct Rails HSBC phí chỉ ~0.8%, tiết kiệm $25M/năm và tiền về ngay T+0 không bị giữ cọc 90 ngày.
+            🧠 <strong>Bản chất cốt lõi:</strong> Đơn hàng container $50k mà trả phí cổng 2.9% là mất $1,450/đơn. Đấu nối trực tiếp ngân hàng nội địa chỉ tốn ~10 xu, tiết kiệm $25M/năm, tiền về ngay tài khoản trong vài giây và không bị giam cọc.
           </div>
         </div>
       </div>
@@ -2715,7 +2715,7 @@ flowchart TD
             ""Two-Phase Commit requires holding distributed database locks and SAP table locks across external network roundtrips. In ocean shipping where SAP ERPs handle scheduled maintenance, 2PC causes distributed deadlocks and freezes the entire payment portal. We implement the <strong>Saga Pattern orchestrated by Temporal</strong>: local transactions commit immediately with eventual consistency. If SAP rejects an order downstream, an automated <strong>Compensating Refund Workflow</strong> reverses the bank credit and reopens the invoice deterministically.""
           </div>
           <div class="qa-anchor">
-            🧠 <strong>Mental Anchor:</strong> 2PC bắt giữ khóa DB trên mạng qua SAP, chỉ cần mạng lag là treo cổng thanh toán. Dùng Temporal Saga chạy async, nếu SAP lỗi thì chạy workflow hoàn tiền bù trừ an toàn tuyệt đối.
+            🧠 <strong>Mental Anchor:</strong> 2PC locks database rows across WAN networks; if SAP lags, checkout freezes. Temporal Sagas run asynchronously with automated compensating refunds.
           </div>
         </div>
         <div class="lang-vi">
@@ -2755,7 +2755,7 @@ flowchart TD
             ""We enforce atomic idempotency with a <strong>Redis <code>MSETNX</code> distributed lock</strong> across all invoice keys in the batch (<code>lock:invoice:INV_01</code>, TTL 900s). Only the first thread acquires the lock in 0.3ms; concurrent tabs are rejected immediately with HTTP 409 Conflict. If Redis fails, a <strong>MongoDB unique composite index on <code>purchase_order_id + transaction_reference</code></strong> acts as a strict storage backstop, guaranteeing exactly-once checkout.""
           </div>
           <div class="qa-anchor">
-            🧠 <strong>Mental Anchor:</strong> Khách mở nhiều tab bấm Pay cùng lúc trước 12h đêm. Dùng Redis MSETNX khóa các invoice key trong 0.3ms, kèm unique composite index trong MongoDB chặn đứng double-payment.
+            🧠 <strong>Mental Anchor:</strong> When forwarders open multiple tabs to pay before midnight, Redis MSETNX locks invoice keys in 0.3ms while MongoDB unique compound index guarantees exactly-once payment.
           </div>
         </div>
         <div class="lang-vi">
@@ -2795,7 +2795,7 @@ flowchart TD
             ""When partner banks flush tens of thousands of queued webhooks after weekend maintenance, <strong>Node.js event loops freeze under CPU-bound RSA-SHA256 signature verification</strong>. In Go, lightweight goroutines verify cryptographic signatures across all CPU cores in parallel. The broker locks a Redis idempotency key in 0.3ms, buffers the event to Temporal, and returns 200 OK to the bank in exactly <strong>4.2ms P99</strong>, sustaining 5,000 RPS on just 45MB of RAM per pod.""
           </div>
           <div class="qa-anchor">
-            🧠 <strong>Mental Anchor:</strong> Khi ngân hàng xả hàng nghìn webhook sau bảo trì, Node.js bị nghẽn Event Loop do giải mã RSA-SHA256 tốn CPU. Go dùng Goroutines chia đều ra đa nhân, trả 200 OK trong 4.2ms với 45MB RAM.
+            🧠 <strong>Mental Anchor:</strong> Bank webhook bursts freeze Node.js single-threaded crypto. Golang goroutines verify RSA on multi-core CPU, responding with 200 OK in 4.2ms using only 45MB RAM.
           </div>
         </div>
         <div class="lang-vi">
@@ -2835,7 +2835,7 @@ flowchart TD
             ""We engineered a 3-step high-efficiency pipeline: First, <strong>native C++ OpenCV & PyMuPDF</strong> deskews and crops the document in 18ms, compressing it into 4 compact vision tiles. Second, we cache our 3,200-token tax law system prompt on <strong>Vertex AI RAM via Context Caching</strong>, cutting input token costs by <strong>77%</strong> and slashing response latency to <strong>258ms</strong>. Third, we validate mathematical totals deterministically before any data touches SAP.""
           </div>
           <div class="qa-anchor">
-            🧠 <strong>Mental Anchor:</strong> Không gửi file PDF nặng cho LLM. Dùng OpenCV nén còn 4 tile ảnh (18ms), cache system prompt trên RAM Vertex AI (tiết kiệm 77% chi phí), Gemini Flash trả JSON chuẩn trong 258ms.
+            🧠 <strong>Mental Anchor:</strong> Never send raw PDFs to LLMs. C++ OpenCV deskews and compresses scans to 4 vision tiles (18ms); Vertex AI caches system prompts in RAM (saving 77% cost), and Gemini Flash returns JSON in 258ms.
           </div>
         </div>
         <div class="lang-vi">
@@ -2872,10 +2872,10 @@ flowchart TD
         <div class="lang-en">
           <p style="margin-bottom: 0.5rem;"><strong>🎙️ Spoken Answer (Read out loud):</strong></p>
           <div style="font-style: italic; color: #1e293b; margin-bottom: 0.75rem; line-height: 1.6;">
-            ""Shippers submit thousands of localized, typo-ridden descriptions for identical freight charges (e.g., 'Phí vệ sinh container', 'Cleaning surcharge', 'Washing fee'). Hardcoded regex breaks constantly, and asking LLMs to classify 500+ SAP condition codes balloons prompt tokens and hallucinations. We pass the extracted description into a <strong>256-dimensional embedding model</strong> and perform <strong>Redis HNSW Cosine Similarity search in 1.2ms</strong>, resolving to the exact SAP condition code with <strong>98.4% accuracy</strong>.""
+            ""Shippers submit thousands of localized, typo-ridden descriptions for identical freight charges (e.g., 'Phi ve sinh container', 'Cleaning surcharge', 'Washing fee'). Hardcoded regex breaks constantly, and asking LLMs to classify 500+ SAP condition codes balloons prompt tokens and hallucinations. We pass the extracted description into a <strong>256-dimensional embedding model</strong> and perform <strong>Redis HNSW Cosine Similarity search in 1.2ms</strong>, resolving to the exact SAP condition code with <strong>98.4% accuracy</strong>.""
           </div>
           <div class="qa-anchor">
-            🧠 <strong>Mental Anchor:</strong> Khách hàng gõ hàng nghìn cách viết tắt, sai chính tả cho cùng một loại phí cước. Nhúng embedding 256 chiều, quét Redis HNSW trong 1.2ms là map chuẩn xác về mã cước SAP.
+            🧠 <strong>Mental Anchor:</strong> Shippers use countless informal fee descriptions. Putting hundreds of SAP codes in prompts causes latency and hallucinations; Redis HNSW vector search matches descriptions in 1.2ms.
           </div>
         </div>
         <div class="lang-vi">
@@ -2915,7 +2915,7 @@ flowchart TD
             ""Think of it as a <strong>National Passport versus a Port Security Pass</strong>. Okta proves identity (who you are), but its enterprise tokens are bloated with Active Directory groups (exceeding 4KB), causing HTTP 431 header errors across microservices. At our edge APISIX gateway, we exchange it for a lightweight <strong>400-byte internal token</strong> that injects exact functional scopes (e.g., <code>can_release_container:SGN_PORT</code>, currency approval thresholds). This eliminates header bloat and prevents vendor lock-in.""
           </div>
           <div class="qa-anchor">
-            🧠 <strong>Mental Anchor:</strong> Token Okta như Hộ Chiếu Quốc Gia (chỉ chứng minh bạn là ai, phình to >4KB). Token nội bộ như Thẻ Ra Vào Cảng (nhẹ 400 bytes, chỉ định rõ được duyệt chi nhánh và mở cổng cảng nào).
+            🧠 <strong>Mental Anchor:</strong> Okta tokens are like national passports (>4KB with enterprise AD groups, causing header overflow). Exchange for a 400-byte internal token with fine-grained port release scopes.
           </div>
         </div>
         <div class="lang-vi">
@@ -2955,7 +2955,7 @@ flowchart TD
             ""Storing tokens in <code>localStorage</code> leaves them vulnerable to <strong>XSS token exfiltration</strong>: any injected third-party script or compromised npm package can steal the JWT. We store tokens in <strong>Double HttpOnly cookies with the <code>__Host-</code> prefix and <code>SameSite=Strict</code></strong>. JavaScript cannot access them, and the browser strictly isolates them to our top-level HTTPS origin. We prevent CSRF by validating a custom client header (<code>X-Requested-With</code>) on all mutating state calls.""
           </div>
           <div class="qa-anchor">
-            🧠 <strong>Mental Anchor:</strong> Lưu LocalStorage rất dễ bị XSS trộm token. Lưu Cookie HttpOnly có tiền tố __Host- và SameSite=Strict thì JS không bao giờ đọc được, chặn sạch cả XSS lẫn CSRF.
+            🧠 <strong>Mental Anchor:</strong> Storing tokens in LocalStorage leaves them vulnerable to XSS theft. HttpOnly cookies with __Host- prefix and SameSite=Strict are unreadable by JavaScript, blocking both XSS and CSRF.
           </div>
         </div>
         <div class="lang-vi">
@@ -2995,7 +2995,7 @@ flowchart TD
             ""Under high-frequency Kubernetes autoscaling, traditional NGINX Ingress reloads its master and worker processes to update upstream routing tables, causing packet drops and severed WebSockets during traffic spikes. <strong>Apache APISIX uses etcd dynamic watchers to sync routing rules in shared memory with zero worker reloads</strong>. On top of that, APISIX validates public RSA keys (JWKS) directly in worker RAM, completing token authentication in <strong>0.02ms (52,000 RPS per pod)</strong>.""
           </div>
           <div class="qa-anchor">
-            🧠 <strong>Mental Anchor:</strong> NGINX mỗi lần scale Pod là reload worker gây rớt kết nối. APISIX dùng etcd watch cập nhật routing dynamic trong RAM, không reload, cache JWKS xác thực token trong 0.02ms.
+            🧠 <strong>Mental Anchor:</strong> NGINX reloads worker processes on every Kubernetes pod scaling event, dropping packets. APISIX uses etcd watchers for zero-reload dynamic routing and 0.02ms JWKS token checks.
           </div>
         </div>
         <div class="lang-vi">
@@ -3035,7 +3035,7 @@ flowchart TD
             ""The bottleneck was not database query execution—it was <strong>WiredTiger Ticket Contention</strong>. MongoDB's WiredTiger engine has only 128 concurrent read tickets. 30 GKE application pods with default <code>maxPoolSize=100</code> opened 3,000 active connections fighting for those 128 tickets, forcing the Linux kernel into heavy context switching. By reducing <code>maxPoolSize=15</code> per pod (450 total sockets) and offloading dashboards to secondary replicas, <strong>available tickets stayed above 70, CPU cooled to 32%, and latency plummeted from 4,200ms to 6ms</strong>.""
           </div>
           <div class="qa-anchor">
-            🧠 <strong>Mental Anchor:</strong> 30 Pod Mongo x 100 connection = 3,000 socket tranh nhau 128 vé đọc WiredTiger, CPU chết vì context switching. Giới hạn maxPoolSize=15 mỗi pod, CPU hạ từ 95% xuống 32%, latency giảm từ 4.2s còn 6ms.
+            🧠 <strong>Mental Anchor:</strong> When upstream Kafka or Sagas fail, exponential backoff retries without blocking. Dead Letter Queues (DLQ) quarantine poison pills so they never block the queue.
           </div>
         </div>
         <div class="lang-vi">
@@ -3075,7 +3075,7 @@ flowchart TD
             ""Traditional offset pagination (<code>skip(50000).limit(20)</code>) is an $O(N)$ linear scan: the database must traverse 50,000 B-tree index entries and discard them before reading 20 rows. In our audit log of 25 million records, this took 5.4 seconds. We replaced it with <strong>Keyset Cursor Pagination</strong> using composite index bounds (<code>WHERE createdAt &lt; cursorDate AND _id &lt; cursorId</code>). The query jumps directly to the target B-tree leaf node in $O(1)$ time, returning results in <strong>1.62ms flat</strong> regardless of page depth.""
           </div>
           <div class="qa-anchor">
-            🧠 <strong>Mental Anchor:</strong> skip(50000) phải duyệt quét tuyến tính 50,000 bản ghi B-tree mất 5.4s. Keyset cursor dùng điều kiện where createdAt < lastSeenId nhảy thẳng vào index O(1), chạy 1.62ms dù bảng có 25 triệu dòng.
+            🧠 <strong>Mental Anchor:</strong> Offset pagination in MongoDB is O(N) because B-tree skips rows sequentially. Keyset pagination using {_id: {$lt: lastId}} is O(1) and runs in 1.62ms regardless of page depth.
           </div>
         </div>
         <div class="lang-vi">
@@ -3112,10 +3112,10 @@ flowchart TD
         <div class="lang-en">
           <p style="margin-bottom: 0.5rem;"><strong>🎙️ Spoken Answer (Read out loud):</strong></p>
           <div style="font-style: italic; color: #1e293b; margin-bottom: 0.75rem; line-height: 1.6;">
-            ""In container shipping, demurrage and detention tariffs roll over at <strong>23:59:59 local port time</strong> (adding up to $300/day/container). If a forwarder initiates checkout at 23:55 and network latency pushes bank completion past midnight, SAP recalculated receivables drift upward while money is in-flight. We solve this by taking an <strong>AR Balance Snapshot at session creation</strong> and placing a <strong>30-minute Redis Grace Period Lock</strong>, freezing the invoice amount during settlement so the payment clears deterministically.""
+            ""In container shipping, demurrage and detention tariffs roll over at <strong>23:59:59 local port time</strong> (adding up to $300/day/container). If a forwarder initiates checkout at 23:55 and network latency pushes bank completion past midnight, SAP recalculated receivables drift upward while money is in-flight. We solve this by taking an <strong>AR Balance Snapshot at session creation</strong> and placing a <strong>30-minute Redis Grace Period Lock</strong>, freezing the invoice amount while payment is in-flight so the payment matches the ledger without discrepancies.""
           </div>
           <div class="qa-anchor">
-            🧠 <strong>Mental Anchor:</strong> 23:59:59 là giờ chốt phạt lưu kho bãi cảng. Khách bấm trả lúc 23:55 mà mạng lag qua 0h thì nợ SAP sẽ tăng lên. Bắt snapshot số dư AR và cấp Grace Period Lock 30 phút trên Redis để chốt thanh toán ổn định.
+            🧠 <strong>Mental Anchor:</strong> Port demurrage penalties roll over at midnight. A 15-minute Redis grace period lock freezes the invoice balance so SAP clearing matches without discrepancies.
           </div>
         </div>
         <div class="lang-vi">
@@ -3155,7 +3155,7 @@ flowchart TD
             ""In Domain-Driven Design, a <strong>Purchase Order represents Customer Intent</strong> (grouping 1 to 50 freight invoices to clear), while <strong>Payment Transactions represent Banking Attempts</strong>. In emerging markets, 20% of online banking attempts fail (insufficient funds, expired QR). If transactions were embedded in POs, repeated failed attempts would cause document unbound growth and concurrency lock contention. Decoupling them lets us track multiple payment attempts independently while keeping the PO immutable.""
           </div>
           <div class="qa-anchor">
-            🧠 <strong>Mental Anchor:</strong> PO là ý định trả tiền (chốt nợ hóa đơn nào), Transaction là lần thử thanh toán ngân hàng. Tách riêng để khách quét QR lỗi nhiều lần không làm phình tài liệu PO hay khóa lẫn nhau.
+            🧠 <strong>Mental Anchor:</strong> MongoDB documents have a 16MB cap. Separating Purchase Orders (intent) from Payment Transactions (immutable payment attempts) avoids document growth and keeps transactions append-only.
           </div>
         </div>
         <div class="lang-vi">
@@ -3192,10 +3192,10 @@ flowchart TD
         <div class="lang-en">
           <p style="margin-bottom: 0.5rem;"><strong>🎙️ Spoken Answer (Read out loud):</strong></p>
           <div style="font-style: italic; color: #1e293b; margin-bottom: 0.75rem; line-height: 1.6;">
-            ""We combine the <strong>Strategy Pattern with a dynamic Two-Tier CMS</strong>. Regional business teams update non-breaking parameters (VND currency limits, Thai VAT rates, branch offices) via Headless CMS without touching code. The API Gateway is completely stateless: it normalizes incoming banking webhooks and dispatches them to country-specific <strong>Temporal Child Workflows</strong> (e.g., <code>vn-hsbc-omni-to-sap</code> vs. <code>th-ai-wht-document-analysis</code>). Updating banking logic in Vietnam has zero blast radius on Thailand or China.""
+            ""We combine the <strong>Strategy Pattern with a dynamic Two-Tier CMS</strong>. Regional business teams update non-breaking parameters (VND currency limits, Thai VAT rates, branch offices) via Headless CMS without touching code. The API Gateway is completely stateless: it normalizes incoming banking webhooks and dispatches them to country-specific <strong>Temporal Child Workflows</strong> (e.g., <code>vn-hsbc-omni-to-sap</code> vs. <code>th-ai-wht-document-analysis</code>). Updating banking rules in Vietnam will never break or impact payments in Thailand or China.""
           </div>
           <div class="qa-anchor">
-            🧠 <strong>Mental Anchor:</strong> Áp dụng Strategy Pattern + Dynamic CMS. Cổng API hoàn toàn stateless, ngân hàng nước nào gửi webhook thì dispatch vào Temporal Workflow riêng của nước đó, cô lập hoàn toàn rủi ro.
+            🧠 <strong>Mental Anchor:</strong> Strategy Pattern with dynamic configuration. Adding or updating bank rails for Vietnam is isolated and has zero risk of breaking Thailand or China.
           </div>
         </div>
         <div class="lang-vi">
@@ -3235,7 +3235,7 @@ flowchart TD
             ""In Half-Open mode, we implement <strong>Request-Driven Passive Probing</strong> rather than active background health pings. When the cooldown timer expires (e.g., 30s), the breaker allows exactly one real incoming customer request through as a canary probe. If that real request succeeds, the circuit safely resets to CLOSED. If it fails or times out, the circuit immediately snaps back to OPEN for another 60 seconds. This avoids adding ping overhead to an already struggling bank or SAP backend.""
           </div>
           <div class="qa-anchor">
-            🧠 <strong>Mental Anchor:</strong> Ở trạng thái Half-Open, không bắn request rác thăm dò làm nghẽn thêm hệ thống đích. Đợi request thật đầu tiên của người dùng làm chuột bạch; nếu thành công thì mở lại mạch.
+            🧠 <strong>Mental Anchor:</strong> Circuit breaker Half-Open state uses request-driven passive probing instead of spamming ping requests, allowing gradual recovery without thundering herds.
           </div>
         </div>
         <div class="lang-vi">
@@ -3275,7 +3275,7 @@ flowchart TD
             ""We apply the <strong>Maritime Bulkhead Pattern</strong> to our database connection pools. Just as a container ship partitions its hull into watertight compartments to prevent sinking, we split our MongoDB connection pool into isolated compartments: <strong>35 dedicated slots for live port checkout and bank webhooks</strong>, 10 slots for heavy finance Excel reports, and 5 slots for background sync jobs. Even if finance queries 10 million audit rows, it saturates only its 10 slots—live QR checkout at port gates never experiences connection starvation.""
           </div>
           <div class="qa-anchor">
-            🧠 <strong>Mental Anchor:</strong> Áp dụng vách ngăn chống chìm tàu của ngành hàng hải: Chia nhỏ connection pool Mongo (35 slot cho quét mã QR cổng cảng, 10 slot cho xuất Excel báo cáo). Kế toán query nặng đến mấy cũng không làm nghẽn khách trả tiền.
+            🧠 <strong>Mental Anchor:</strong> Maritime Bulkhead Pattern: partition connection pools so heavy month-end finance Excel exports are quarantined to 10 slots, leaving customer checkout 100% fast in 35 dedicated slots.
           </div>
         </div>
         <div class="lang-vi">
@@ -3315,7 +3315,7 @@ flowchart TD
             ""Standard <code>Math.round()</code> rounds half-values upwards (2.5 -> 3, 1.5 -> 2), introducing a <strong>systematic positive statistical drift of tens of thousands of dollars annually</strong> across millions of freight items. IEEE 754 floating-point numbers also suffer binary precision errors (<code>0.1 + 0.2 = 0.30000000000000004</code>), failing SAP FI balance checks. We enforce arbitrary-precision math using <code>bignumber.js</code> configured with <strong>Banker's Rounding (<code>ROUND_HALF_EVEN</code>)</strong>, rounding half-values to the nearest even number to match SAP general ledger standards.""
           </div>
           <div class="qa-anchor">
-            🧠 <strong>Mental Anchor:</strong> Math.round làm tròn lên (2.5 -> 3, 1.5 -> 2) sẽ gây lệch dương hàng chục ngàn đô sau hàng triệu giao dịch. Dùng Banker's Rounding (ROUND_HALF_EVEN) làm tròn về số chẵn gần nhất, khớp 100% sổ cái SAP.
+            🧠 <strong>Mental Anchor:</strong> Standard IEEE floating point introduces rounding drift across large invoices. Use integer smallest currency units (cents) and Banker's rounding for penny-perfect financial clearing.
           </div>
         </div>
         <div class="lang-vi">
@@ -3355,7 +3355,7 @@ flowchart TD
             ""<strong>No, the platform continues operating with zero customer disruption.</strong> Incoming bank webhooks are acknowledged in 4.2ms by Go brokers and safely buffered in <strong>Temporal Task Queues and MongoDB collections</strong>. Containers are provisionally released because the customer's payment is cryptographically verified by the bank. When SAP comes back online, a <strong>Rate-Limited Catch-Up Worker throttles replay to a controlled 50 TPS</strong>. Unique composite constraints on SAP accounting keys guarantee <strong>zero duplicate postings</strong>.""
           </div>
           <div class="qa-anchor">
-            🧠 <strong>Mental Anchor:</strong> SAP bảo trì thì cổng thanh toán vẫn chạy bình thường. Webhook ngân hàng được Go broker đón trong 4.2ms và lưu vào Temporal. Khi SAP online lại, Catch-Up Worker xả hàng đợi ở mức 50 TPS có kiểm soát.
+            🧠 <strong>Mental Anchor:</strong> Platform stays 100% online during 24-hour SAP maintenance. Webhooks are acknowledged in 4.2ms by Go brokers and queued; Temporal Sagas safely resume once SAP comes back online.
           </div>
         </div>
         <div class="lang-vi">
@@ -3395,7 +3395,7 @@ flowchart TD
             ""We combine the <strong>Expand-Contract (Parallel Run) pattern with ArgoCD Sync Waves</strong>. In <code>Wave 0 (PreSync Hook)</code>, a Kubernetes Job executes the database migration to add new columns without modifying existing fields. If the migration fails, deployment halts before any new service pods are created. In <code>Wave 1</code>, new backend pods deploy and write to both legacy and new fields concurrently. In <code>Wave 2</code>, background workers backfill legacy documents. Only in a subsequent release cycle are legacy fields contracted and removed.""
           </div>
           <div class="qa-anchor">
-            🧠 <strong>Mental Anchor:</strong> Dùng mô hình Expand-Contract kết hợp ArgoCD Sync Waves. Wave 0 PreSync chạy K8s Job thêm cột mới vào DB trước. Nếu migration thành công mới deploy Pod mới ở Wave 1. Không bao giờ sửa cột cũ cùng lúc.
+            🧠 <strong>Mental Anchor:</strong> Expand-Contract pattern with ArgoCD Sync Waves. PreSync hook expands database schema backward-compatibly, deploys new code, then PostSync hook cleans up old columns with zero downtime.
           </div>
         </div>
         <div class="lang-vi">
@@ -3435,7 +3435,7 @@ flowchart TD
             ""We enforce <strong>Zero Blind Trust</strong> through 3 structural controls: First, an automated <strong>5% Random Post-Audit Engine</strong> routes 5% of all AI-cleared transactions to human accountants for side-by-side reconciliation. Second, all transaction logs are secured with <strong>Cryptographic HMAC-SHA256 Hash Chaining</strong>, stored in immutable WORM cloud storage with a 7-year retention policy. Third, any document with an AI extraction confidence score below 90% is automatically diverted to human review before SAP clearance, satisfying <strong>100% of Big-4 SOX 404 audit standards</strong>.""
           </div>
           <div class="qa-anchor">
-            🧠 <strong>Mental Anchor:</strong> Kiểm toán Big-4 không tin AI mù quáng. Cài 3 lớp khóa: Tự động trích 5% giao dịch AI đã duyệt cho kế toán người soi lại; ghi audit log băm xích HMAC-SHA256 chống sửa đổi; và nếu AI tự tin dưới 90% thì đẩy ngay cho người xử lý.
+            🧠 <strong>Mental Anchor:</strong> Zero Blind Trust in AI FinOps: AI never writes directly to SAP. Random 5% post-audit, cryptographic audit chains, and strict confidence thresholds prevent unreviewed clearing.
           </div>
         </div>
         <div class="lang-vi">
@@ -3474,14 +3474,14 @@ flowchart TD
           <div class="spoken-content-block">
             <div class="spoken-text lang-en">
               "To summarize, the architecture of the ONE Global E-Payment and AI FinOps platform represents three core engineering philosophies:<br><br>
-              <strong>First, FinTech Economics Over Default SaaS</strong>: By bypassing third-party aggregators and building direct domestic bank rails across 14 countries, we saved $25 million annually and achieved T+0 liquidity, eliminating container demurrage bottlenecks.<br><br>
+              <strong>First, FinTech Economics Over Default SaaS</strong>: By connecting directly to domestic bank networks across 14 countries instead of relying on third-party aggregators, we saved $25 million every year and got paid in seconds instead of days, eliminating container release bottlenecks at ports.<br><br>
               <strong>Second, Ruthless Ingestion Performance</strong>: Replacing Node.js event-loop cryptographic bottlenecks with a compiled Go broker and Redis distributed mutex dropped our webhook processing time to 4.2ms flat, preventing double-spending and providing an unbreakable foundation under high-concurrency peak traffic.<br><br>
               <strong>Third, Pragmatic AI Systems Engineering</strong>: Rather than using LLMs as slow, expensive black boxes, we engineered a deterministic pipeline combining C++ image optimization, Vertex AI RAM Context Caching, and Redis Vector Search to extract complex multi-country tax certificates in 258ms with 98.4% zero-touch automated clearing.<br><br>
               Ultimately, this platform transformed container release from a 2-day manual paper ordeal into an automated, sub-60-second cloud-native experience across global maritime ports."
             </div>
             <div class="spoken-text lang-vi">
               "Tóm lại, toàn bộ kiến trúc của hệ thống E-Payment và AI FinOps của ONE xoay quanh 3 trụ cột kỹ thuật lớn:<br><br>
-              <strong>Thứ nhất là Bài toán kinh tế thực tế ($25M tiết kiệm)</strong>: Không dùng Stripe/Adyen một cách rập khuôn, tụi em đấu nối thẳng cổng ngân hàng nội địa 14 nước, đưa tiền về ngay trong ngày (T+0) và tiết kiệm 25 triệu USD mỗi năm.<br><br>
+              <strong>Thứ nhất là Bài toán kinh tế thực tế ($25M tiết kiệm)</strong>: Thay vì phụ thuộc vào các cổng thanh toán trung gian, tụi em kết nối thẳng vào mạng ngân hàng nội địa 14 nước. Giải pháp này giúp công ty tiết kiệm 25 triệu USD mỗi năm, đưa tiền về tài khoản ngay trong vài giây và giải quyết dứt điểm tình trạng container bị giữ lại cảng.<br><br>
               <strong>Thứ hai là Hiệu năng tiếp nhận cực hạn (Go 4.2ms)</strong>: Dùng Golang thay Node.js để giải mã RSA đa luồng trên CPU và khóa Redis Mutex, đưa thời gian phản hồi webhook xuống 4.2ms, chống hoàn toàn rủi ro thanh toán trùng lặp trong giờ cao điểm.<br><br>
               <strong>Thứ ba là Ứng dụng AI thực dụng (Gemini RAM Cache 258ms)</strong>: Không dùng AI như chiếc hộp đen đắt đỏ, tụi em kết hợp C++ nén ảnh, Vertex RAM Context Caching và Redis Vector để bóc tách hóa đơn thuế trong 258ms, đạt 98.4% tự động gạch nợ SAP mà kế toán không cần làm tay.<br><br>
               Nhờ 3 trụ cột này, quy trình lấy container ngoài cảng được rút ngắn từ 2 ngày làm giấy tờ xuống còn dưới 60 giây hoàn toàn tự động."
