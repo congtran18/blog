@@ -3372,69 +3372,55 @@ flowchart TD
             </div>
           </div>
         </div>
-      <!-- SUBSECTION: ACTIVE FALLBACK POLLING FOR DROPPED HSBC WEBHOOKS -->
+              <!-- SUBSECTION: ACTIVE FALLBACK POLLING FOR DROPPED HSBC WEBHOOKS -->
         <div class="subsection-title" style="margin-top: 2rem;">
           <span>🔄</span>
-          <span class="lang-en">THE MISSING WEBHOOK SAFETY NET: ACTIVE FALLBACK STATUS POLLING FOR HSBC</span>
-          <span class="lang-vi">CƠ CHẾ ACTIVE POLLING CỨU MẠNG KHI WEBHOOK HSBC BỊ RỚT HOẶC KHÔNG GỬI ĐƯỢC</span>
+          <span class="lang-en">THE COMPLETE SAFETY NET: 2-TIER POLLING &amp; RECONCILIATION FOR HSBC</span>
+          <span class="lang-vi">HỆ THỐNG PHAO CỨU SINH TOÀN DIỆN: CƠ CHẾ 2 TẦNG POLLING &amp; ĐỐI SOÁT CHO HSBC</span>
         </div>
 
         <div class="highlight-box" style="border-left: 4px solid var(--accent-amber); background: var(--bg-surface-elevated); margin-bottom: 1.5rem; padding: 1.25rem 1.5rem; border-radius: 8px; box-shadow: var(--shadow-sm);">
           <div style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--accent-amber);">
-            <span class="lang-en">⚠️ The Dropped Webhook Problem: What If the Bank Fails to Send the Callback?</span>
-            <span class="lang-vi">⚠️ Sự cố Webhook bị rớt: Điều gì xảy ra nếu ngân hàng trừ tiền nhưng không bắn Webhook?</span>
+            <span class="lang-en">⚠️ Two Completely Different Problems: Real-Time Cargo Release vs. Daily Accounting Close</span>
+            <span class="lang-vi">⚠️ Hai bài toán hoàn toàn khác nhau: Giải phóng hàng tức thì vs. Đối soát kế toán cuối ngày</span>
           </div>
           <p class="lang-en" style="margin-bottom: 0.75rem; line-height: 1.6; color: var(--text-secondary);">
-            A common trap in fintech interviews is assuming webhooks are 100% reliable. In the real world, partner bank gateways (such as HSBC Omni-Collect) occasionally suffer network timeouts, dropped packets, or internal server restarts. 
-            The customer has already been debited $50,000 on their mobile banking app, and money has landed safely in ONE's corporate bank account. <strong>However, no webhook ever reaches our gateway!</strong> 
-            If the system only passively waits for webhooks, the transaction will hang in <code>WAITING_FOR_PAYMENT</code> forever, and the 30-ton container will remain trapped at the seaport gate.
+            In financial systems, engineers often ask: <em>"Why poll after 60 seconds instead of running a scheduled batch once a day or every few hours?"</em><br>
+            The answer lies in the fundamental difference between <strong>Physical Operations (Logistics)</strong> and <strong>Accounting Books (Finance)</strong>:<br>
+            • <strong>Why we CANNOT wait for daily/periodic polling:</strong> A 30-ton container truck driver is parked outside the seaport gate (e.g., Cat Lai or Laem Chabang) at 2:00 PM with the diesel engine running. The dynamic QR checkout session expires in 15 minutes. If HSBC deducts $50,000 from the payer but drops the webhook callback due to a transient gateway restart, <em>we cannot tell the truck driver to wait until 11:30 PM for the nightly batch job to release their container!</em> Delaying cargo causes terminal gridlock and demurrage penalties ($150-$300/day).<br>
+            • <strong>The 2-Tier Architectural Solution:</strong> We deploy <strong>Tier 1: In-Flight Real-Time Rescue Polling</strong> (proactive queries at 60s, 2m, 5m, 10m within the 15-minute checkout window) to unlock cargo immediately, coupled with <strong>Tier 2: End-of-Day (EOD) Batch Reconciliation</strong> (nightly at 23:30 via MT940/CAMT.053 bank statements) to balance general ledgers to the exact penny.
           </p>
           <p class="lang-vi" style="margin-bottom: 0.75rem; line-height: 1.6; color: var(--text-secondary);">
-            Một cái bẫy kinh điển khi phỏng vấn là cho rằng Webhook lúc nào cũng hoạt động 100%. Thực tế ngoài đời, cổng thanh toán của ngân hàng (như HSBC Omni-Collect) đôi khi bị rớt mạng, nghẽn đường truyền, hoặc server ngân hàng bị khởi động lại. 
-            Khách hàng đã bị trừ 50 triệu trên app điện thoại, tiền đã vào tài khoản ngân hàng của hãng tàu. <strong>Thế nhưng ngân hàng lại không gửi được Webhook báo tin sang hệ thống của chúng ta!</strong> 
-            Nếu hệ thống chỉ ngồi thụ động chờ Webhook, đơn hàng sẽ bị treo vĩnh viễn ở trạng thái chờ thanh toán, và thùng container 30 tấn sẽ bị kẹt cứng ngoài cổng cảng.
+            Trong thiết kế hệ thống tài chính, các kỹ sư thường đặt câu hỏi: <em>"Tại sao lại phải Polling sau 60 giây mà không đợi chạy batch theo chu kỳ vài tiếng hoặc 1 lần mỗi ngày?"</em><br>
+            Câu trả lời nằm ở sự khác biệt cốt lõi giữa <strong>Vận hành hàng hóa thực tế (Logistics)</strong> và <strong>Sổ sách kế toán (Finance)</strong>:<br>
+            • <strong>Tại sao KHÔNG THỂ chờ đối soát theo ngày:</strong> Bác tài xế xe đầu kéo chở thùng container 30 tấn đang đỗ nổ máy ngoài cổng cảng (Cát Lái, Laem Chabang) lúc 14:00 chiều. Phiên quét mã QR động chỉ có hạn sống trong 15 phút. Nếu khách hàng đã bị trừ 50 triệu nhưng HSBC bị rớt mạng không gửi Webhook, <em>chúng ta không thể bắt bác tài xế đỗ xe ngoài cổng chờ đến 23:30 đêm chạy mẻ batch đối soát cuối ngày mới phát lệnh nhả hàng!</em> Việc chậm trễ giao hàng sẽ làm tắc nghẽn cảng biển và phát sinh phí lưu kho bãi phạt hàng trăm USD/ngày.<br>
+            • <strong>Giải pháp kiến trúc 2 tầng:</strong> Chúng ta triển khai <strong>Tầng 1: Polling cứu hộ đơn lẻ thời gian thực (In-Flight)</strong> (thăm dò chủ động ở mốc 60s, 2m, 5m, 10m trong vòng 15 phút) để cấp lệnh nhả container tức thì, song hành cùng <strong>Tầng 2: Đối soát theo ngày (EOD Batch)</strong> (chạy định kỳ lúc 23:30 đêm qua file sao kê MT940/CAMT.053) để chốt cân bằng sổ cái kế toán chính xác đến từng xu.
           </p>
         </div>
 
-        <p class="lang-en" style="color: var(--text-secondary); margin-bottom: 1.25rem; line-height: 1.6;">
-          To guarantee zero trapped shipments, the platform implements an <strong>Active Status Polling Reconciliation Engine</strong>. It works as an automated safety net alongside real-time webhooks:
-        </p>
-        <p class="lang-vi" style="color: var(--text-secondary); margin-bottom: 1.25rem; line-height: 1.6;">
-          Để bảo đảm không bao giờ có container bị kẹt, hệ thống thiết lập một <strong>Bộ quét Polling chủ động (Active Status Polling Reconciliation Engine)</strong> đóng vai trò như một chiếc phao cứu sinh chạy song song với Webhook:
-        </p>
-
-        <!-- FIGURE: HSBC ACTIVE POLLING FLOW -->
+        <!-- FIGURE: 2-TIER POLLING ARCHITECTURE -->
         <div class="diagram-container">
           <div class="diagram-header">
-            <span>⚡ FIGURE: HSBC MISSING WEBHOOK RECOVERY VIA ACTIVE POLLING</span>
+            <span>⚡ FIGURE: 2-TIER HSBC RECONCILIATION ARCHITECTURE (IN-FLIGHT RESCUE VS. EOD BATCH)</span>
             <button class="copy-btn">Copy Diagram</button>
           </div>
           <div class="diagram-body">
             <pre class="mermaid">
 flowchart TD
-    Customer["🚢 Customer Mobile App"] -->|"1. Scan QR & Transfer Funds"| HSBC["🏦 HSBC Omni-Collect Rail"]
-    HSBC -.->|"❌ 2. Webhook Fails to Send
-(Network partition / Dropped packet)"| DeadEnd["💥 LOST IN FLIGHT"]
-    
-    subgraph PollingEngine["Active Fallback Polling Worker (Every 60s)"]
-        Scan["3. Scan orders stuck in WAITING_FOR_PAYMENT > 60s"] --> CallHSBC["4. Query HSBC API:
-GET /v1/payments/query/{referenceId}"]
-        CallHSBC --> HSBCResp{"HSBC Response?"}
-        
-        HSBCResp -- "SUCCESS (Funds Cleared)" --> GrabLock["5. Grab Redis Mutex Lock (MSETNX)
-lock:payment:{invoice_id}"]
-        GrabLock --> LockCheck{"Lock Acquired?"}
-        
-        LockCheck -- "YES" --> Synthesize["6. Synthesize Verified Payment Event
-Mark as PAID_VIA_POLLING"]
-        Synthesize --> DispatchTemporal["7. Dispatch Signal to Temporal (vnHsbcOmniToSAP)
-➔ AI Tax ➔ SAP Clearing ➔ Port e-D/O Release"]
-        
-        LockCheck -- "NO (Webhook arrived concurrently)" --> DropPoll["Safely drop query
-(Zero duplicate processing)"]
-        
-        HSBCResp -- "PENDING / NOT_FOUND" --> Backoff["Wait for next exponential poll cycle
-(2m, 5m, 10m until 15m TTL)"]
+    Customer["Customer Mobile Banking"] -->|"1. Scan QR & Transfer $50k"| HSBC["HSBC Omni-Collect Rail"]
+    HSBC -.->|"2. Webhook Dropped / Network Glitch"| DeadAir["ZERO WEBHOOK RECEIVED"]
+
+    subgraph Tier1["TIER 1: In-Flight Rescue Polling (Within 15-Minute Checkout Session)"]
+        Grace["3. Wait 60s Grace Period<br/>(Order stuck in WAITING_FOR_PAYMENT)"] --> PollAPI["4. Query HSBC Single Inquiry API:<br/>GET /v1/payments/query/{referenceId}"]
+        PollAPI --> Resp{"HSBC Status?"}
+        Resp -- "SUCCESS (Paid)" --> Lock["5. Acquire Redis Mutex Lock<br/>lock:payment:{invoice_id}"]
+        Lock --> Signal["6. Dispatch Signal to Temporal (vnHsbcOmniToSAP)<br/>Instant Port e-D/O Release in under 60-120s!"]
+        Resp -- "PENDING" --> Backoff["7. Exponential Backoff Queries<br/>(Probe at 2m, 5m, 10m until 15m session TTL expires)"]
+    end
+
+    subgraph Tier2["TIER 2: Daily End-of-Day (EOD) Batch Reconciliation (23:30 Nightly)"]
+        SFTP["8. Pull Bank Statement via SFTP<br/>(MT940 / CAMT.053 XML at 23:30)"] --> Parse["9. Match 10,000+ Bank Ledger Records against MongoDB & SAP"]
+        Parse --> Settle["10. Settle Bank Fee Variances, Catch Zombie Outliers & Close Ledger"]
     end
 
     classDef normal fill:#f8fafc,stroke:#64748b,stroke-width:1.5px,color:#0f172a;
@@ -3442,54 +3428,117 @@ Mark as PAID_VIA_POLLING"]
     classDef warning fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#0f172a;
     classDef error fill:#fee2e2,stroke:#ef4444,stroke-width:2px,color:#0f172a;
 
-    class Customer,Scan,CallHSBC normal;
-    class GrabLock,Synthesize,DispatchTemporal success;
-    class Backoff,DropPoll warning;
-    class DeadEnd error;
+    class Customer,Grace,PollAPI,SFTP,Parse normal;
+    class Lock,Signal,Settle success;
+    class Backoff warning;
+    class DeadAir error;
             </pre>
           </div>
         </div>
 
         <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem; margin-bottom: 1.5rem;">
 
+          <!-- CARD 1: TIER 1 IN-FLIGHT RESCUE -->
           <div style="border: 1px solid var(--border-subtle); border-left: 4px solid var(--accent-green); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
             <div style="font-weight: 700; color: var(--accent-green); font-size: 0.95rem; margin-bottom: 0.5rem;">
-              <span class="lang-en">1. Scheduled Grace Period Trigger (> 60 Seconds)</span>
-              <span class="lang-vi">1. Cơ chế kích hoạt sau thời gian chờ (60 giây)</span>
+              <span class="lang-en">Tier 1: In-Flight Real-Time Rescue Polling (Mission: Cargo Release SLA &lt; 60s)</span>
+              <span class="lang-vi">Tầng 1: Polling cứu hộ thời gian thực trong phiên (Sứ mệnh: Nhả hàng container SLA &lt; 60s)</span>
             </div>
             <p class="lang-en" style="margin: 0; font-size: 0.9rem; line-height: 1.6; color: var(--text-secondary);">
-              The system does not spam the bank with immediate polls. It grants a <strong>60-second grace period</strong> for normal webhooks to arrive in 4.2ms. If an order remains in <code>WAITING_FOR_PAYMENT</code> after 60 seconds, a background polling worker picks it up and queries HSBC's secure Transaction Inquiry API via mutual TLS (mTLS).
+              • <strong>Why 60s Grace Period?</strong> 99% of normal webhooks arrive within 4.2ms. We deliberately wait 60 seconds before probing HSBC so we do not flood the bank gateway with premature requests. If an order remains in <code>WAITING_FOR_PAYMENT</code> after 60 seconds, it is mathematically anomalous and flagged as a dropped webhook.<br>
+              • <strong>Short Lifecycle &amp; Controlled Backoff:</strong> Polling does not run forever. A lightweight worker queries HSBC's Single Payment Inquiry API on a controlled schedule: <strong>60s ➔ 2m ➔ 5m ➔ 10m</strong>. As soon as HSBC confirms payment, the worker grabs the Redis Mutex lock, signals Temporal, and releases the seaport Delivery Order (e-D/O) in under 60-120 seconds. If the 15-minute checkout window expires without payment, the session cancels and the invoice is unlocked.
             </p>
             <p class="lang-vi" style="margin: 0; font-size: 0.9rem; line-height: 1.6; color: var(--text-secondary);">
-              Hệ thống không spam ngân hàng ngay lập tức mà cho phép một **khoảng thời gian chờ 60 giây** để Webhook bình thường có cơ hội gửi đến trong 4.2ms. Nếu sau 60 giây mà đơn hàng vẫn ở trạng thái chờ thanh toán, một worker chạy ngầm sẽ lấy đơn đó ra và chủ động gọi sang API tra cứu của HSBC qua kết nối bảo mật mTLS.
+              • <strong>Vì sao là 60 giây chờ (Grace Period)?</strong> 99% webhook bình thường sẽ đến trong 4.2ms. Hệ thống chủ động đợi đúng 60 giây trước khi bắt đầu hỏi thăm ngân hàng để tránh spam quá tải cổng HSBC. Nếu sau 60 giây mà hóa đơn vẫn ở trạng thái chờ thanh toán, đây là dấu hiệu chắc chắn Webhook đã bị nghẽn hoặc rớt.<br>
+              • <strong>Vòng đời ngắn &amp; Tần suất giãn dần:</strong> Worker không thăm dò vô tận. Nó chỉ tra cứu API đơn lẻ của HSBC theo lịch trình kiểm soát: <strong>60 giây ➔ 2 phút ➔ 5 phút ➔ 10 phút</strong>. Ngay khi HSBC báo tiền đã vào, worker lập tức chiếm khóa Redis Mutex, báo sang Temporal và cấp lệnh giao hàng điện tử (e-D/O) cho tài xế trong vòng chưa đầy 1-2 phút. Nếu sau 15 phút vẫn chưa thanh toán, phiên QR tự hủy và trả lại hóa đơn cho khách.
             </p>
           </div>
 
+          <!-- CARD 2: TIER 2 EOD BATCH RECONCILIATION -->
           <div style="border: 1px solid var(--border-subtle); border-left: 4px solid var(--accent-blue); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
             <div style="font-weight: 700; color: var(--accent-blue); font-size: 0.95rem; margin-bottom: 0.5rem;">
-              <span class="lang-en">2. Race Condition Prevention: Mutex Lock Resolves Webhook vs. Polling Conflicts</span>
-              <span class="lang-vi">2. Chống xung đột mạng: Khóa Mutex phân xử giữa Webhook và Polling</span>
+              <span class="lang-en">Tier 2: Daily End-of-Day (EOD) Batch Reconciliation (Mission: Financial Audit &amp; Ledger Close)</span>
+              <span class="lang-vi">Tầng 2: Đối soát theo ngày EOD Batch Reconciliation (Sứ mệnh: Chốt sổ cái &amp; Kiểm toán tài chính)</span>
             </div>
             <p class="lang-en" style="margin: 0; font-size: 0.9rem; line-height: 1.6; color: var(--text-secondary);">
-              <em>What happens if HSBC's delayed webhook arrives at the exact same millisecond that our polling worker queries the bank?</em><br>
-              The <strong>Redis Mutex Lock (<code>MSETNX</code>)</strong> guarantees safety. Whichever thread reaches the lock first (the delayed webhook or the polling worker) acquires the lock and initiates the Temporal clearing workflow. The second thread fails to acquire the lock, detects that the session is already cleared, and safely drops out. This guarantees zero duplicate ledger postings on SAP.
+              • <strong>Why Daily at 23:30?</strong> Banks do not issue official accounting statements second-by-second. At the close of each banking business day, HSBC generates certified digital statement files (standard <strong>SWIFT MT940 or ISO 20022 CAMT.053 XML</strong>) and uploads them to an enterprise SFTP vault.<br>
+              • <strong>3-Way Matching with SAP:</strong> At 23:30 nightly, a scheduled batch job downloads the bank statement, parsing 10,000+ settled line items. It reconciles bank transaction references against MongoDB orders and SAP FI-AR accounts receivable. It catches merchant fee deductions (e.g. 0.15% gateway fee), currency conversion fractional variances, and untagged direct bank transfers, balancing corporate books to 100.00% precision for SOX 404 audit compliance.
             </p>
             <p class="lang-vi" style="margin: 0; font-size: 0.9rem; line-height: 1.6; color: var(--text-secondary);">
-              <em>Điều gì xảy ra nếu đúng lúc Polling worker đang gọi ngân hàng thì Webhook của HSBC đột ngột bắn tới cùng 1 mili-giây?</em><br>
-              Khóa nguyên tử **Redis Mutex (<code>MSETNX</code>)** sẽ bảo vệ hệ thống. Bên nào chạm vào khóa trước (Webhook đến muộn hoặc Polling worker) thì chiếm được khóa và kích hoạt workflow Temporal. Bên đến sau bị trượt khóa sẽ thấy đơn hàng đã được xử lý và tự động rút lui. Tuyệt đối không bao giờ có chuyện gạch nợ 2 lần trên SAP.
+              • <strong>Tại sao lại chạy định kỳ lúc 23:30 đêm?</strong> Ngân hàng không phát hành file sao kê pháp lý theo từng giây. Cuối mỗi ngày làm việc, HSBC mới tổng hợp toàn bộ giao dịch vào các file sao kê điện tử có giá trị pháp lý (chuẩn <strong>SWIFT MT940 hoặc ISO 20022 CAMT.053 XML</strong>) và đẩy lên máy chủ SFTP doanh nghiệp.<br>
+              • <strong>Đối soát 3 bên với SAP:</strong> Đúng 23:30 đêm, một batch job tự động kéo file sao kê về, bóc tách hơn 10,000 dòng giao dịch. Hệ thống thực hiện đối soát 3 chiều giữa sao kê ngân hàng, dữ liệu MongoDB và sổ cái kế toán SAP FI-AR. Cơ chế này tự động xử lý khấu trừ phí thanh toán ngân hàng (ví dụ phí cổng 0.15%), chênh lệch tỷ giá làm tròn số thập phân, và các khoản tiền chuyển khoản trực tiếp không qua QR, đảm bảo cân đối sổ sách 100.00% phục vụ kiểm toán SOX 404.
             </p>
           </div>
 
+          <!-- CARD 3: COMPARISON MATRIX TABLE -->
           <div style="border: 1px solid var(--border-subtle); border-left: 4px solid var(--accent-purple); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
-            <div style="font-weight: 700; color: var(--accent-purple); font-size: 0.95rem; margin-bottom: 0.5rem;">
-              <span class="lang-en">3. Seamless Hand-Off to Temporal Orchestration</span>
-              <span class="lang-vi">3. Bàn giao mượt mà sang Bộ điều phối Temporal</span>
+            <div style="font-weight: 700; color: var(--accent-purple); font-size: 0.95rem; margin-bottom: 0.75rem;">
+              <span class="lang-en">Side-by-Side Comparison: In-Flight Rescue Polling vs. Daily EOD Batch Reconciliation</span>
+              <span class="lang-vi">Bảng so sánh trực diện: Polling cứu hộ trong phiên (Tier 1) vs. Đối soát theo ngày (Tier 2)</span>
+            </div>
+            <div style="overflow-x: auto;">
+              <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary);">
+                <thead>
+                  <tr style="border-bottom: 2px solid var(--border-subtle); text-align: left;">
+                    <th style="padding: 0.5rem 0.75rem; color: var(--text-primary);"><span class="lang-en">Dimension</span><span class="lang-vi">Tiêu chí</span></th>
+                    <th style="padding: 0.5rem 0.75rem; color: var(--accent-green);"><span class="lang-en">Tier 1: In-Flight Rescue Polling</span><span class="lang-vi">Tầng 1: Polling cứu hộ trong phiên</span></th>
+                    <th style="padding: 0.5rem 0.75rem; color: var(--accent-blue);"><span class="lang-en">Tier 2: Daily EOD Batch Reconciliation</span><span class="lang-vi">Tầng 2: Đối soát theo ngày (EOD Batch)</span></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr style="border-bottom: 1px solid var(--border-subtle);">
+                    <td style="padding: 0.5rem 0.75rem; font-weight: 600; color: var(--text-primary);"><span class="lang-en">Primary Goal</span><span class="lang-vi">Mục tiêu cốt lõi</span></td>
+                    <td style="padding: 0.5rem 0.75rem;"><span class="lang-en">Release 30-ton container at seaport gate</span><span class="lang-vi">Nhả hàng container 30 tấn tại cổng cảng</span></td>
+                    <td style="padding: 0.5rem 0.75rem;"><span class="lang-en">Close general ledger &amp; financial audit</span><span class="lang-vi">Khóa sổ cái tài chính &amp; kiểm toán doanh nghiệp</span></td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid var(--border-subtle);">
+                    <td style="padding: 0.5rem 0.75rem; font-weight: 600; color: var(--text-primary);"><span class="lang-en">Trigger Timing</span><span class="lang-vi">Thời điểm kích hoạt</span></td>
+                    <td style="padding: 0.5rem 0.75rem;"><span class="lang-en">60s grace period after payment initiated</span><span class="lang-vi">60 giây sau khi khách hàng tạo lệnh thanh toán</span></td>
+                    <td style="padding: 0.5rem 0.75rem;"><span class="lang-en">Nightly at 23:30 (EOD schedule)</span><span class="lang-vi">Định kỳ 23:30 mỗi đêm (kết thúc ngày làm việc)</span></td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid var(--border-subtle);">
+                    <td style="padding: 0.5rem 0.75rem; font-weight: 600; color: var(--text-primary);"><span class="lang-en">Polling Schedule</span><span class="lang-vi">Chu kỳ lặp lại</span></td>
+                    <td style="padding: 0.5rem 0.75rem;"><span class="lang-en">Short: 60s ➔ 2m ➔ 5m ➔ 10m (Max 15 mins)</span><span class="lang-vi">Ngắn: 60s ➔ 2m ➔ 5m ➔ 10m (Tối đa 15 phút)</span></td>
+                    <td style="padding: 0.5rem 0.75rem;"><span class="lang-en">Once per 24-hour business cycle</span><span class="lang-vi">1 lần duy nhất trong chu kỳ 24 giờ</span></td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid var(--border-subtle);">
+                    <td style="padding: 0.5rem 0.75rem; font-weight: 600; color: var(--text-primary);"><span class="lang-en">Communication Protocol</span><span class="lang-vi">Giao thức kết nối</span></td>
+                    <td style="padding: 0.5rem 0.75rem;"><span class="lang-en">REST HTTPS / mTLS Single Query API</span><span class="lang-vi">REST HTTPS / mTLS Single Query API</span></td>
+                    <td style="padding: 0.5rem 0.75rem;"><span class="lang-en">SFTP File Transfer (MT940 / CAMT.053 XML)</span><span class="lang-vi">SFTP File Transfer (MT940 / CAMT.053 XML)</span></td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid var(--border-subtle);">
+                    <td style="padding: 0.5rem 0.75rem; font-weight: 600; color: var(--text-primary);"><span class="lang-en">Query Payload Scope</span><span class="lang-vi">Quy mô dữ liệu</span></td>
+                    <td style="padding: 0.5rem 0.75rem;"><span class="lang-en">1 specific transaction (by referenceId)</span><span class="lang-vi">Đúng 1 giao dịch đơn lẻ (theo referenceId)</span></td>
+                    <td style="padding: 0.5rem 0.75rem;"><span class="lang-en">All 10,000+ transactions of the entire day</span><span class="lang-vi">Toàn bộ 10,000+ giao dịch trong ngày</span></td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid var(--border-subtle);">
+                    <td style="padding: 0.5rem 0.75rem; font-weight: 600; color: var(--text-primary);"><span class="lang-en">Concurrency Protection</span><span class="lang-vi">Bảo vệ tranh chấp</span></td>
+                    <td style="padding: 0.5rem 0.75rem;"><span class="lang-en">Redis Mutex Lock (<code>MSETNX</code>) vs. late webhook</span><span class="lang-vi">Khóa Redis Mutex (<code>MSETNX</code>) chặn webhook đến muộn</span></td>
+                    <td style="padding: 0.5rem 0.75rem;"><span class="lang-en">Idempotent MongoDB ledger reconciliation key</span><span class="lang-vi">Khóa idempotent đối soát sổ cái trên MongoDB</span></td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 0.5rem 0.75rem; font-weight: 600; color: var(--text-primary);"><span class="lang-en">Downstream Action</span><span class="lang-vi">Hành động kích hoạt</span></td>
+                    <td style="padding: 0.5rem 0.75rem;"><span class="lang-en">Signal Temporal ➔ Release Port e-D/O instantly</span><span class="lang-vi">Bắn tín hiệu Temporal ➔ Cấp e-D/O nhả hàng tức thì</span></td>
+                    <td style="padding: 0.5rem 0.75rem;"><span class="lang-en">Auto-generate SAP FI-AR journal adjustments</span><span class="lang-vi">Tự động sinh bút toán bù trừ sai lệch trên SAP FI-AR</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- CARD 4: CONCURRENCY RACE CONDITION SHIELD -->
+          <div style="border: 1px solid var(--border-subtle); border-left: 4px solid var(--accent-amber); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
+            <div style="font-weight: 700; color: var(--accent-amber); font-size: 0.95rem; margin-bottom: 0.5rem;">
+              <span class="lang-en">Race Condition Shield: Mutex Lock Resolves Webhook vs. Polling Collisions</span>
+              <span class="lang-vi">Lá chắn phân xử: Khóa Mutex triệt tiêu xung đột giữa Webhook đến muộn và Polling</span>
             </div>
             <p class="lang-en" style="margin: 0; font-size: 0.9rem; line-height: 1.6; color: var(--text-secondary);">
-              Once HSBC returns <code>STATUS: SUCCESS</code> with the bank's transaction reference and settlement timestamp, the polling worker synthesizes a valid payment event and dispatches the signal into Temporal (<code>vnHsbcOmniToSAP</code>). Downstream systems (AI tax extraction, SAP clearing, port e-D/O release) execute exactly the same as if a normal webhook had arrived!
+              <em>What happens if HSBC's delayed webhook arrives at the exact same millisecond that our 60-second polling worker queries the bank?</em><br>
+              The <strong>Redis Mutex Lock (<code>MSETNX lock:payment:{invoice_id}</code>)</strong> guarantees total atomicity. Whichever thread reaches the lock first (the delayed webhook or the polling worker) acquires the lock, sets the state to processing, and initiates the Temporal clearing workflow. The second thread fails to acquire the lock, detects that the invoice is already cleared, and safely drops out. This guarantees zero duplicate ledger postings on SAP.
             </p>
             <p class="lang-vi" style="margin: 0; font-size: 0.9rem; line-height: 1.6; color: var(--text-secondary);">
-              Ngay khi HSBC trả về kết quả <code>SUCCESS</code> kèm mã tham chiếu và mốc thời gian trừ tiền của ngân hàng, polling worker tạo một sự kiện thanh toán hợp lệ và bắn tín hiệu vào Temporal (<code>vnHsbcOmniToSAP</code>). Toàn bộ các bước phía sau (đọc thuế AI, gạch nợ SAP, cấp lệnh cảng e-D/O) tiếp tục chạy bình thường như thể vừa nhận được Webhook chuẩn!
+              <em>Điều gì xảy ra nếu đúng lúc Polling worker đang gọi ngân hàng sau 60 giây thì Webhook của HSBC đột ngột bắn tới cùng 1 mili-giây?</em><br>
+              Khóa nguyên tử <strong>Redis Mutex (<code>MSETNX lock:payment:{invoice_id}</code>)</strong> bảo đảm tính toàn vẹn tuyệt đối. Bên nào chạm vào khóa trước (Webhook đến muộn hoặc Polling worker) sẽ chiếm khóa, đánh dấu trạng thái đang xử lý và kích hoạt workflow Temporal. Bên đến sau bị trượt khóa sẽ thấy hóa đơn đã được xử lý xong và tự động rút lui trong yên lặng. Hoàn toàn không bao giờ có chuyện gạch nợ hoặc ghi nhận tiền vào 2 lần trên SAP.
             </p>
           </div>
 
@@ -3497,12 +3546,12 @@ Mark as PAID_VIA_POLLING"]
 
         <div class="mental-anchor-box" style="margin-bottom: 2rem;">
           <span class="lang-en">
-            🧠 <strong>Interview Gold: Webhook First, Active Polling Fallback:</strong><br>
-            "Never rely 100% on banking webhooks. We use <strong>Event-Driven Webhooks for 99% of transactions (4.2ms)</strong>, backed by an <strong>Active Status Polling Worker</strong> that queries HSBC after 60 seconds for dropped webhooks. Redis Mutex locks ensure zero race conditions between delayed webhooks and active queries."
+            🧠 <strong>Interview Gold: Why 60s for Cargo, Daily for Accounting:</strong><br>
+            "Remember the operational difference: <strong>In-Flight 60s Polling</strong> saves the physical truck driver waiting at the port gate right now (SLA &lt; 60s). <strong>Daily 23:30 Batch Reconciliation</strong> balances the Chief Accountant's general ledger (MT940/CAMT.053). A production fintech system needs BOTH!"
           </span>
           <span class="lang-vi">
-            🧠 <strong>Câu nói vàng khi phỏng vấn: Webhook trước, Polling quét bù sau:</strong><br>
-            "Không bao giờ tin tưởng 100% vào Webhook của ngân hàng. Hệ thống của tụi em dùng **Webhook cho 99% giao dịch thời gian thực (4.2ms)**, nhưng bắt buộc có một **Active Polling Worker** chủ động gọi sang HSBC sau 60 giây để cứu các đơn bị rơi Webhook. Khóa Redis Mutex bảo đảm không bao giờ bị xung đột giữa Webhook đến muộn và Polling."
+            🧠 <strong>Câu nói vàng khi phỏng vấn: Vì sao 60s để cứu hàng, theo ngày để chốt sổ:</strong><br>
+            "Hãy nhớ rõ sự khác biệt nghiệp vụ: **Polling 60s trong phiên (In-Flight)** là để cứu bác tài xế xe tải đang nổ máy chờ ngoài cổng cảng (SLA dưới 60s). Còn **Đối soát theo ngày lúc 23:30 (EOD Batch)** là để kế toán trưởng chốt cân bằng sổ cái tài chính qua file sao kê MT940. Một hệ thống tài chính thực chiến bắt buộc phải có CẢ HAI!"
           </span>
         </div>
       </section>
