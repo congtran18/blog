@@ -1308,47 +1308,47 @@ tr:hover td {
           </p>
           <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 0.75rem;">
             <div class="card" style="padding: 0.85rem; background: #ffffff; border-left: 3px solid #7c3aed;">
-              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">1. 100k CCU Capacity</div>
+              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">1. Handling 100k Concurrent Calls Smoothly (Xử lý 100k cuộc gọi cùng lúc)</div>
               <div style="font-size: 0.8rem; color: #64748b;">Asynchronous queuing with RabbitMQ &amp; BullMQ prevents telephony bottlenecks.</div>
             </div>
             <div class="card" style="padding: 0.85rem; background: #ffffff; border-left: 3px solid #0284c7;">
-              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">2. &lt;10ms Ingestion</div>
+              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">2. Sub-10ms Fast Handshake (Tiếp nhận sự kiện siêu tốc &lt; 10ms)</div>
               <div style="font-size: 0.8rem; color: #64748b;">Verifies HMAC and pushes raw payload straight to queue; returns 200 OK immediately.</div>
             </div>
             <div class="card" style="padding: 0.85rem; background: #ffffff; border-left: 3px solid #059669;">
-              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">3. Token Bucket via Lua</div>
+              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">3. Regulating 200 Calls/Sec Speed Limit (Điều tiết tốc độ gọi chống nghẽn nhà mạng)</div>
               <div style="font-size: 0.8rem; color: #64748b;">Atomic Redis script enforces strict 50-200 calls/sec limits across 50 pods.</div>
             </div>
             <div class="card" style="padding: 0.85rem; background: #ffffff; border-left: 3px solid #d97706;">
-              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">4. Redis Redlock on CallSid</div>
+              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">4. Mutual Lock on Active Calls (Khóa chống đảo lộn trạng thái cuộc gọi)</div>
               <div style="font-size: 0.8rem; color: #64748b;">Prevents out-of-order Twilio callbacks from corrupting call lifecycle state.</div>
             </div>
             <div class="card" style="padding: 0.85rem; background: #ffffff; border-left: 3px solid #4f46e5;">
-              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">5. gRPC over HTTP/2</div>
+              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">5. Compact Binary Communication (Giao tiếp nội bộ siêu nhẹ cắt giảm 30% độ trễ)</div>
               <div style="font-size: 0.8rem; color: #64748b;">FastAPI and Node.js exchange Protobuf binaries, cutting latency by 30%.</div>
             </div>
             <div class="card" style="padding: 0.85rem; background: #ffffff; border-left: 3px solid #e11d48;">
-              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">6. 3-Tier RabbitMQ DLX</div>
+              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">6. 3-Tier Retries for Failed Calls (3 tầng thử lại và cách ly cuộc gọi lỗi)</div>
               <div style="font-size: 0.8rem; color: #64748b;">Instant retry ➔ 10s delay ➔ 60s delay ➔ Poison Pill DLQ prevents worker crashloops.</div>
             </div>
             <div class="card" style="padding: 0.85rem; background: #ffffff; border-left: 3px solid #059669;">
-              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">7. Full Jitter Backoff</div>
+              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">7. Randomized Retry Timing (Giãn cách thời gian thử lại để không làm sập server)</div>
               <div style="font-size: 0.8rem; color: #64748b;">Randomized retry intervals eliminate thundering herd spikes against downstream APIs.</div>
             </div>
             <div class="card" style="padding: 0.85rem; background: #ffffff; border-left: 3px solid #7c3aed;">
-              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">8. Opossum Circuit Breaker</div>
+              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">8. Automatic Safety Fuse on Partner Errors (Cầu chì tự ngắt khi đối tác lỗi)</div>
               <div style="font-size: 0.8rem; color: #64748b;">Fails fast when error rate exceeds 50% over 10s; 30s half-open cooldown.</div>
             </div>
             <div class="card" style="padding: 0.85rem; background: #ffffff; border-left: 3px solid #0284c7;">
-              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">9. MongoDB Write Concerns</div>
+              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">9. Fast Logs vs. Guaranteed Billing Data (Lưu log siêu tốc vs. Khóa chặt tiền cước)</div>
               <div style="font-size: 0.8rem; color: #64748b;">{w: 1} for 100k ops/sec raw logs; {w: "majority", j: true} for campaign billing data.</div>
             </div>
             <div class="card" style="padding: 0.85rem; background: #ffffff; border-left: 3px solid #d97706;">
-              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">10. Connection Pool Sizing</div>
+              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">10. Capping Database Sockets (Giới hạn kết nối để chống cháy RAM cơ sở dữ liệu)</div>
               <div style="font-size: 0.8rem; color: #64748b;">maxPoolSize=25 across 50 pods = ~1,600 sockets; well below Atlas M60 limits.</div>
             </div>
             <div class="card" style="padding: 0.85rem; background: #ffffff; border-left: 3px solid #4f46e5;">
-              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">11. KEDA Queue Depth Autoscaling</div>
+              <div style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">11. Auto-Adding Servers When Queues Fill (Tự động bật thêm máy chủ khi hàng đợi đầy)</div>
               <div style="font-size: 0.8rem; color: #64748b;">Scales pods 5 ➔ 50 within seconds based on RabbitMQ backlog depth (&gt;1,000 msgs).</div>
             </div>
             <div class="card" style="padding: 0.85rem; background: #ffffff; border-left: 3px solid #e11d48;">

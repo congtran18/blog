@@ -1201,7 +1201,7 @@ tr:hover td {
                   <th style="padding: 0.65rem 0.85rem; width: 18%;">Best Practice Domain</th>
                   <th style="padding: 0.65rem 0.85rem; width: 25%; color: #dc2626;">❌ Naive / Anti-Pattern Approach</th>
                   <th style="padding: 0.65rem 0.85rem; width: 32%; color: #059669;">✅ Our Production Architecture</th>
-                  <th style="padding: 0.65rem 0.85rem; width: 25%;">Impact &amp; Interview Buzzwords</th>
+                  <th style="padding: 0.65rem 0.85rem; width: 25%;">Measurable Impact &amp; Simple Spoken Explanation</th>
                 </tr>
               </thead>
               <tbody>
@@ -1221,7 +1221,7 @@ tr:hover td {
                   <td style="padding: 0.65rem 0.85rem; font-weight: 700;">3. Network Clock Decoupling</td>
                   <td style="padding: 0.65rem 0.85rem; color: #64748b;">Holding ClickHouse insert open while streaming over WAN. Latency blips trigger <strong>Code 209 (receive_timeout)</strong>.</td>
                   <td style="padding: 0.65rem 0.85rem; font-weight: 600; color: #0f172a;"><strong>Decoupled Clocks</strong>: Accumulates full 50,000 rows in RAM first, then flushes locally in milliseconds.</td>
-                  <td style="padding: 0.65rem 0.85rem;"><span class="badge badge-purple">Clock Decoupling</span> Zero connection timeouts, completely isolated from cloud WAN jitter.</td>
+                  <td style="padding: 0.65rem 0.85rem;"><div style="font-weight:600; color:#7c3aed; margin-bottom:2px;">Separate Download &amp; Write</div><div style="font-size:0.75rem; color:#475569;">"Download network data and write to disk in separate steps so network blips never cause timeouts."</div> Zero connection timeouts, completely isolated from cloud WAN jitter.</td>
                 </tr>
                 <tr style="border-bottom: 1px solid var(--border-light); background: #fbfcfe;">
                   <td style="padding: 0.65rem 0.85rem; font-weight: 700;">4. Source-Side Deduplication</td>
@@ -1435,7 +1435,7 @@ tr:hover td {
         <!-- Memory Anchors: 16 Key Points -->
         <div style="margin-top: 1.5rem; background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.5rem;">
           <h3 style="font-size: 1.15rem; font-weight: 700; color: #0f172a; margin-bottom: 0.75rem;">
-            🧠 16 Memory Anchors: Problem &rarr; Architecture Fix &rarr; Metric &rarr; Buzzword
+            🧠 16 Core Capabilities: Problem &rarr; Practical Fix &rarr; Metric &rarr; Simple Spoken Pitch
           </h3>
           <div style="overflow-x: auto;">
             <table class="data-table" style="width: 100%; border-collapse: collapse; font-size: 0.82rem;">
@@ -1445,7 +1445,7 @@ tr:hover td {
                   <th style="padding: 0.65rem 0.85rem;">Domain Problem</th>
                   <th style="padding: 0.65rem 0.85rem;">Architecture Fix</th>
                   <th style="padding: 0.65rem 0.85rem;">Measurable Metric</th>
-                  <th style="padding: 0.65rem 0.85rem;">Buzzword to Say</th>
+                  <th style="padding: 0.65rem 0.85rem;">How to Explain Simply in Plain Words</th>
                 </tr>
               </thead>
               <tbody>
@@ -1454,42 +1454,42 @@ tr:hover td {
                   <td style="padding: 0.65rem 0.85rem;">Massive storage bloat from raw JSON</td>
                   <td style="padding: 0.65rem 0.85rem;">Column shredding into typed columns + 4 typed Maps</td>
                   <td style="padding: 0.65rem 0.85rem; color: #059669; font-weight: 700;">-39.6x (76 B/row)</td>
-                  <td style="padding: 0.65rem 0.85rem;"><span class="badge badge-emerald">Column Shredding</span></td>
+                  <td style="padding: 0.65rem 0.85rem;"><div style="font-weight:600; color:#059669; margin-bottom:2px;">Column Splitting</div><div style="font-size:0.75rem; color:#475569;">"Split tables into columns like Excel so queries only read needed columns, cutting storage 40x."</div></td>
                 </tr>
                 <tr style="border-bottom: 1px solid var(--border-light); background: #fbfcfe;">
                   <td style="padding: 0.65rem 0.85rem; font-weight: 700;">2</td>
                   <td style="padding: 0.65rem 0.85rem;">18/53 Metabase dashboard cards timed out</td>
                   <td style="padding: 0.65rem 0.85rem;">Columnar vectorised execution + LZ4 compression</td>
                   <td style="padding: 0.65rem 0.85rem; color: #0284c7; font-weight: 700;">45ms &ndash; 71ms P95</td>
-                  <td style="padding: 0.65rem 0.85rem;"><span class="badge badge-blue">Vectorised OLAP</span></td>
+                  <td style="padding: 0.65rem 0.85rem;"><div style="font-weight:600; color:#0284c7; margin-bottom:2px;">Parallel Column Math</div><div style="font-size:0.75rem; color:#475569;">"Compute entire columns in parallel so reports load in 45ms instead of waiting 5 minutes."</div></td>
                 </tr>
                 <tr style="border-bottom: 1px solid var(--border-light);">
                   <td style="padding: 0.65rem 0.85rem; font-weight: 700;">3</td>
                   <td style="padding: 0.65rem 0.85rem;">ClickHouse Error 209 (receive_timeout)</td>
                   <td style="padding: 0.65rem 0.85rem;">Decoupled WAN read from local send in Go RAM</td>
                   <td style="padding: 0.65rem 0.85rem; color: #7c3aed; font-weight: 700;">0 timeouts</td>
-                  <td style="padding: 0.65rem 0.85rem;"><span class="badge badge-purple">Clock Decoupling</span></td>
+                  <td style="padding: 0.65rem 0.85rem;"><div style="font-weight:600; color:#7c3aed; margin-bottom:2px;">Separate Download &amp; Write</div><div style="font-size:0.75rem; color:#475569;">"Download network data and write to disk in separate steps so network blips never cause timeouts."</div></td>
                 </tr>
                 <tr style="border-bottom: 1px solid var(--border-light); background: #fbfcfe;">
                   <td style="padding: 0.65rem 0.85rem; font-weight: 700;">4</td>
                   <td style="padding: 0.65rem 0.85rem;">Go GC pauses under 50k batch buffering</td>
                   <td style="padding: 0.65rem 0.85rem;">Zero-allocation slice reset (<code>buf = buf[:0]</code>)</td>
                   <td style="padding: 0.65rem 0.85rem; color: #059669; font-weight: 700;">0 Heap reallocations</td>
-                  <td style="padding: 0.65rem 0.85rem;"><span class="badge badge-emerald">Zero-Allocation</span></td>
+                  <td style="padding: 0.65rem 0.85rem;"><div style="font-weight:600; color:#059669; margin-bottom:2px;">Reusing Memory Buffers</div><div style="font-size:0.75rem; color:#475569;">"Reuse fixed memory slices instead of allocating new memory every second, preventing freeze pauses."</div></td>
                 </tr>
                 <tr style="border-bottom: 1px solid var(--border-light);">
                   <td style="padding: 0.65rem 0.85rem; font-weight: 700;">5</td>
                   <td style="padding: 0.65rem 0.85rem;">Streaming exports duplicate rows (0.64%)</td>
                   <td style="padding: 0.65rem 0.85rem;">BigQuery scalar QUALIFY ROW_NUMBER() window</td>
                   <td style="padding: 0.65rem 0.85rem; color: #4f46e5; font-weight: 700;">0.64% Dedup at source</td>
-                  <td style="padding: 0.65rem 0.85rem;"><span class="badge badge-purple">QUALIFY Window</span></td>
+                  <td style="padding: 0.65rem 0.85rem;"><div style="font-weight:600; color:#7c3aed; margin-bottom:2px;">Early Deduplication</div><div style="font-size:0.75rem; color:#475569;">"Filter out duplicate events at the data source before they ever reach our warehouse."</div></td>
                 </tr>
                 <tr style="border-bottom: 1px solid var(--border-light); background: #fbfcfe;">
                   <td style="padding: 0.65rem 0.85rem; font-weight: 700;">6</td>
                   <td style="padding: 0.65rem 0.85rem;">4-hour transactions locking relational tables</td>
                   <td style="padding: 0.65rem 0.85rem;">Isolated staging table + Atomic REPLACE PARTITION</td>
                   <td style="padding: 0.65rem 0.85rem; color: #059669; font-weight: 700;">15ms O(1) swap</td>
-                  <td style="padding: 0.65rem 0.85rem;"><span class="badge badge-emerald">Atomic Partition Swap</span></td>
+                  <td style="padding: 0.65rem 0.85rem;"><div style="font-weight:600; color:#059669; margin-bottom:2px;">15ms Blink-of-an-Eye Swap</div><div style="font-size:0.75rem; color:#475569;">"Prepare new data in a side room, then swap it in 15ms with zero downtime for dashboard users."</div></td>
                 </tr>
                 <tr style="border-bottom: 1px solid var(--border-light);">
                   <td style="padding: 0.65rem 0.85rem; font-weight: 700;">7</td>
@@ -1510,56 +1510,56 @@ tr:hover td {
                   <td style="padding: 0.65rem 0.85rem;">Materialized Views duplicate backfilled data</td>
                   <td style="padding: 0.65rem 0.85rem;">Orchestrated derived rollups swapped atomically</td>
                   <td style="padding: 0.65rem 0.85rem; color: #d97706; font-weight: 700;">125x smaller rollup</td>
-                  <td style="padding: 0.65rem 0.85rem;"><span class="badge badge-orange">Backfill Immunity</span></td>
+                  <td style="padding: 0.65rem 0.85rem;"><div style="font-weight:600; color:#d97706; margin-bottom:2px;">Double-Count Protection</div><div style="font-size:0.75rem; color:#475569;">"Pre-compute daily totals independently so importing historical data never double-counts revenue."</div></td>
                 </tr>
                 <tr style="border-bottom: 1px solid var(--border-light); background: #fbfcfe;">
                   <td style="padding: 0.65rem 0.85rem; font-weight: 700;">10</td>
                   <td style="padding: 0.65rem 0.85rem;">Google backfills historical days silently</td>
                   <td style="padding: 0.65rem 0.85rem;">Automated polling on free BQ lastModifiedTime</td>
                   <td style="padding: 0.65rem 0.85rem; color: #059669; font-weight: 700;">0 manual interventions</td>
-                  <td style="padding: 0.65rem 0.85rem;"><span class="badge badge-emerald">Self-Healing Backfill</span></td>
+                  <td style="padding: 0.65rem 0.85rem;"><div style="font-weight:600; color:#059669; margin-bottom:2px;">Auto-Detecting Updates</div><div style="font-size:0.75rem; color:#475569;">"Automatically detect when Google updates past data and re-sync without human intervention."</div></td>
                 </tr>
                 <tr style="border-bottom: 1px solid var(--border-light);">
                   <td style="padding: 0.65rem 0.85rem; font-weight: 700;">11</td>
                   <td style="padding: 0.65rem 0.85rem;">Midnight-crossing sessions desync</td>
                   <td style="padding: 0.65rem 0.85rem;">Postgres prevDayFlowDue queue for session stitch</td>
                   <td style="padding: 0.65rem 0.85rem; color: #0284c7; font-weight: 700;">100% session capture</td>
-                  <td style="padding: 0.65rem 0.85rem;"><span class="badge badge-blue">Session Boundary Stride</span></td>
+                  <td style="padding: 0.65rem 0.85rem;"><div style="font-weight:600; color:#0284c7; margin-bottom:2px;">Midnight Session Stitching</div><div style="font-size:0.75rem; color:#475569;">"Stitch user sessions crossing midnight so daily playtime metrics stay 100% continuous and accurate."</div></td>
                 </tr>
                 <tr style="border-bottom: 1px solid var(--border-light); background: #fbfcfe;">
                   <td style="padding: 0.65rem 0.85rem; font-weight: 700;">12</td>
                   <td style="padding: 0.65rem 0.85rem;">Funnel step time skewed by outliers</td>
                   <td style="padding: 0.65rem 0.85rem;">Median step-times via quantileExact(0.5)</td>
                   <td style="padding: 0.65rem 0.85rem; color: #7c3aed; font-weight: 700;">True UX distribution</td>
-                  <td style="padding: 0.65rem 0.85rem;"><span class="badge badge-purple">Exact Quantiles</span></td>
+                  <td style="padding: 0.65rem 0.85rem;"><div style="font-weight:600; color:#7c3aed; margin-bottom:2px;">True Middle Duration</div><div style="font-size:0.75rem; color:#475569;">"Measure the true middle duration of user journeys without being distorted by extreme laggy outliers."</div></td>
                 </tr>
                 <tr style="border-bottom: 1px solid var(--border-light);">
                   <td style="padding: 0.65rem 0.85rem; font-weight: 700;">13</td>
                   <td style="padding: 0.65rem 0.85rem;">Crashed sync leaves ghost state</td>
                   <td style="padding: 0.65rem 0.85rem;">Swap First, Mark Later in Postgres transaction</td>
                   <td style="padding: 0.65rem 0.85rem; color: #059669; font-weight: 700;">Zero ghost state</td>
-                  <td style="padding: 0.65rem 0.85rem;"><span class="badge badge-emerald">Two-Phase Bookkeeping</span></td>
+                  <td style="padding: 0.65rem 0.85rem;"><div style="font-weight:600; color:#059669; margin-bottom:2px;">Finish First, Mark Later</div><div style="font-size:0.75rem; color:#475569;">"Finish all data writes completely before marking done, ensuring zero ghost state if a server crashes."</div></td>
                 </tr>
                 <tr style="border-bottom: 1px solid var(--border-light); background: #fbfcfe;">
                   <td style="padding: 0.65rem 0.85rem; font-weight: 700;">14</td>
                   <td style="padding: 0.65rem 0.85rem;">Client abort cancels critical swap mid-flight</td>
                   <td style="padding: 0.65rem 0.85rem;">context.WithoutCancel shields swap and state mark</td>
                   <td style="padding: 0.65rem 0.85rem; color: #0284c7; font-weight: 700;">100% swap completion</td>
-                  <td style="padding: 0.65rem 0.85rem;"><span class="badge badge-blue">Cancellation Shielding</span></td>
+                  <td style="padding: 0.65rem 0.85rem;"><div style="font-weight:600; color:#0284c7; margin-bottom:2px;">Shielding Critical Writes</div><div style="font-size:0.75rem; color:#475569;">"Shield critical database updates so closing a user browser mid-flight cannot corrupt running writes."</div></td>
                 </tr>
                 <tr style="border-bottom: 1px solid var(--border-light);">
                   <td style="padding: 0.65rem 0.85rem; font-weight: 700;">15</td>
                   <td style="padding: 0.65rem 0.85rem;">Multi-tenant sync exhausts sockets/CPU</td>
                   <td style="padding: 0.65rem 0.85rem;">Channel semaphore (chan struct{}) bounded concurrency</td>
                   <td style="padding: 0.65rem 0.85rem; color: #7c3aed; font-weight: 700;">Bounded pool (4 max)</td>
-                  <td style="padding: 0.65rem 0.85rem;"><span class="badge badge-purple">Channel Semaphore</span></td>
+                  <td style="padding: 0.65rem 0.85rem;"><div style="font-weight:600; color:#7c3aed; margin-bottom:2px;">Taking a Number in Line</div><div style="font-size:0.75rem; color:#475569;">"Cap heavy tasks at 4 concurrent jobs to protect server CPU from catching fire under heavy load."</div></td>
                 </tr>
                 <tr style="background: #fbfcfe;">
                   <td style="padding: 0.65rem 0.85rem; font-weight: 700;">16</td>
                   <td style="padding: 0.65rem 0.85rem;">Concurrent cache miss crushes ClickHouse</td>
                   <td style="padding: 0.65rem 0.85rem;">Singleflight request deduplication on API layer</td>
                   <td style="padding: 0.65rem 0.85rem; color: #d97706; font-weight: 700;">1 query for N users</td>
-                  <td style="padding: 0.65rem 0.85rem;"><span class="badge badge-orange">Singleflight Deduplication</span></td>
+                  <td style="padding: 0.65rem 0.85rem;"><div style="font-weight:600; color:#d97706; margin-bottom:2px;">Shared Single Query</div><div style="font-size:0.75rem; color:#475569;">"If 100 users click the same chart at once, run 1 single query and share results to protect the database."</div></td>
                 </tr>
               </tbody>
             </table>
