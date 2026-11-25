@@ -3372,6 +3372,139 @@ flowchart TD
             </div>
           </div>
         </div>
+      <!-- SUBSECTION: ACTIVE FALLBACK POLLING FOR DROPPED HSBC WEBHOOKS -->
+        <div class="subsection-title" style="margin-top: 2rem;">
+          <span>🔄</span>
+          <span class="lang-en">THE MISSING WEBHOOK SAFETY NET: ACTIVE FALLBACK STATUS POLLING FOR HSBC</span>
+          <span class="lang-vi">CƠ CHẾ ACTIVE POLLING CỨU MẠNG KHI WEBHOOK HSBC BỊ RỚT HOẶC KHÔNG GỬI ĐƯỢC</span>
+        </div>
+
+        <div class="highlight-box" style="border-left: 4px solid var(--accent-amber); background: var(--bg-surface-elevated); margin-bottom: 1.5rem; padding: 1.25rem 1.5rem; border-radius: 8px; box-shadow: var(--shadow-sm);">
+          <div style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--accent-amber);">
+            <span class="lang-en">⚠️ The Dropped Webhook Problem: What If the Bank Fails to Send the Callback?</span>
+            <span class="lang-vi">⚠️ Sự cố Webhook bị rớt: Điều gì xảy ra nếu ngân hàng trừ tiền nhưng không bắn Webhook?</span>
+          </div>
+          <p class="lang-en" style="margin-bottom: 0.75rem; line-height: 1.6; color: var(--text-secondary);">
+            A common trap in fintech interviews is assuming webhooks are 100% reliable. In the real world, partner bank gateways (such as HSBC Omni-Collect) occasionally suffer network timeouts, dropped packets, or internal server restarts. 
+            The customer has already been debited $50,000 on their mobile banking app, and money has landed safely in ONE's corporate bank account. <strong>However, no webhook ever reaches our gateway!</strong> 
+            If the system only passively waits for webhooks, the transaction will hang in <code>WAITING_FOR_PAYMENT</code> forever, and the 30-ton container will remain trapped at the seaport gate.
+          </p>
+          <p class="lang-vi" style="margin-bottom: 0.75rem; line-height: 1.6; color: var(--text-secondary);">
+            Một cái bẫy kinh điển khi phỏng vấn là cho rằng Webhook lúc nào cũng hoạt động 100%. Thực tế ngoài đời, cổng thanh toán của ngân hàng (như HSBC Omni-Collect) đôi khi bị rớt mạng, nghẽn đường truyền, hoặc server ngân hàng bị khởi động lại. 
+            Khách hàng đã bị trừ 50 triệu trên app điện thoại, tiền đã vào tài khoản ngân hàng của hãng tàu. <strong>Thế nhưng ngân hàng lại không gửi được Webhook báo tin sang hệ thống của chúng ta!</strong> 
+            Nếu hệ thống chỉ ngồi thụ động chờ Webhook, đơn hàng sẽ bị treo vĩnh viễn ở trạng thái chờ thanh toán, và thùng container 30 tấn sẽ bị kẹt cứng ngoài cổng cảng.
+          </p>
+        </div>
+
+        <p class="lang-en" style="color: var(--text-secondary); margin-bottom: 1.25rem; line-height: 1.6;">
+          To guarantee zero trapped shipments, the platform implements an <strong>Active Status Polling Reconciliation Engine</strong>. It works as an automated safety net alongside real-time webhooks:
+        </p>
+        <p class="lang-vi" style="color: var(--text-secondary); margin-bottom: 1.25rem; line-height: 1.6;">
+          Để bảo đảm không bao giờ có container bị kẹt, hệ thống thiết lập một <strong>Bộ quét Polling chủ động (Active Status Polling Reconciliation Engine)</strong> đóng vai trò như một chiếc phao cứu sinh chạy song song với Webhook:
+        </p>
+
+        <!-- FIGURE: HSBC ACTIVE POLLING FLOW -->
+        <div class="diagram-container">
+          <div class="diagram-header">
+            <span>⚡ FIGURE: HSBC MISSING WEBHOOK RECOVERY VIA ACTIVE POLLING</span>
+            <button class="copy-btn">Copy Diagram</button>
+          </div>
+          <div class="diagram-body">
+            <pre class="mermaid">
+flowchart TD
+    Customer["🚢 Customer Mobile App"] -->|"1. Scan QR & Transfer Funds"| HSBC["🏦 HSBC Omni-Collect Rail"]
+    HSBC -.->|"❌ 2. Webhook Fails to Send
+(Network partition / Dropped packet)"| DeadEnd["💥 LOST IN FLIGHT"]
+    
+    subgraph PollingEngine["Active Fallback Polling Worker (Every 60s)"]
+        Scan["3. Scan orders stuck in WAITING_FOR_PAYMENT > 60s"] --> CallHSBC["4. Query HSBC API:
+GET /v1/payments/query/{referenceId}"]
+        CallHSBC --> HSBCResp{"HSBC Response?"}
+        
+        HSBCResp -- "SUCCESS (Funds Cleared)" --> GrabLock["5. Grab Redis Mutex Lock (MSETNX)
+lock:payment:{invoice_id}"]
+        GrabLock --> LockCheck{"Lock Acquired?"}
+        
+        LockCheck -- "YES" --> Synthesize["6. Synthesize Verified Payment Event
+Mark as PAID_VIA_POLLING"]
+        Synthesize --> DispatchTemporal["7. Dispatch Signal to Temporal (vnHsbcOmniToSAP)
+➔ AI Tax ➔ SAP Clearing ➔ Port e-D/O Release"]
+        
+        LockCheck -- "NO (Webhook arrived concurrently)" --> DropPoll["Safely drop query
+(Zero duplicate processing)"]
+        
+        HSBCResp -- "PENDING / NOT_FOUND" --> Backoff["Wait for next exponential poll cycle
+(2m, 5m, 10m until 15m TTL)"]
+    end
+
+    classDef normal fill:#f8fafc,stroke:#64748b,stroke-width:1.5px,color:#0f172a;
+    classDef success fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#0f172a;
+    classDef warning fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#0f172a;
+    classDef error fill:#fee2e2,stroke:#ef4444,stroke-width:2px,color:#0f172a;
+
+    class Customer,Scan,CallHSBC normal;
+    class GrabLock,Synthesize,DispatchTemporal success;
+    class Backoff,DropPoll warning;
+    class DeadEnd error;
+            </pre>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem; margin-bottom: 1.5rem;">
+
+          <div style="border: 1px solid var(--border-subtle); border-left: 4px solid var(--accent-green); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
+            <div style="font-weight: 700; color: var(--accent-green); font-size: 0.95rem; margin-bottom: 0.5rem;">
+              <span class="lang-en">1. Scheduled Grace Period Trigger (> 60 Seconds)</span>
+              <span class="lang-vi">1. Cơ chế kích hoạt sau thời gian chờ (60 giây)</span>
+            </div>
+            <p class="lang-en" style="margin: 0; font-size: 0.9rem; line-height: 1.6; color: var(--text-secondary);">
+              The system does not spam the bank with immediate polls. It grants a <strong>60-second grace period</strong> for normal webhooks to arrive in 4.2ms. If an order remains in <code>WAITING_FOR_PAYMENT</code> after 60 seconds, a background polling worker picks it up and queries HSBC's secure Transaction Inquiry API via mutual TLS (mTLS).
+            </p>
+            <p class="lang-vi" style="margin: 0; font-size: 0.9rem; line-height: 1.6; color: var(--text-secondary);">
+              Hệ thống không spam ngân hàng ngay lập tức mà cho phép một **khoảng thời gian chờ 60 giây** để Webhook bình thường có cơ hội gửi đến trong 4.2ms. Nếu sau 60 giây mà đơn hàng vẫn ở trạng thái chờ thanh toán, một worker chạy ngầm sẽ lấy đơn đó ra và chủ động gọi sang API tra cứu của HSBC qua kết nối bảo mật mTLS.
+            </p>
+          </div>
+
+          <div style="border: 1px solid var(--border-subtle); border-left: 4px solid var(--accent-blue); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
+            <div style="font-weight: 700; color: var(--accent-blue); font-size: 0.95rem; margin-bottom: 0.5rem;">
+              <span class="lang-en">2. Race Condition Prevention: Mutex Lock Resolves Webhook vs. Polling Conflicts</span>
+              <span class="lang-vi">2. Chống xung đột mạng: Khóa Mutex phân xử giữa Webhook và Polling</span>
+            </div>
+            <p class="lang-en" style="margin: 0; font-size: 0.9rem; line-height: 1.6; color: var(--text-secondary);">
+              <em>What happens if HSBC's delayed webhook arrives at the exact same millisecond that our polling worker queries the bank?</em><br>
+              The <strong>Redis Mutex Lock (<code>MSETNX</code>)</strong> guarantees safety. Whichever thread reaches the lock first (the delayed webhook or the polling worker) acquires the lock and initiates the Temporal clearing workflow. The second thread fails to acquire the lock, detects that the session is already cleared, and safely drops out. This guarantees zero duplicate ledger postings on SAP.
+            </p>
+            <p class="lang-vi" style="margin: 0; font-size: 0.9rem; line-height: 1.6; color: var(--text-secondary);">
+              <em>Điều gì xảy ra nếu đúng lúc Polling worker đang gọi ngân hàng thì Webhook của HSBC đột ngột bắn tới cùng 1 mili-giây?</em><br>
+              Khóa nguyên tử **Redis Mutex (<code>MSETNX</code>)** sẽ bảo vệ hệ thống. Bên nào chạm vào khóa trước (Webhook đến muộn hoặc Polling worker) thì chiếm được khóa và kích hoạt workflow Temporal. Bên đến sau bị trượt khóa sẽ thấy đơn hàng đã được xử lý và tự động rút lui. Tuyệt đối không bao giờ có chuyện gạch nợ 2 lần trên SAP.
+            </p>
+          </div>
+
+          <div style="border: 1px solid var(--border-subtle); border-left: 4px solid var(--accent-purple); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
+            <div style="font-weight: 700; color: var(--accent-purple); font-size: 0.95rem; margin-bottom: 0.5rem;">
+              <span class="lang-en">3. Seamless Hand-Off to Temporal Orchestration</span>
+              <span class="lang-vi">3. Bàn giao mượt mà sang Bộ điều phối Temporal</span>
+            </div>
+            <p class="lang-en" style="margin: 0; font-size: 0.9rem; line-height: 1.6; color: var(--text-secondary);">
+              Once HSBC returns <code>STATUS: SUCCESS</code> with the bank's transaction reference and settlement timestamp, the polling worker synthesizes a valid payment event and dispatches the signal into Temporal (<code>vnHsbcOmniToSAP</code>). Downstream systems (AI tax extraction, SAP clearing, port e-D/O release) execute exactly the same as if a normal webhook had arrived!
+            </p>
+            <p class="lang-vi" style="margin: 0; font-size: 0.9rem; line-height: 1.6; color: var(--text-secondary);">
+              Ngay khi HSBC trả về kết quả <code>SUCCESS</code> kèm mã tham chiếu và mốc thời gian trừ tiền của ngân hàng, polling worker tạo một sự kiện thanh toán hợp lệ và bắn tín hiệu vào Temporal (<code>vnHsbcOmniToSAP</code>). Toàn bộ các bước phía sau (đọc thuế AI, gạch nợ SAP, cấp lệnh cảng e-D/O) tiếp tục chạy bình thường như thể vừa nhận được Webhook chuẩn!
+            </p>
+          </div>
+
+        </div>
+
+        <div class="mental-anchor-box" style="margin-bottom: 2rem;">
+          <span class="lang-en">
+            🧠 <strong>Interview Gold: Webhook First, Active Polling Fallback:</strong><br>
+            "Never rely 100% on banking webhooks. We use <strong>Event-Driven Webhooks for 99% of transactions (4.2ms)</strong>, backed by an <strong>Active Status Polling Worker</strong> that queries HSBC after 60 seconds for dropped webhooks. Redis Mutex locks ensure zero race conditions between delayed webhooks and active queries."
+          </span>
+          <span class="lang-vi">
+            🧠 <strong>Câu nói vàng khi phỏng vấn: Webhook trước, Polling quét bù sau:</strong><br>
+            "Không bao giờ tin tưởng 100% vào Webhook của ngân hàng. Hệ thống của tụi em dùng **Webhook cho 99% giao dịch thời gian thực (4.2ms)**, nhưng bắt buộc có một **Active Polling Worker** chủ động gọi sang HSBC sau 60 giây để cứu các đơn bị rơi Webhook. Khóa Redis Mutex bảo đảm không bao giờ bị xung đột giữa Webhook đến muộn và Polling."
+          </span>
+        </div>
       </section>
 
       <!-- CHAPTER 04: AI FINOPS PIPELINE -->
