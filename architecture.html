@@ -788,8 +788,8 @@ tr:hover td {
         </a>
         <a href="#sec-03" class="toc-link">
           <span class="toc-num">03</span>
-          <span class="lang-en">Edge Ingestion: 4.2ms Go Broker</span>
-          <span class="lang-vi">Ingestion siêu tốc: Go 4.2ms</span>
+          <span class="lang-en">Fast Payment Receiver: 4.2ms Go Engine</span>
+          <span class="lang-vi">Đón tin ngân hàng siêu tốc: Go 4.2ms</span>
         </a>
         <a href="#sec-04" class="toc-link">
           <span class="toc-num">04</span>
@@ -990,14 +990,14 @@ flowchart TB
             <div class="spoken-text lang-en">
               "We split the platform into 4 clean layers:<br><br>
               First, the <strong>Edge Gateway</strong> with Apache APISIX. It validates security tokens in memory in <strong>0.02ms</strong> and updates routing on the fly without dropping connections.<br><br>
-              Second, the <strong>Fast Ingestion Engine</strong> built in Go. It catches bank webhooks in <strong>4.2ms</strong>, verifies cryptographic signatures across multi-core goroutines, and locks Redis to prevent double payment.<br><br>
+              Second, the <strong>Fast Payment Receiver</strong> built in Go (replaces confusing "ingestion" jargon with simple receiver). It catches bank webhooks in <strong>4.2ms</strong>, verifies cryptographic signatures across multi-core goroutines, and locks Redis to prevent double payment.<br><br>
               Third, the <strong>Workflow & AI Brain</strong> using Temporal. It coordinates clearing flows across 14 countries and runs Gemini Flash to read messy tax documents in <strong>258ms</strong>.<br><br>
               Finally, the <strong>Core ERP & Port Layer</strong>. It posts clearing records directly into SAP S/4HANA and dispatches digital release orders to port gates in <strong>under 60 seconds</strong>."
             </div>
             <div class="spoken-text lang-vi">
               "Hệ thống gồm 4 khối rất rõ ràng:<br><br>
               Khối 1 là <strong>Edge Gateway</strong> dùng Apache APISIX: xác thực token trong bộ nhớ chỉ mất <strong>0.02ms</strong> và tự động cập nhật đường đi mà không bao giờ làm rớt kết nối của khách.<br><br>
-              Khối 2 là <strong>Tầng Ingestion</strong> viết bằng Go: đón webhook ngân hàng trong <strong>4.2ms</strong>, giải mã chữ ký số đa luồng trên CPU và khóa Redis để khách không bao giờ bị thanh toán trùng.<br><br>
+              Khối 2 là <strong>Bộ phận đón tin nhắn ngân hàng (Fast Payment Receiver)</strong> viết bằng Go: đón tin báo có tiền ngân hàng trong <strong>4.2ms</strong>, giải mã chữ ký số đa luồng trên CPU và khóa Redis để khách không bao giờ bị thanh toán trùng.<br><br>
               Khối 3 là <strong>Bộ não AI & Điều phối</strong> dùng Temporal: quản lý luồng thanh toán 14 nước và dùng Gemini Flash đọc hóa đơn thuế chỉ mất <strong>258ms</strong>.<br><br>
               Khối 4 là <strong>ERP & Cảng biển</strong>: tự động gạch nợ trên SAP S/4HANA và gửi lệnh giao hàng điện tử về điện thoại tài xế container trong <strong>chưa đầy 60 giây</strong>."
             </div>
@@ -1078,7 +1078,7 @@ sequenceDiagram
     Customer->>Bank: 5. Scan QR & Confirm Payment on Mobile Banking App
 
     Bank->>APISIX: 6. Webhook Callback (HTTP POST + RSA Signature)
-    APISIX->>GoBroker: 7. Route Webhook to Go Ingestion Engine
+    APISIX->>GoBroker: 7. Route Webhook to Go Payment Receiver
     GoBroker->>GoBroker: 8. Verify RSA-SHA256 signature (< 1ms)
     GoBroker->>Redis: 9. MSETNX lock:payment:{invoice_id} (TTL 900s)
     alt Lock Acquired (Success)
@@ -1163,12 +1163,12 @@ sequenceDiagram
                 <span class="badge" style="background: rgba(5, 150, 105, 0.1); color: var(--accent-green); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">4.2ms</span>
               </div>
               <p class="lang-en" style="margin-bottom: 0.5rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-secondary);">
-                <strong>• Where to Where:</strong> Bank Server ➔ APISIX ➔ Go Ingestion Broker ➔ Redis Mutex.<br>
+                <strong>• Where to Where:</strong> Bank Server ➔ APISIX ➔ Go Payment Receiver ➔ Redis Mutex.<br>
                 <strong>• Exact Job:</strong> The bank sends an HTTP POST webhook proving payment received. Go verifies the bank's RSA-2048 cryptographic signature across multi-core goroutines in 0.8ms, then executes an atomic <code>MSETNX</code> lock in Redis (TTL 15 minutes) across all invoices. It immediately returns <code>HTTP 200 OK</code> to the bank in exactly 4.2ms and hands off the transaction to Temporal.<br>
                 <strong>• Interview Key Point:</strong> Compiled Go eliminates Node.js event-loop CPU freezing during traffic bursts. Returning 200 OK in 4.2ms stops the bank from spamming duplicate retries, while the Redis lock guarantees zero double-charging.
               </p>
               <p class="lang-vi" style="margin-bottom: 0.5rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-secondary);">
-                <strong>• Đi từ đâu tới đâu:</strong> Server ngân hàng ➔ APISIX ➔ Tầng Go Ingestion Broker ➔ Bộ nhớ Redis Mutex.<br>
+                <strong>• Đi từ đâu tới đâu:</strong> Server ngân hàng ➔ APISIX ➔ Bộ đón tin Go Payment Receiver ➔ Bộ nhớ Redis Mutex.<br>
                 <strong>• Làm nhiệm vụ gì:</strong> Ngân hàng bắn tín hiệu Webhook báo tiền đã về. Tầng Go dùng goroutine giải mã chữ ký số RSA-2048 của ngân hàng trong 0.8ms, rồi lập tức khóa nguyên tử <code>MSETNX</code> trên Redis (thời hạn 15 phút) cho tất cả các mã hóa đơn. Go lập tức trả ngay <code>HTTP 200 OK</code> cho ngân hàng trong đúng 4.2ms rồi giao việc cho Temporal.<br>
                 <strong>• Điểm mấu chốt kỹ thuật:</strong> Dùng Go đa luồng thay thế Node.js giúp CPU không bị đơ khi giải mã chữ ký số. Trả lời ngân hàng siêu tốc trong 4.2ms giúp ngân hàng không gửi tin nhắn lặp, và khóa Redis bảo đảm không bao giờ khách bị trừ tiền 2 lần.
               </p>
@@ -1571,7 +1571,7 @@ sequenceDiagram
           <div class="component-card" style="border: 1px solid var(--border-subtle); border-left: 5px solid var(--accent-green); background: var(--bg-surface); padding: 1.5rem; border-radius: 8px; box-shadow: var(--shadow-sm);">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
               <h4 style="margin: 0; font-size: 1.1rem; font-weight: 700; color: var(--accent-green);">
-                3. Go Webhook Ingestion Broker
+                3. Go Fast Payment Receiver (Bộ đón tin nhắn ngân hàng)
               </h4>
               <span class="badge" style="background: rgba(5, 150, 105, 0.1); color: var(--accent-green); padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">
                 <span class="lang-en">The High-Speed Toll Booth Clerk</span>
@@ -2144,7 +2144,7 @@ sequenceDiagram
                       <td>Reduced accounting overtime by 95% during peak hours</td>
                     </tr>
                     <tr>
-                      <td><strong>Webhook Ingestion Speed</strong><br><small>Tốc độ đón tin ngân hàng</small></td>
+                      <td><strong>Bank Message Receiving Speed</strong><br><small>Tốc độ đón tin ngân hàng</small></td>
                       <td>Node.js froze for 3 to 4 seconds</td>
                       <td><strong>Go Broker processes in 4.2ms</strong></td>
                       <td>Handles 50,000+ requests/sec per pod with multi-core crypto</td>
@@ -2410,7 +2410,7 @@ sequenceDiagram
                 </p>
                 <p style="margin-bottom: 0.6rem;">
                   • <strong>Layer 1 (Edge Gateway):</strong> Validates user JWT tokens against in-memory public keys in 0.02ms, enforces IP rate limits, and strips malicious payload headers.<br>
-                  • <strong>Layer 2 (Go Ingestion):</strong> Verifies the bank's RSA-2048 cryptographic signature against official x.509 certificates to verify that the webhook actually came from the bank.<br>
+                  • <strong>Layer 2 (Go Payment Receiver):</strong> Verifies the bank's RSA-2048 cryptographic signature against official x.509 certificates to verify that the webhook actually came from the bank.<br>
                   • <strong>Layer 3 (Redis Mutex):</strong> Enforces an atomic <code>MSETNX</code> lock to verify idempotency and reject concurrent duplicate payment clicks.<br>
                   • <strong>Layer 4 (AI FinOps):</strong> Enforces hard deterministic math checks (<code>Invoice Net + VAT == Total</code>) and requires vector semantic confidence &gt; 0.88 before code matching.<br>
                   • <strong>Layer 5 (SAP S/4HANA):</strong> Verifies open receivable item balances to ensure the invoice has not already been cleared via another channel.<br>
@@ -2423,7 +2423,7 @@ sequenceDiagram
                 </p>
                 <p style="margin-bottom: 0.6rem;">
                   • <strong>Tầng 1 (Gateway):</strong> Kiểm tra vé JWT token trong RAM (0.02ms), lọc IP và chặn request rác.<br>
-                  • <strong>Tầng 2 (Go Ingestion):</strong> Xác thực chữ ký số RSA-2048 của ngân hàng bằng chứng chỉ công khai x.509 để đảm bảo tin nhắn đúng từ ngân hàng gửi sang.<br>
+                  • <strong>Tầng 2 (Bộ đón tin ngân hàng Go):</strong> Xác thực chữ ký số RSA-2048 của ngân hàng bằng chứng chỉ công khai x.509 để đảm bảo tin nhắn đúng từ ngân hàng gửi sang.<br>
                   • <strong>Tầng 3 (Redis Mutex):</strong> Kiểm tra và chiếm khóa Idempotency Key để chặn đứng các giao dịch bấm trùng lặp.<br>
                   • <strong>Tầng 4 (AI FinOps):</strong> Kiểm tra số học Banker's rounding và yêu cầu độ tương đồng vector phải trên 0.88 mới cho khớp mã kế toán.<br>
                   • <strong>Tầng 5 (SAP S/4HANA):</strong> Kiểm tra trạng thái nợ của hóa đơn (Open Items) để bảo đảm hóa đơn chưa bị gạch nợ bởi kênh khác.<br>
@@ -2562,8 +2562,8 @@ sequenceDiagram
               </tr>
               <tr>
                 <td>
-                  <span class="lang-en">Compiled Go Broker vs. Node.js Ingestion</span>
-                  <span class="lang-vi">Viết Go Broker vs. Dùng Node.js cho Webhook</span>
+                  <span class="lang-en">Compiled Go Receiver vs. Node.js for Webhooks</span>
+                  <span class="lang-vi">Dùng Go đón tin siêu tốc vs. Node.js bị nghẽn đơn luồng</span>
                 </td>
                 <td>
                   <span class="lang-en">Go worker pool running native CPU <code>crypto/rsa</code> verification with zero runtime GC pauses; <strong>4.2ms flat</strong>.</span>
@@ -3621,8 +3621,8 @@ erDiagram
         <div class="section-header">
           <span class="section-tag">CHAPTER 03</span>
           <h2 class="section-title">
-            <span class="lang-en">Edge Ingestion: 4.2ms Go Webhook Broker & Distributed Mutex</span>
-            <span class="lang-vi">Tầng Ingestion siêu tốc: Go Webhook Broker 4.2ms & Khóa Redis Mutex</span>
+            <span class="lang-en">Fast Payment Receiver: 4.2ms Go Webhook Engine & Distributed Mutex</span>
+            <span class="lang-vi">Bộ phận đón tin ngân hàng siêu tốc: Go 4.2ms & Khóa Redis Mutex</span>
           </h2>
         </div>
 
@@ -3642,7 +3642,7 @@ erDiagram
           <div class="ps-card solution">
             <div class="ps-title">
               <span class="lang-en">✅ Dedicated Compiled Go Broker (4.2ms flat)</span>
-              <span class="lang-vi">✅ Tách riêng Go Ingestion Broker (4.2ms flat)</span>
+              <span class="lang-vi">✅ Tách riêng Bộ đón tin Go Payment Receiver (4.2ms flat)</span>
             </div>
             <p class="lang-en">
               We extracted webhook ingestion into a dedicated <strong>Golang microservice</strong>. Go compiles directly to machine code, verifies RSA signatures concurrently on native CPU goroutines in <strong>&lt; 1ms</strong>, acquires an atomic Redis <code>MSETNX</code> lock to eliminate double-spending, and returns HTTP 200 OK to the bank in exactly <strong>4.2ms flat</strong>!
@@ -3665,7 +3665,7 @@ flowchart TD
     Webhook["🏦 Bank Webhook HTTP POST\n(Headers: X-Signature, X-Timestamp)"] --> APISIX["⚡ APISIX Edge Gateway (0.02ms In-Memory JWKS)"]
     APISIX --> GoBroker["🚀 Go Webhook Broker (ep-webhook-broker)"]
     
-    subgraph GoExec["Go Compiled Ingestion Execution (4.2ms total)"]
+    subgraph GoExec["Go Fast Payment Receiver Execution (4.2ms total)"]
         V1["1. Native crypto/rsa Signature Verification (< 1ms)\nx.509 Bank Public Key • 100% forged requests dropped"] --> L1
         L1["2. Redis Distributed Mutex Acquisition (< 1.5ms)\nMSETNX lock:payment:{invoice_id} with 30s TTL"]
         L1 --> LDecision{"Lock Acquired?"}
@@ -3747,8 +3747,8 @@ flowchart TD
         <div class="spoken-script-container">
           <div class="spoken-script-header">
             <span class="spoken-badge">
-              <span class="lang-en">🎙️ Spoken Script: Explaining the 4.2ms Ingestion Engine</span>
-              <span class="lang-vi">🎙️ Spoken Script: Trình bày tầng Ingestion Go 4.2ms</span>
+              <span class="lang-en">🎙️ Spoken Script: Explaining the 4.2ms Fast Payment Receiver</span>
+              <span class="lang-vi">🎙️ Spoken Script: Trình bày Bộ đón tin ngân hàng Go 4.2ms</span>
             </span>
             <button class="copy-btn">Copy Script</button>
           </div>
@@ -4331,10 +4331,10 @@ flowchart TD
             </span>
             <div class="flow-step-content">
               <span class="lang-en">
-                <strong>ValidateAndLockActivity (0.3s):</strong> Receives the gRPC trigger from the Go Ingestion Broker. Verifies the bank transaction reference, checks the Redis idempotency lock, and captures an AR balance snapshot to freeze invoice tariffs against midnight rate jumps.
+                <strong>ValidateAndLockActivity (0.3s):</strong> Receives the gRPC trigger from the Go Payment Receiver. Verifies the bank transaction reference, checks the Redis idempotency lock, and captures an AR balance snapshot to freeze invoice tariffs against midnight rate jumps.
               </span>
               <span class="lang-vi">
-                <strong>Khóa giao dịch & Đóng băng số dư (ValidateAndLockActivity • 0.3s):</strong> Nhận tín hiệu gRPC từ Go Ingestion Broker. Kiểm tra số tham chiếu ngân hàng, xác nhận khóa Redis và đóng băng số dư nợ trên hóa đơn để chống việc qua 12h đêm bị nhảy thêm phí phạt lưu bãi.
+                <strong>Khóa giao dịch & Đóng băng số dư (ValidateAndLockActivity • 0.3s):</strong> Nhận tín hiệu gRPC từ Bộ đón tin ngân hàng Go. Kiểm tra số tham chiếu ngân hàng, xác nhận khóa Redis và đóng băng số dư nợ trên hóa đơn để chống việc qua 12h đêm bị nhảy thêm phí phạt lưu bãi.
               </span>
             </div>
           </div>
@@ -4899,13 +4899,13 @@ flowchart TD
 
         <p class="lang-vi"><strong>Situation (Hoàn cảnh):</strong> Hãng tàu ONE mất gần 28 triệu USD mỗi năm tiền phí cổng thanh toán cho các bên thứ ba (2.8% + $0.30/đơn) và tiền bị giam 2–3 ngày khiến hàng bị tắc ở cảng.</p>
         <p class="lang-vi"><strong>Task (Nhiệm vụ):</strong> Thiết kế cổng thanh toán kết nối trực tiếp với mạng ngân hàng nội địa 14 nước (VietQR, PromptPay, BOC NetBank) với chi phí thấp nhất và tiền về tài khoản ngay lập tức.</p>
-        <p class="lang-vi"><strong>Action (Hành động):</strong> Thiết kế kiến trúc Dynamic QR gán mã đơn hàng duy nhất, Go Ingestion Broker bắt webhook siêu tốc và lưới an toàn 3 tầng (Webhook ➔ Inquiry Polling ➔ Batch SFTP MT940).</p>
+        <p class="lang-vi"><strong>Action (Hành động):</strong> Thiết kế kiến trúc Dynamic QR gán mã đơn hàng duy nhất, Bộ đón tin ngân hàng Go bắt webhook siêu tốc và lưới an toàn 3 tầng (Webhook ➔ Inquiry Polling ➔ Batch SFTP MT940).</p>
         <p class="lang-vi"><strong>Result (Kết quả):</strong> Hạ chi phí từ 2.8% xuống còn 10 xu/đơn, <strong>tiết kiệm ròng 25 triệu USD/năm</strong>, tiền đổ về tài khoản ngay lập tức và rút ngắn thời gian nhả hàng từ nhiều tiếng xuống dưới 60 giây.</p>
 
         <div class="subsection-title">
           <span>⭐</span>
-          <span class="lang-en">STAR Story 2: Fixing Node.js CPU Bottlenecks with a Compiled Go Ingestion Broker</span>
-          <span class="lang-vi">STAR Story 2: Xử lý nghẽn CPU Node.js bằng Go Ingestion Broker 4.2ms</span>
+          <span class="lang-en">STAR Story 2: Fixing Node.js CPU Bottlenecks with a Compiled Go Payment Receiver</span>
+          <span class="lang-vi">STAR Story 2: Xử lý nghẽn CPU Node.js bằng Bộ đón tin ngân hàng Go 4.2ms</span>
         </div>
         <p class="lang-en"><strong>Situation:</strong> Under peak logistics cut-off hours, webhook callbacks spiked to 3,500 RPS, pushing Node.js p99 response times to 3.8s and triggering bank retry storms.</p>
         <p class="lang-en"><strong>Task:</strong> Stop CPU-heavy RSA signature checks from freezing the event loop and ensure webhooks respond in under 10ms.</p>

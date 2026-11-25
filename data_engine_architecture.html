@@ -1083,7 +1083,7 @@ tr:hover td {
         <a href="#hero-summary" class="toc-link"><span class="toc-num">TOP</span> Executive Overview &amp; Scale</a>
         <a href="#whiteboard-blueprint" class="toc-link"><span class="toc-num">MAP</span> 4-Block Data Engine Blueprint</a>
 
-        <div class="toc-group-title">Core Architecture &amp; Ingestion</div>
+        <div class="toc-group-title">Core Architecture &amp; Data Receiving (Tiếp nhận dữ liệu)</div>
         <a href="#section-1" class="toc-link"><span class="toc-num">01</span> BigQuery Extraction &amp; Dedup</a>
         <a href="#section-2" class="toc-link"><span class="toc-num">02</span> Go Buffer &amp; Timeout Isolation</a>
         <a href="#section-3" class="toc-link"><span class="toc-num">03</span> Column Shredding &amp; Storage</a>
@@ -1148,7 +1148,7 @@ tr:hover td {
             <div class="metric-sub">Eliminated duplicates in BigQuery QUALIFY without unnesting</div>
           </div>
           <div class="metric-card">
-            <div class="metric-label">Pipeline Ingestion Integrity</div>
+            <div class="metric-label">Data Receiving &amp; Pipeline Integrity</div>
             <div class="metric-val" style="color: #059669;">100% Match</div>
             <div class="metric-sub">Exact row-count verification and automated backfill healing</div>
           </div>
@@ -1184,7 +1184,7 @@ tr:hover td {
 
  [ BRONZE: BIGQUERY EXPORT ]     BLOCK 1: EXTRACTION &amp; DEDUPLICATION           BLOCK 2: MEMORY-BUFFERED LOAD PATH
    • Project A: analytics_111      ┌────────────────────────────────────────┐     ┌──────────────────────────────────────────────┐
-   • Project B: analytics_222 ───► │ BigQuery Streaming &amp; Finalised Reader │ ──► │ Go High-Throughput Ingestion Worker          │
+   • Project B: analytics_222 ───► │ BigQuery Streaming &amp; Finalised Reader │ ──► │ Go High-Throughput Data Receiver Worker          │
    • Project C: analytics_333      │  • Dedicated Service Account per App   │     │  • Zero-Allocation Slice Buffer: buf[:0]     │
                                    │  • QUALIFY Window Dedup for Streaming  │     │  • Decoupled Read/Send (Zero Code 209)       │
                                    │  • Explicit Column Projections         │     │  • Concurrency Semaphore: chan struct{}      │
@@ -1296,7 +1296,7 @@ tr:hover td {
                   <td style="padding: 0.65rem 0.85rem;"><span class="badge badge-purple">Sparse Granules</span> Skips 99.8% of disk blocks on filtered queries, sub-50ms latency.</td>
                 </tr>
                 <tr style="border-bottom: 1px solid var(--border-light);">
-                  <td style="padding: 0.65rem 0.85rem; font-weight: 700;">7. Idempotent Ingestion</td>
+                  <td style="padding: 0.65rem 0.85rem; font-weight: 700;">7. Idempotent Data Receiving</td>
                   <td style="padding: 0.65rem 0.85rem; color: #64748b;">Long-running transaction (<code>DELETE + COPY + COMMIT</code>) taking 4h05m, locking tables and blocking dashboards.</td>
                   <td style="padding: 0.65rem 0.85rem; font-weight: 600; color: #0f172a;"><strong>Staging + O(1) REPLACE PARTITION</strong>: Loads staging table, then swaps partition in 15ms.</td>
                   <td style="padding: 0.65rem 0.85rem;"><span class="badge badge-emerald">Exactly-Once Semantics</span> Zero table locks, zero downtime, 100% idempotent re-runs.</td>
@@ -1825,7 +1825,7 @@ QUALIFY ROW_NUMBER() OVER (
         </div>
 
         <h2 style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin-top: 0.5rem; margin-bottom: 0.75rem;">
-          02. Go Ingestion Engine &amp; Decoupled 50,000-Row Zero-Allocation Memory Buffer
+          02. Go Fast Data Receiver Engine &amp; Decoupled 50,000-Row Zero-Allocation Memory Buffer
         </h2>
         <p style="color: #475569; margin-bottom: 1.25rem;">
           Streaming millions of rows across cloud providers is fraught with network variability. Here is how our Go runtime completely eliminated server receive timeouts and Garbage Collection pauses:
@@ -2131,7 +2131,7 @@ SETTINGS index_granularity = 8192;
         <!-- 4-Step Load Path Box -->
         <div style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1.25rem;">
           <h3 style="font-size: 1.15rem; font-weight: 700; color: #0f172a; margin-bottom: 0.75rem;">
-            🚀 The 4-Step Quality Gate Ingestion Protocol
+            🚀 The 4-Step Quality Gate Data Receiving Protocol
           </h3>
           <div style="display: flex; flex-direction: column; gap: 0.75rem;">
             <div style="display: flex; gap: 1rem; align-items: flex-start;">
@@ -3011,7 +3011,7 @@ SETTINGS index_granularity = 8192;
                   GA4 mobile devices already stream directly into Google Cloud BigQuery intraday tables. BigQuery is already a globally distributed, durable buffer. Inserting Kafka between BigQuery and ClickHouse would create an unnecessary broker hop (<code>Mobile &rarr; BigQuery &rarr; Kafka &rarr; ClickHouse</code>), serializing/deserializing twice, managing ZooKeeper/KRaft quorum, and monitoring consumer lag. In addition, ClickHouse is built specifically for <strong>50k-row batch bursts</strong>, not row-by-row streaming.
                 </p>
                 <p>
-                  <strong>3. Why NOT Apache Airflow? (Lean Ingestion Daemon over Operational Bloat):</strong>
+                  <strong>3. Why NOT Apache Airflow? (Lean Data Receiver Daemon over Operational Bloat):</strong>
                   <br>
                   Airflow requires a webserver, scheduler daemon, Celery worker pool, and Redis/RabbitMQ broker. Our Go ETL daemon is a <strong>single 20MB compiled binary</strong> that runs as a lightweight Kubernetes CronJob or background ticker. It uses PostgreSQL <code>etl.sync_state</code> for atomic row-level state machine transitions. It provides zero-overhead, sub-second error recovery without the massive operational maintenance of Airflow.
                 </p>
