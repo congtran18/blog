@@ -969,11 +969,30 @@ flowchart TB
           <span class="lang-en">END-TO-END SYSTEM FLOW: FROM PAYMENT CLICK TO CONTAINER PORT GATE-OUT</span>
           <span class="lang-vi">LUỒNG ĐI CỐT LÕI: TỪ KHÁCH BẤM THANH TOÁN ĐẾN KHI NHẢ HÀNG KHỎI CẢNG (E2E LIFECYCLE)</span>
         </div>
+
+        <!-- BIG PICTURE CALLOUT: ORIGIN TO DESTINATION -->
+        <div class="highlight-box" style="border-left: 4px solid var(--accent-blue); background: var(--bg-surface-elevated); margin-bottom: 1.5rem; padding: 1.25rem 1.5rem; border-radius: 8px; box-shadow: var(--shadow-sm);">
+          <div style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--accent-blue);">
+            <span class="lang-en">🗺️ The Big Picture: Where Does It Start, Where Does It Go, and How Fast?</span>
+            <span class="lang-vi">🗺️ Bức tranh tổng quan: Luồng đi từ đâu tới đâu, qua những trạm nào và mất bao lâu?</span>
+          </div>
+          <p class="lang-en" style="margin-bottom: 0.75rem; line-height: 1.6; color: var(--text-secondary);">
+            <strong>• Origin (Where it starts):</strong> A freight forwarder or cargo owner sitting in their office desktop, selecting their consignment Bill of Lading (B/L) on our <strong>E-Payment Web Portal</strong> and clicking <strong>[Pay Now]</strong>.<br>
+            <strong>• Destination (Where it ends):</strong> A container truck driver at the seaport gate (Cat Lai, Hai Phong, Laem Chabang) receiving a digital QR barcode on their phone, scanning it at the port barrier gate, and having the gantry crane load the <strong>30-ton physical container onto their truck</strong>.<br>
+            <strong>• Total Processing Time:</strong> <strong>Under 60 seconds</strong> end-to-end (completely replacing the previous 1 to 2 days of manual bank paper receipts, physical counter stamps, and expensive demurrage penalties).
+          </p>
+          <p class="lang-vi" style="margin-bottom: 0.75rem; line-height: 1.6; color: var(--text-secondary);">
+            <strong>• Điểm xuất phát (Bắt đầu từ đâu):</strong> Nhân viên công ty giao nhận (Forwarder) hoặc chủ hàng ngồi tại văn phòng, mở <strong>Giao diện Web E-Payment Portal</strong>, chọn số vận đơn (Bill of Lading) chứa các container cần lấy và bấm nút <strong>[Thanh toán ngay]</strong>.<br>
+            <strong>• Điểm kết thúc (Đến tận đâu):</strong> Bác tài xế xe tải đang nổ máy chờ ngoài cổng cảng biển (Cát Lái, Hải Phòng, Laem Chabang) nhận được mã QR Lệnh Giao Hàng (eDO) trên điện thoại, quét qua barie cổng cảng và cần cẩu gắp <strong>container hàng 30 tấn đặt lên xe kéo ra ngoài</strong>.<br>
+            <strong>• Tổng thời gian xử lý:</strong> <strong>Chưa đầy 60 giây</strong> hoàn toàn tự động (thay thế triệt để quy trình cũ mất 1–2 ngày phải chạy ra ngân hàng nộp ủy nhiệm chi, cầm giấy tờ đến quầy hãng tàu đối soát thủ công và chịu phí phạt lưu bãi hàng nghìn USD).
+          </p>
+        </div>
+
         <p class="lang-en">
-          This is the single most critical challenge asked in Staff Architect interviews: <em>"Walk me through the exact end-to-end transaction lifecycle from the forwarder clicking Pay Now to the container truck rolling out of the terminal gate?"</em>. The sequence diagram below traces every network hop, SLA budget, and defense mechanism:
+          This is the single most critical challenge asked in Staff Architect interviews: <em>"Walk me through the exact end-to-end transaction lifecycle from the forwarder clicking Pay Now to the container truck rolling out of the terminal gate?"</em>. The sequence diagram and 6-leg journey below detail every network hop, service role, and safety control:
         </p>
         <p class="lang-vi">
-          Đây là câu hỏi kinh điển nhất ở vòng phỏng vấn System Design: <em>"Hãy đi xuyên suốt một giao dịch từ lúc khách hàng click nút Pay Now tới lúc xe container lấy được hàng ra khỏi cổng cảng?"</em>. Sơ đồ tuần tự và 4 giai đoạn dưới đây mô tả chính xác từng hop mạng:
+          Đây là câu hỏi kinh điển nhất ở vòng phỏng vấn System Design: <em>"Hãy đi xuyên suốt một giao dịch từ lúc khách hàng click nút Pay Now tới lúc xe container lấy được hàng ra khỏi cổng cảng?"</em>. Sơ đồ tuần tự và hành trình 6 chặng dưới đây mô tả chính xác từng trạm mạng, vai trò từng service và cơ chế chốt chặn:
         </p>
 
         <!-- FIGURE 2: END-TO-END SEQUENCE DIAGRAM -->
@@ -1007,7 +1026,7 @@ sequenceDiagram
     Bank->>APISIX: 6. Webhook Callback (HTTP POST + RSA Signature)
     APISIX->>GoBroker: 7. Route Webhook to Go Ingestion Engine
     GoBroker->>GoBroker: 8. Verify RSA-SHA256 signature (< 1ms)
-    GoBroker->>Redis: 9. MSETNX lock:payment:{invoice_id} (TTL 30s)
+    GoBroker->>Redis: 9. MSETNX lock:payment:{invoice_id} (TTL 900s)
     alt Lock Acquired (Success)
         GoBroker-->>Bank: 10. HTTP 200 OK (in exactly 4.2ms)
         GoBroker->>Temporal: 11. Dispatch Signal: vnHsbcOmniToSAP
@@ -1029,81 +1048,374 @@ sequenceDiagram
           </div>
         </div>
 
-        <!-- 4-STAGE FLOW BREAKDOWN -->
-        <div class="flow-breakdown-card">
-          <div class="flow-step">
-            <span class="flow-step-badge">
-              <span class="lang-en">PHASE 1</span>
-              <span class="lang-vi">PHA 1</span>
-            </span>
-            <div class="flow-step-content">
-              <span class="lang-en">
-                <strong>Session Initialization & Dynamic QR Generation (Edge Gateway • 45ms):</strong> The customer selects the shipment (Bill of Lading) to release. The portal calls APISIX, validates the token in 0.02ms, and calls domestic bank rails to generate a dynamic QR code with the exact amount and unique reference. The customer scans the code on mobile banking, and money transfers directly into ONE's company bank account within seconds.
-              </span>
-              <span class="lang-vi">
-                <strong>Khởi tạo thanh toán & Tạo mã Dynamic QR (Edge Gateway • 45ms):</strong> Khách hàng chọn vận đơn (Bill of Lading) cần nhả container. Portal gửi request qua APISIX, xác thực token trong 0.02ms và gọi trực tiếp ngân hàng tạo Dynamic QR code chứa số tiền chính xác và mã PO duy nhất. Khách hàng quét mã trên Mobile Banking, tiền chuyển thẳng vào tài khoản ngân hàng của hãng tàu trong vài giây.
-              </span>
-            </div>
-          </div>
-          <div class="flow-step">
-            <span class="flow-step-badge">
-              <span class="lang-en">PHASE 2</span>
-              <span class="lang-vi">PHA 2</span>
-            </span>
-            <div class="flow-step-content">
-              <span class="lang-en">
-                <strong>Bank Webhook Ingestion & Distributed Mutex Lock (Go Broker • 4.2ms):</strong> The bank fires an HTTP POST webhook. APISIX routes it to the compiled Go Broker. Go validates the x.509 RSA signature in 0.8ms on native goroutines and executes an atomic <code>MSETNX lock:payment:{invoice_id}</code> in Redis (TTL 30s). Returns HTTP 200 OK to the bank in <strong>4.2ms flat</strong> and asynchronously dispatches a gRPC task to Temporal, strictly preventing double-spending.
-              </span>
-              <span class="lang-vi">
-                <strong>Bắt Webhook ngân hàng & Khóa Distributed Mutex (Go Broker • 4.2ms):</strong> Ngân hàng gửi webhook báo có. APISIX chuyển tiếp thẳng vào Go Webhook Broker. Go dùng goroutine xác thực chữ ký RSA x.509 trong 0.8ms và thực thi atomic lock <code>MSETNX lock:payment:{invoice_id}</code> trên Redis (TTL 30s). Nếu thành công, trả ngay <code>200 OK</code> cho ngân hàng trong <strong>4.2ms</strong> và bắn tín hiệu gRPC vào Temporal queue, triệt tiêu 100% rủi ro khách hàng quét đúp hoặc ngân hàng bắn webhook lặp.
-              </span>
-            </div>
-          </div>
-          <div class="flow-step">
-            <span class="flow-step-badge">
-              <span class="lang-en">PHASE 3</span>
-              <span class="lang-vi">PHA 3</span>
-            </span>
-            <div class="flow-step-content">
-              <span class="lang-en">
-                <strong>AI FinOps Tax Extraction & SAP Code Matching (258ms):</strong> If Withholding Tax (WHT) or port fee receipts are attached, Temporal triggers the AI pipeline: C++ PyMuPDF/OpenCV straightens and optimizes scanned PDFs in 18ms (compressed to 280KB, fitting 4 vision tiles); Gemini 1.5 Flash extracts tax details in 258ms using prompt templates cached in Vertex AI RAM (cutting token costs by 77%); Redis Vector HNSW search matches local fee descriptions to standard SAP tax codes in 1.2ms.
-              </span>
-              <span class="lang-vi">
-                <strong>AI FinOps trích xuất thuế & Khớp mã SAP (258ms):</strong> Nếu đơn hàng có chứng từ khấu trừ thuế (WHT) hoặc phí cảng phụ thu, Temporal gọi AI FinOps pipeline: C++ PyMuPDF/OpenCV tiền xử lý ảnh trong 18ms (nén còn 280KB vừa vặn 4 vision tiles); Gemini 1.5 Flash trích xuất dữ liệu trong 258ms nhờ 3,200 token prompt được cache sẵn trên RAM Vertex AI (tiết kiệm 77% chi phí); Redis Vector HNSW map mô tả phí địa phương ("phí lưu bãi", "THC") sang mã điều kiện SAP chuẩn trong 1.2ms.
-              </span>
-            </div>
-          </div>
-          <div class="flow-step">
-            <span class="flow-step-badge">
-              <span class="lang-en">PHASE 4</span>
-              <span class="lang-vi">PHA 4</span>
-            </span>
-            <div class="flow-step-content">
-              <span class="lang-en">
-                <strong>ERP SAP FI-AR Clearing & Instant e-D/O Port Release (&lt; 60s):</strong> Temporal workflow calls SAP S/4HANA FI-AR via RFC/OData to post accounts receivable clearing. Upon receiving SAP 200 OK and accounting document ID, Temporal immediately calls port Terminal Operating System (TOS) APIs (Cat Lai, Laem Chabang). TOS issues an Electronic Delivery Order (e-D/O) with an encrypted barcode to the truck driver, allowing gate-out in under 60 seconds without counter paperwork!
-              </span>
-              <span class="lang-vi">
-                <strong>Gạch nợ ERP SAP & Cấp lệnh giao hàng điện tử e-D/O (&lt; 60s):</strong> Temporal workflow kích hoạt activity gọi SAP S/4HANA FI-AR qua RFC/OData để gạch nợ hóa đơn. Ngay khi SAP phản hồi <code>200 OK</code> kèm số chứng từ kế toán, Temporal lập tức gọi API hệ thống quản lý cảng (TOS - Cat Lai, Laem Chabang). TOS tạo lệnh giao hàng điện tử (e-D/O) kèm mã QR bảo mật gửi về điện thoại tài xế container. Xe container qua cổng cảng lấy hàng ngay lập tức mà không cần tài xế phải cầm hồ sơ giấy xếp hàng tại quầy kế toán!
-              </span>
-            </div>
-          </div>
+        <!-- 6-LEG DETAILED SYSTEM JOURNEY -->
+        <div style="margin-top: 1.5rem; margin-bottom: 1.5rem;">
+          <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1rem;">
+            <span class="lang-en">📍 The 6-Leg Journey: Step-by-Step Breakdown of Every Hop & Service Role</span>
+            <span class="lang-vi">📍 Hành trình 6 chặng chi tiết: Đi qua những đâu, làm nhiệm vụ gì và mấu chốt kỹ thuật</span>
+          </h3>
 
-          <div class="flow-anchor">
-            <span class="lang-en">
-              🧠 <strong>Interview 4-Step Golden Formula:</strong><br>
-              <strong>1. INGEST</strong> (Go Broker 4.2ms + Redis Mutex Lock)<br>
-              <strong>2. EXTRACT</strong> (C++ OpenCV 18ms + Gemini Flash 258ms + Redis Vector 1.2ms)<br>
-              <strong>3. CLEAR</strong> (Temporal workflow posts SAP FI-AR clearing)<br>
-              <strong>4. RELEASE</strong> (Port TOS issues QR e-D/O to truck driver in &lt; 60s)
-            </span>
-            <span class="lang-vi">
-              🧠 <strong>Công thức 4 bước vàng khi phỏng vấn:</strong><br>
-              <strong>1. INGEST</strong> (Go Broker 4.2ms + Redis Mutex chống trùng)<br>
-              <strong>2. EXTRACT</strong> (C++ OpenCV 18ms + Gemini Flash 258ms + Redis Vector 1.2ms)<br>
-              <strong>3. CLEAR</strong> (Temporal gọi SAP FI-AR gạch nợ)<br>
-              <strong>4. RELEASE</strong> (TOS cấp mã QR e-D/O cho tài xế &lt; 60s)
-            </span>
+          <div style="display: flex; flex-direction: column; gap: 1rem;">
+
+            <!-- LEG 1 -->
+            <div style="border: 1px solid var(--border-subtle); border-left: 4px solid var(--accent-cyan); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+                <span style="font-weight: 700; color: var(--accent-cyan); font-size: 0.95rem;">
+                  <span class="lang-en">LEG 1: Web Portal ➔ APISIX Edge Gateway (Order Selection & Fast Security Gate)</span>
+                  <span class="lang-vi">CHẶNG 1: Giao diện Web ➔ Cổng an ninh APISIX (Chọn đơn hàng & Soát vé an ninh)</span>
+                </span>
+                <span class="badge" style="background: rgba(2, 132, 199, 0.1); color: var(--accent-cyan); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">0.02ms</span>
+              </div>
+              <p class="lang-en" style="margin-bottom: 0.5rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-secondary);">
+                <strong>• Where to Where:</strong> Customer's Web Browser ➔ Apache APISIX Edge Gateway.<br>
+                <strong>• Exact Job:</strong> The shipper searches their Bill of Lading (B/L) to see all outstanding container invoices. When clicking [Pay Now], the portal fires a request to APISIX. APISIX validates the customer's JWT authentication token directly in shared RAM without contacting an external auth server.<br>
+                <strong>• Interview Key Point:</strong> APISIX updates routing tables dynamically via etcd without reloading worker processes, ensuring zero dropped connections during traffic spikes.
+              </p>
+              <p class="lang-vi" style="margin-bottom: 0.5rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-secondary);">
+                <strong>• Đi từ đâu tới đâu:</strong> Trình duyệt web của khách hàng ➔ Cổng an ninh Apache APISIX Gateway.<br>
+                <strong>• Làm nhiệm vụ gì:</strong> Khách hàng nhập mã vận đơn (Bill of Lading) để xem danh sách hóa đơn container cần trả tiền. Khi khách bấm [Thanh toán ngay], trình duyệt gửi request lên APISIX. Cổng APISIX kiểm tra ngay thẻ xác thực (JWT Token) trong bộ nhớ RAM mà không cần phải gọi ngược về server xác thực Okta.<br>
+                <strong>• Điểm mấu chốt kỹ thuật:</strong> APISIX đồng bộ đường đi trực tiếp qua etcd ngay trong RAM mà không cần khởi động lại tiến trình worker như NGINX cũ, bảo đảm không bao giờ làm rớt kết nối mạng của khách.
+              </p>
+            </div>
+
+            <!-- LEG 2 -->
+            <div style="border: 1px solid var(--border-subtle); border-left: 4px solid var(--accent-blue); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+                <span style="font-weight: 700; color: var(--accent-blue); font-size: 0.95rem;">
+                  <span class="lang-en">LEG 2: APISIX Gateway ➔ Domestic Bank Rails (Dynamic QR & Instant Customer Transfer)</span>
+                  <span class="lang-vi">CHẶNG 2: Cổng Gateway ➔ Mạng ngân hàng nội địa (Tạo Dynamic QR & Khách quét tiền)</span>
+                </span>
+                <span class="badge" style="background: rgba(37, 99, 235, 0.1); color: var(--accent-blue); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">&lt; 3s</span>
+              </div>
+              <p class="lang-en" style="margin-bottom: 0.5rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-secondary);">
+                <strong>• Where to Where:</strong> Gateway ➔ Domestic Bank API (VietQR, PromptPay, BOC NetBank) ➔ Customer Mobile Banking App.<br>
+                <strong>• Exact Job:</strong> The system calls the partner bank's API to generate a Dynamic QR code containing the exact amount down to the penny and a unique Purchase Order reference ID. The customer opens their mobile banking app, scans the QR code, and approves the payment. Money transfers instantly into ONE's corporate bank account.<br>
+                <strong>• Interview Key Point:</strong> Direct bank rails cut payment processing fees from 2.8% to a flat 10 cents per transaction (saving $25M USD annually) and eliminate rolling cash reserves.
+              </p>
+              <p class="lang-vi" style="margin-bottom: 0.5rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-secondary);">
+                <strong>• Đi từ đâu tới đâu:</strong> API Gateway ➔ API ngân hàng nội địa (VietQR, PromptPay, BOC) ➔ Ứng dụng Mobile Banking của khách.<br>
+                <strong>• Làm nhiệm vụ gì:</strong> Hệ thống gọi ngân hàng tạo ra một mã Dynamic QR chứa đúng từng xu số tiền cần trả và mã đơn hàng duy nhất. Khách hàng mở app ngân hàng quét mã và xác nhận chuyển khoản. Tiền đổ thẳng vào tài khoản ngân hàng của công ty chỉ sau 2–3 giây.<br>
+                <strong>• Điểm mấu chốt kỹ thuật:</strong> Đấu nối trực tiếp ngân hàng nội địa giúp hạ phí xử lý từ 2.8% xuống còn 10 xu một đơn (tiết kiệm hơn 25 triệu USD/năm) và tiền về ngay lập tức chứ không bị giam cọc 3 tháng như các cổng SaaS quốc tế.
+              </p>
+            </div>
+
+            <!-- LEG 3 -->
+            <div style="border: 1px solid var(--border-subtle); border-left: 4px solid var(--accent-green); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+                <span style="font-weight: 700; color: var(--accent-green); font-size: 0.95rem;">
+                  <span class="lang-en">LEG 3: Bank Webhook ➔ Go Broker & Redis Lock (Catching Money in 4.2ms & Anti-Double-Payment)</span>
+                  <span class="lang-vi">CHẶNG 3: Ngân hàng ➔ Trạm đón Webhook Go & Khóa Redis (Bắt tiền về 4.2ms & Chống trừ tiền 2 lần)</span>
+                </span>
+                <span class="badge" style="background: rgba(5, 150, 105, 0.1); color: var(--accent-green); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">4.2ms</span>
+              </div>
+              <p class="lang-en" style="margin-bottom: 0.5rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-secondary);">
+                <strong>• Where to Where:</strong> Bank Server ➔ APISIX ➔ Go Ingestion Broker ➔ Redis Mutex.<br>
+                <strong>• Exact Job:</strong> The bank sends an HTTP POST webhook proving payment received. Go verifies the bank's RSA-2048 cryptographic signature across multi-core goroutines in 0.8ms, then executes an atomic <code>MSETNX</code> lock in Redis (TTL 15 minutes) across all invoices. It immediately returns <code>HTTP 200 OK</code> to the bank in exactly 4.2ms and hands off the transaction to Temporal.<br>
+                <strong>• Interview Key Point:</strong> Compiled Go eliminates Node.js event-loop CPU freezing during traffic bursts. Returning 200 OK in 4.2ms stops the bank from spamming duplicate retries, while the Redis lock guarantees zero double-charging.
+              </p>
+              <p class="lang-vi" style="margin-bottom: 0.5rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-secondary);">
+                <strong>• Đi từ đâu tới đâu:</strong> Server ngân hàng ➔ APISIX ➔ Tầng Go Ingestion Broker ➔ Bộ nhớ Redis Mutex.<br>
+                <strong>• Làm nhiệm vụ gì:</strong> Ngân hàng bắn tín hiệu Webhook báo tiền đã về. Tầng Go dùng goroutine giải mã chữ ký số RSA-2048 của ngân hàng trong 0.8ms, rồi lập tức khóa nguyên tử <code>MSETNX</code> trên Redis (thời hạn 15 phút) cho tất cả các mã hóa đơn. Go lập tức trả ngay <code>HTTP 200 OK</code> cho ngân hàng trong đúng 4.2ms rồi giao việc cho Temporal.<br>
+                <strong>• Điểm mấu chốt kỹ thuật:</strong> Dùng Go đa luồng thay thế Node.js giúp CPU không bị đơ khi giải mã chữ ký số. Trả lời ngân hàng siêu tốc trong 4.2ms giúp ngân hàng không gửi tin nhắn lặp, và khóa Redis bảo đảm không bao giờ khách bị trừ tiền 2 lần.
+              </p>
+            </div>
+
+            <!-- LEG 4 -->
+            <div style="border: 1px solid var(--border-subtle); border-left: 4px solid var(--accent-amber); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+                <span style="font-weight: 700; color: var(--accent-amber); font-size: 0.95rem;">
+                  <span class="lang-en">LEG 4: Temporal Workflow ➔ AI FinOps Pipeline (Workflow Orchestration & Tax Extraction)</span>
+                  <span class="lang-vi">CHẶNG 4: Nhạc trưởng Temporal ➔ Trợ lý AI FinOps (Điều phối tiến trình & Đọc chứng từ thuế)</span>
+                </span>
+                <span class="badge" style="background: rgba(217, 119, 6, 0.1); color: var(--accent-amber); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">258ms</span>
+              </div>
+              <p class="lang-en" style="margin-bottom: 0.5rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-secondary);">
+                <strong>• Where to Where:</strong> Temporal Saga Orchestrator ➔ AI FinOps Engine (OpenCV + Gemini Flash + Redis Vector).<br>
+                <strong>• Exact Job:</strong> Temporal takes ownership of the workflow. If the customer attached scanned withholding tax (WHT) certificates, Temporal activates the AI pipeline: C++ OpenCV straightens tilted scans in 18ms; Gemini 1.5 Flash extracts tax numbers and amounts in 258ms; Redis Vector matches localized fee descriptions to standard SAP accounting codes in 1.2ms. Hard mathematical checks verify the totals before proceeding.<br>
+                <strong>• Interview Key Point:</strong> Temporal provides Durable Execution (pod crashes resume from the exact line without data loss). Prompt caching on Vertex AI RAM cuts AI costs by 77%, achieving 98.4% automated clearing with zero manual data entry.
+              </p>
+              <p class="lang-vi" style="margin-bottom: 0.5rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-secondary);">
+                <strong>• Đi từ đâu tới đâu:</strong> Bộ điều phối Temporal Workflow ➔ Tầng AI FinOps (C++ OpenCV + Gemini Flash + Redis Vector).<br>
+                <strong>• Làm nhiệm vụ gì:</strong> Temporal nhận quyền chỉ huy tiến trình. Nếu khách có đính kèm ảnh chụp tờ khai khấu trừ thuế (WHT), Temporal gọi cụm AI: C++ OpenCV xoay thẳng và làm nét ảnh trong 18ms; Gemini Flash đọc số tiền thuế trong 258ms; Redis Vector khớp tên phí tiếng địa phương sang mã kế toán SAP trong 1.2ms. Sau đó thuật toán số học kiểm tra lại tính chính xác từng đồng.<br>
+                <strong>• Điểm mấu chốt kỹ thuật:</strong> Temporal đem lại cơ chế Thực thi bền bỉ (server có sập thì dựng lại chạy tiếp đúng dòng code cũ). Lưu prompt trên RAM của Vertex AI giúp tiết kiệm 77% tiền gọi AI, đạt độ chính xác 98.4% mà kế toán không cần phải nhập tay.
+              </p>
+            </div>
+
+            <!-- LEG 5 -->
+            <div style="border: 1px solid var(--border-subtle); border-left: 4px solid var(--accent-purple); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+                <span style="font-weight: 700; color: var(--accent-purple); font-size: 0.95rem;">
+                  <span class="lang-en">LEG 5: Temporal Workflow ➔ SAP S/4HANA ERP (Posting Accounts Receivable Clearing)</span>
+                  <span class="lang-vi">CHẶNG 5: Nhạc trưởng Temporal ➔ Kế toán trưởng SAP S/4HANA (Gạch trừ công nợ sổ cái)</span>
+                </span>
+                <span class="badge" style="background: rgba(124, 58, 237, 0.1); color: var(--accent-purple); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">~1.8s</span>
+              </div>
+              <p class="lang-en" style="margin-bottom: 0.5rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-secondary);">
+                <strong>• Where to Where:</strong> Temporal Workflow ➔ SAP S/4HANA FI-AR (via RFC / OData).<br>
+                <strong>• Exact Job:</strong> Temporal invokes an activity that connects to SAP S/4HANA, posting the clearing entry against the customer's open invoice items. SAP balances the debits and credits on its general ledger and returns an official accounting document number (BELNR).<br>
+                <strong>• Interview Key Point:</strong> SAP S/4HANA remains the Single Source of Truth (SSOT). If SAP is undergoing scheduled 4-hour weekend maintenance, Temporal automatically puts the workflow to sleep with zero CPU burn and retries once SAP returns online.
+              </p>
+              <p class="lang-vi" style="margin-bottom: 0.5rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-secondary);">
+                <strong>• Đi từ đâu tới đâu:</strong> Temporal Workflow ➔ Hệ thống ERP SAP S/4HANA (phân hệ kế toán FI-AR qua RFC/OData).<br>
+                <strong>• Làm nhiệm vụ gì:</strong> Temporal gọi sang SAP S/4HANA để thực hiện bút toán gạch nợ (Clearing) cho các hóa đơn tương ứng của khách hàng. SAP cân đối sổ cái tài chính và trả về mã số chứng từ kế toán chính thức.<br>
+                <strong>• Điểm mấu chốt kỹ thuật:</strong> SAP S/4HANA luôn giữ vai trò Kế toán trưởng nắm giữ chân lý duy nhất (SSOT). Nếu SAP bảo trì 4 tiếng ban đêm, Temporal tự động đưa workflow vào giấc ngủ đông (0% CPU) và tự thức dậy chạy tiếp khi SAP mở lại.
+              </p>
+            </div>
+
+            <!-- LEG 6 -->
+            <div style="border: 1px solid var(--border-subtle); border-left: 4px solid var(--accent-red); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+                <span style="font-weight: 700; color: var(--accent-red); font-size: 0.95rem;">
+                  <span class="lang-en">LEG 6: Temporal Workflow ➔ Port Terminal (TOS) & Truck Driver (Instant e-D/O & Gate-Out)</span>
+                  <span class="lang-vi">CHẶNG 6: Temporal ➔ Cổng Cảng biển TOS & Bác tài xế (Cấp lệnh e-D/O & Xe lăn bánh qua cổng)</span>
+                </span>
+                <span class="badge" style="background: rgba(220, 38, 38, 0.1); color: var(--accent-red); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">&lt; 60s TOTAL</span>
+              </div>
+              <p class="lang-en" style="margin-bottom: 0.5rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-secondary);">
+                <strong>• Where to Where:</strong> Temporal Workflow ➔ Port Terminal Operating System (TOS) ➔ Truck Driver's Smartphone (SMS/Zalo/Email).<br>
+                <strong>• Exact Job:</strong> With SAP debt cleared, Temporal immediately calls the port terminal's API (Cat Lai, Hai Phong, Laem Chabang). The port issues an Electronic Delivery Order (e-D/O) with an encrypted barcode. The notification service sends the QR code directly to the container truck driver's mobile phone. The driver scans it at the terminal gate, gantry cranes mount the container onto the chassis, and the truck drives out!<br>
+                <strong>• Interview Key Point:</strong> If the port rejects cargo release (e.g., container under customs inspection), Temporal immediately triggers its 5-step Saga rollback: reversing SAP clearing, refunding customer bank funds, and alerting operations in under 3 minutes.
+              </p>
+              <p class="lang-vi" style="margin-bottom: 0.5rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-secondary);">
+                <strong>• Đi từ đâu tới đâu:</strong> Temporal Workflow ➔ Hệ thống điều hành cảng biển TOS ➔ Điện thoại bác tài xế xe tải.<br>
+                <strong>• Làm nhiệm vụ gì:</strong> Khi SAP xác nhận gạch nợ xong, Temporal lập tức gọi API hệ thống quản lý cảng (Cát Lái, Hải Phòng, Laem Chabang). Cảng phát hành Lệnh giao hàng điện tử (e-D/O) kèm mã PIN bảo mật. Hệ thống tự động bắn mã QR qua SMS/Zalo về máy bác tài xế. Bác tài quét mã tại cổng cảng, cần cẩu gắp container đặt lên xe và xe chạy ra khỏi cảng!<br>
+                <strong>• Điểm mấu chốt kỹ thuật:</strong> Nếu bước cổng cảng bị trục trặc (ví dụ container bị hải quan giữ lại kiểm tra), Temporal tự động kích hoạt chuỗi bù trừ Saga 5 bước: tự động hủy bút toán trên SAP, hoàn tiền về tài khoản ngân hàng của khách và báo cho hãng tàu trong chưa đầy 3 phút.
+              </p>
+            </div>
+
           </div>
+        </div>
+
+        <!-- SPOKEN SCRIPT: HOW TO PITCH THE END-TO-END FLOW -->
+        <div class="spoken-script-container" style="margin-bottom: 1.5rem;">
+          <div class="spoken-script-header">
+            <span class="spoken-badge">
+              <span class="lang-en">🎙️ Spoken Script: Walking an Interviewer Through the E2E System Flow</span>
+              <span class="lang-vi">🎙️ Kịch bản phỏng vấn: Cách giải thích luồng đi hệ thống từ A đến Z</span>
+            </span>
+            <button class="copy-btn">Copy Script</button>
+          </div>
+          <div class="spoken-content-block">
+            <div class="spoken-text lang-en">
+              "If an interviewer asks: <em>'Walk me through the exact transaction flow from when a customer clicks Pay to when the container leaves the port?'</em>, here is how you pitch it cleanly in 90 seconds:<br><br>
+              'The transaction travels across <strong>6 clear legs</strong> in under 60 seconds:<br><br>
+              First, the forwarder opens our <strong>Web Portal</strong> and clicks [Pay Now]. The request hits our <strong>APISIX Gateway</strong>, which checks their security token in memory in <strong>0.02ms</strong>.<br><br>
+              Second, APISIX calls domestic bank rails to generate a <strong>Dynamic QR code</strong>. The customer scans it with their mobile banking app, transferring funds directly into our corporate bank account in 3 seconds.<br><br>
+              Third, the bank fires a webhook. Our compiled <strong>Go Broker</strong> verifies the cryptographic signature in 0.8ms, locks all invoice IDs on <strong>Redis</strong> to completely prevent double payment, and sends a 200 OK back to the bank in exactly <strong>4.2ms</strong> before handing off to Temporal.<br><br>
+              Fourth, <strong>Temporal</strong> takes command as our workflow orchestrator. If the customer attached scanned tax documents, our <strong>AI FinOps pipeline</strong> cleans the image with OpenCV in 18ms and extracts tax lines using Gemini Flash in <strong>258ms</strong>.<br><br>
+              Fifth, Temporal calls <strong>SAP S/4HANA</strong> via RFC to clear the accounts receivable debt on the general ledger and receives an official accounting document number.<br><br>
+              Finally, Temporal signals the <strong>Port Terminal System (TOS)</strong> to generate an Electronic Delivery Order (e-D/O), and our notification service texts the QR release pass to the truck driver's phone. The driver scans it at the gate barrier, the crane loads the container, and the truck rolls out.<br><br>
+              And if the port system fails, Temporal automatically executes a 5-step Saga rollback—refunding customer funds and reversing the SAP entry in under 3 minutes.'"
+            </div>
+            <div class="spoken-text lang-vi">
+              "Khi người phỏng vấn hỏi: <em>'Hãy giải thích luồng đi của hệ thống từ lúc khách bấm nút đến lúc xe lấy được container ra khỏi cảng?'</em>, bạn hãy tự tin trình bày gãy gọn trong 90 giây như sau:<br><br>
+              'Giao dịch đi qua đúng <strong>6 chặng rất rõ ràng</strong> và hoàn tất trong chưa đầy 60 giây:<br><br>
+              Chặng 1: Khách hàng mở <strong>Giao diện Web</strong> chọn lô hàng và bấm [Thanh toán ngay]. Request đi qua <strong>APISIX Gateway</strong> để kiểm tra token đăng nhập ngay trong RAM chỉ mất <strong>0.02ms</strong>.<br><br>
+              Chặng 2: Gateway gọi ngân hàng nội địa sinh mã <strong>Dynamic QR</strong>. Khách mở app ngân hàng quét mã, tiền chạy thẳng vào tài khoản của hãng tàu trong 3 giây.<br><br>
+              Chặng 3: Ngân hàng bắn webhook báo tiền đã về. Tầng <strong>Go Webhook Broker</strong> giải mã chữ ký số trong 0.8ms, chiếm khóa <strong>Redis</strong> để chống khách bị trừ tiền 2 lần, và trả ngay 200 OK cho ngân hàng trong đúng <strong>4.2ms</strong> trước khi giao việc cho Temporal.<br><br>
+              Chặng 4: <strong>Temporal</strong> đóng vai trò Tổng quản điều phối. Nếu khách có đính kèm chứng từ thuế, cụm <strong>AI FinOps</strong> dùng OpenCV xoay nét ảnh trong 18ms và dùng Gemini Flash đọc số tiền thuế chỉ mất <strong>258ms</strong>.<br><br>
+              Chặng 5: Temporal gọi sang <strong>SAP S/4HANA</strong> để gạch trừ công nợ trên sổ cái tài chính và nhận lại số chứng từ kế toán chính thức.<br><br>
+              Chặng 6: Temporal gọi hệ thống <strong>Cảng biển (TOS)</strong> phát hành Lệnh giao hàng điện tử (e-D/O) và tự động gửi mã QR về điện thoại bác tài xế xe tải. Bác tài quét mã qua barie cổng cảng, cần cẩu gắp container đặt lên xe và xe chạy ra ngoài.<br><br>
+              Và nếu bước cấp lệnh ở cảng gặp trục trặc, Temporal tự động kích hoạt chuỗi bù trừ Saga để hoàn tiền cho khách và hủy bút toán trên SAP trong chưa đầy 3 phút.'"
+            </div>
+          </div>
+        </div>
+
+        <!-- MASTER SERVICE ROSTER & KEY POINTS TABLE -->
+        <div style="margin-top: 1.5rem; margin-bottom: 2rem;">
+          <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem;">
+            <span class="lang-en">📋 Master Service Catalog: All 11 Services, Real-World Metaphors & Interview Key Points</span>
+            <span class="lang-vi">📋 Bảng tra cứu 11 Service trong hệ thống: Ẩn dụ đời thực, công dụng và điểm ăn tiền kỹ thuật</span>
+          </h3>
+          <p class="lang-en" style="color: var(--text-tertiary); font-size: 0.9rem; margin-bottom: 1rem;">
+            Every service in the architecture has a single, well-defined responsibility. Use these everyday real-world metaphors to explain them effortlessly:
+          </p>
+          <p class="lang-vi" style="color: var(--text-tertiary); font-size: 0.9rem; margin-bottom: 1rem;">
+            Mỗi service trong hệ thống đều đảm nhận một nhiệm vụ duy nhất và rõ ràng. Bảng dưới đây giúp bạn ghi nhớ và trình bày mạch lạc:
+          </p>
+
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width: 20%;">
+                    <span class="lang-en">Service & Tech Stack</span>
+                    <span class="lang-vi">Tên Service & Công nghệ</span>
+                  </th>
+                  <th style="width: 22%;">
+                    <span class="lang-en">Real-World Metaphor</span>
+                    <span class="lang-vi">Ẩn dụ đời thực (Dễ nhớ)</span>
+                  </th>
+                  <th style="width: 33%;">
+                    <span class="lang-en">Core Responsibility (What It Does)</span>
+                    <span class="lang-vi">Nhiệm vụ cụ thể (Công dụng)</span>
+                  </th>
+                  <th style="width: 25%;">
+                    <span class="lang-en">Interview Key Point</span>
+                    <span class="lang-vi">Điểm ăn tiền khi phỏng vấn</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>1. E-Payment Web Portal</strong><br><small style="color: var(--text-tertiary);">React, Next.js, Tailwind</small></td>
+                  <td><strong>Quầy giao dịch số</strong><br><small style="color: var(--text-tertiary);">Digital Customer Counter</small></td>
+                  <td>
+                    <span class="lang-en">User interface for shippers to look up Bills of Lading, view outstanding container invoices, attach tax scans, and scan dynamic payment QR codes.</span>
+                    <span class="lang-vi">Giao diện web cho chủ hàng tra cứu vận đơn, xem danh sách hóa đơn container, tải ảnh chứng từ thuế và quét mã VietQR thanh toán.</span>
+                  </td>
+                  <td>
+                    <span class="lang-en">Includes a 15-minute freeze timer before midnight to protect shippers from rollover demurrage penalty fees.</span>
+                    <span class="lang-vi">Tự động đếm ngược và đóng băng số tiền 15 phút sát nửa đêm để khách không bị phạt thêm ngày lưu bãi mới.</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>2. Apache APISIX Gateway</strong><br><small style="color: var(--text-tertiary);">OpenResty, Lua, etcd</small></td>
+                  <td><strong>Cổng an ninh & Soát vé</strong><br><small style="color: var(--text-tertiary);">Security Guard & Turnstile</small></td>
+                  <td>
+                    <span class="lang-en">Performs edge rate limiting, DDoS defense, SSL termination, and in-memory JWT token validation in 0.02ms.</span>
+                    <span class="lang-vi">Cửa ngõ bảo vệ: giới hạn tốc độ truy cập, chặn DDoS, giải mã SSL và kiểm tra vé đăng nhập (JWT token) trong 0.02ms.</span>
+                  </td>
+                  <td>
+                    <span class="lang-en">Syncs routing via etcd in RAM with zero worker process reloads, preventing 502 errors during Kubernetes pod autoscaling.</span>
+                    <span class="lang-vi">Cập nhật đường đi qua etcd trực tiếp trong RAM mà không cần restart worker, không bao giờ rớt kết nối mạng.</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>3. Go Webhook Broker</strong><br><small style="color: var(--text-tertiary);">Golang, Goroutines, crypto</small></td>
+                  <td><strong>Trạm thu phí siêu tốc</strong><br><small style="color: var(--text-tertiary);">High-Speed Toll Booth</small></td>
+                  <td>
+                    <span class="lang-en">Catches incoming payment webhooks from banks, verifies RSA-2048 cryptographic signatures across CPU cores, and returns 200 OK in 4.2ms.</span>
+                    <span class="lang-vi">Đón các webhook báo có từ ngân hàng, dùng đa nhân CPU giải mã chữ ký số RSA-2048 trong 0.8ms và trả 200 OK trong 4.2ms.</span>
+                  </td>
+                  <td>
+                    <span class="lang-en">Built in Go to avoid Node.js single-threaded event loop freezes during peak cut-off hours when banks flush queued webhooks.</span>
+                    <span class="lang-vi">Viết bằng Go để tránh bị nghẽn CPU đơn luồng như Node.js cũ khi ngân hàng đồng loạt xả hàng nghìn webhook giờ cao điểm.</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>4. Redis Cluster (Mutex)</strong><br><small style="color: var(--text-tertiary);">Redis 7, Lua Scripts</small></td>
+                  <td><strong>Chiếc khóa an toàn</strong><br><small style="color: var(--text-tertiary);">Double-Spending Deadbolt</small></td>
+                  <td>
+                    <span class="lang-en">Enforces distributed locks on invoice IDs (TTL 15 min) via atomic <code>MSETNX</code>, and caches application lookup tables.</span>
+                    <span class="lang-vi">Khóa nguyên tử <code>MSETNX</code> trên các mã hóa đơn (thời hạn 15 phút) ngay khi có thanh toán để chống trừ tiền 2 lần.</span>
+                  </td>
+                  <td>
+                    <span class="lang-en">Lock acquired in 0.3ms; concurrent clicks or duplicate bank webhooks are rejected immediately with HTTP 409 Conflict.</span>
+                    <span class="lang-vi">Chiếm khóa trong 0.3ms; các request bấm sau hoặc webhook trùng bị trượt khóa và từ chối ngay lập tức.</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>5. Temporal Saga Engine</strong><br><small style="color: var(--text-tertiary);">Temporal.io, Go/TS SDK</small></td>
+                  <td><strong>Vị nhạc trưởng tổng quản</strong><br><small style="color: var(--text-tertiary);">Master Orchestra Conductor</small></td>
+                  <td>
+                    <span class="lang-en">Coordinates the entire 5-activity lifecycle (Validate ➔ AI Tax ➔ SAP ➔ Port TOS ➔ Notify Driver) and executes Saga rollbacks on port failure.</span>
+                    <span class="lang-vi">Điều phối toàn bộ quy trình 5 bước từ lúc có tiền đến lúc nhả hàng; tự động chạy chuỗi bù trừ Saga rollback nếu cảng từ chối.</span>
+                  </td>
+                  <td>
+                    <span class="lang-en">Durable Execution: code is written linearly; if a server dies, another worker resumes from that exact line. Sleeps during SAP downtime with 0% CPU.</span>
+                    <span class="lang-vi">Thực thi bền bỉ: code viết tuần tự, pod chết dựng lại chạy tiếp đúng dòng code cũ. SAP bảo trì thì ngủ đông 0% CPU.</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>6. AI FinOps Pipeline</strong><br><small style="color: var(--text-tertiary);">OpenCV, Gemini Flash, Redis Vector</small></td>
+                  <td><strong>Trợ lý đọc chứng từ thuế</strong><br><small style="color: var(--text-tertiary);">AI Tax Document Clerk</small></td>
+                  <td>
+                    <span class="lang-en">Straightens scanned tax PDFs in 18ms (C++), extracts tax numbers in 258ms (Gemini Flash), and maps local fee names to SAP codes in 1.2ms (Vector).</span>
+                    <span class="lang-vi">Dùng C++ xoay nét ảnh scan trong 18ms, Gemini Flash đọc tiền thuế trong 258ms, và Redis Vector map tên phí sang mã SAP trong 1.2ms.</span>
+                  </td>
+                  <td>
+                    <span class="lang-en">Prompt templates cached in Vertex AI RAM cut token costs by 77%, achieving 98.4% accuracy with hard math validation before SAP entry.</span>
+                    <span class="lang-vi">Lưu prompt trên RAM Vertex AI giúp tiết kiệm 77% chi phí; kiểm tra số học Banker's rounding trước khi cho ghi vào SAP.</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>7. Core Business API</strong><br><small style="color: var(--text-tertiary);">Node.js Fastify, TypeScript</small></td>
+                  <td><strong>Bộ phận quản lý đơn hàng</strong><br><small style="color: var(--text-tertiary);">Order Checkout Processor</small></td>
+                  <td>
+                    <span class="lang-en">Manages checkout cart sessions, queries invoice balances, and generates banking payment session payloads.</span>
+                    <span class="lang-vi">Quản lý phiên thanh toán giỏ hàng, tra cứu dư nợ hóa đơn từ SAP và gọi ngân hàng tạo session thanh toán QR.</span>
+                  </td>
+                  <td>
+                    <span class="lang-en">Built with lightweight Fastify, enforcing strict schema validation and keeping p99 response times under 25ms.</span>
+                    <span class="lang-vi">Viết bằng Fastify siêu nhẹ, kiểm tra schema chặt chẽ và giữ độ trễ p99 luôn dưới 25ms.</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>8. MongoDB Atlas (2 Collections)</strong><br><small style="color: var(--text-tertiary);">Replica Set, WiredTiger</small></td>
+                  <td><strong>Máy quẹt thẻ POS cổng cảng</strong><br><small style="color: var(--text-tertiary);">Handheld POS Terminal</small></td>
+                  <td>
+                    <span class="lang-en">Stores checkout snapshots (<code>purchase_orders</code>) and immutable swipe attempts (<code>payment_transactions</code>).</span>
+                    <span class="lang-vi">Lưu snapshot hóa đơn thanh toán (<code>purchase_orders</code>) và nhật ký các lượt quẹt mã (<code>payment_transactions</code>).</span>
+                  </td>
+                  <td>
+                    <span class="lang-en">Only 2 collections because SAP is the true Bank & Ledger. Enables sub-2ms reads with zero SQL joins and zero data drift against SAP.</span>
+                    <span class="lang-vi">Chỉ cần 2 collection vì SAP là Kế toán trưởng giữ dữ liệu gốc; query O(1) &lt; 2ms, không cần SQL JOIN, không bao giờ lệch dữ liệu với SAP.</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>9. SAP S/4HANA Connector</strong><br><small style="color: var(--text-tertiary);">RFC / OData REST, BRIM FICA</small></td>
+                  <td><strong>Cầu nối Kế toán trưởng</strong><br><small style="color: var(--text-tertiary);">Chief Accountant Bridge</small></td>
+                  <td>
+                    <span class="lang-en">Translates cleared transaction data into SAP accounting documents, posting accounts receivable clearing in SAP FI-AR.</span>
+                    <span class="lang-vi">Chuyển dữ liệu giao dịch thành chứng từ kế toán, thực hiện gạch trừ công nợ trên sổ cái SAP FI-AR.</span>
+                  </td>
+                  <td>
+                    <span class="lang-en">Protects SAP with circuit breakers and connection bulkheads, guaranteeing enterprise ledger balance without overloading SAP gateway.</span>
+                    <span class="lang-vi">Bảo vệ SAP bằng chốt ngắt mạch Circuit Breaker và vách ngăn Bulkhead, không bao giờ làm quá tải cổng kết nối của SAP.</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>10. Port Terminal Adapter (TOS)</strong><br><small style="color: var(--text-tertiary);">REST / AS2 (Cat Lai, Hai Phong)</small></td>
+                  <td><strong>Cầu nối Cần cẩu & Cổng cảng</strong><br><small style="color: var(--text-tertiary);">Port Gate & Crane Bridge</small></td>
+                  <td>
+                    <span class="lang-en">Transmits cleared container manifests to seaport terminal operating systems to generate Electronic Delivery Orders (e-D/O).</span>
+                    <span class="lang-vi">Gửi lệnh xác nhận đã trả tiền sang hệ thống máy tính của cảng biển để phát hành Lệnh giao hàng điện tử (e-D/O).</span>
+                  </td>
+                  <td>
+                    <span class="lang-en">Direct terminal integration allows truck drivers to pick up multi-ton physical containers in under 60 seconds without visiting port counters.</span>
+                    <span class="lang-vi">Kết nối thẳng vào cảng biển giúp tài xế kéo container ra khỏi cảng chỉ sau 60 giây mà không cần ghé quầy giấy tờ.</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>11. Notification Service</strong><br><small style="color: var(--text-tertiary);">Zalo ZNS, Twilio SMS, SendGrid</small></td>
+                  <td><strong>Người đưa thư báo tin</strong><br><small style="color: var(--text-tertiary);">Instant Message Courier</small></td>
+                  <td>
+                    <span class="lang-en">Dispatches encrypted QR delivery passes and PDF receipts instantly to truck drivers and forwarders via SMS, Zalo, and email.</span>
+                    <span class="lang-vi">Bắn tin nhắn SMS, Zalo ZNS và Email kèm mã QR Lệnh giao hàng về máy tài xế xe tải và chủ hàng ngay khi hoàn tất.</span>
+                  </td>
+                  <td>
+                    <span class="lang-en">Multi-channel fallback: if Zalo delivery times out after 5 seconds, it automatically falls back to SMS, ensuring drivers always receive gate passes.</span>
+                    <span class="lang-vi">Tự động chuyển kênh: nếu Zalo không nhận được trong 5 giây thì tự động chuyển sang tin nhắn SMS, bảo đảm tài xế luôn nhận được mã.</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- MENTAL ANCHOR BOX -->
+        <div class="mental-anchor-box" style="margin-bottom: 2rem;">
+          <span class="lang-en">
+            🧠 <strong>Interview Golden Formula (The 6-Leg Journey):</strong><br>
+            <strong>1. Select Order (Web Portal ➔ APISIX 0.02ms)</strong> ➔ 
+            <strong>2. Scan QR (Bank Rails &lt; 3s)</strong> ➔ 
+            <strong>3. Ingest & Lock (Go 4.2ms + Redis Mutex)</strong> ➔ 
+            <strong>4. Extract Tax (AI FinOps 258ms)</strong> ➔ 
+            <strong>5. Clear Debt (SAP S/4HANA ERP)</strong> ➔ 
+            <strong>6. Gate-Out Cargo (Port TOS e-D/O &lt; 60s)</strong>.<br>
+            Remember the real-world metaphor: <em>SAP is the Chief Accountant & Bank. Our system is just the Handheld POS Card Machine outside the port gate!</em>
+          </span>
+          <span class="lang-vi">
+            🧠 <strong>Mẹo ghi nhớ luồng đi khi phỏng vấn (Công thức 6 chặng):</strong><br>
+            <strong>1. Chọn đơn (Web Portal ➔ APISIX 0.02ms)</strong> ➔ 
+            <strong>2. Quét QR (Cổng ngân hàng &lt; 3s)</strong> ➔ 
+            <strong>3. Bắt tiền & Khóa chống trùng (Go 4.2ms + Redis Lock)</strong> ➔ 
+            <strong>4. Đọc thuế (AI FinOps 258ms)</strong> ➔ 
+            <strong>5. Gạch nợ sổ cái (SAP S/4HANA ERP)</strong> ➔ 
+            <strong>6. Nhả container ra cổng (Cảng biển TOS &lt; 60s)</strong>.<br>
+            Cứ nhớ đúng một câu cửa miệng: <em>SAP là Kế toán trưởng & Ngân hàng tối cao. Hệ thống tụi em chỉ là chiếc Máy quẹt thẻ POS cầm tay đặt ở cổng cảng!</em>
+          </span>
         </div>
 
         <!-- 10 NON-NEGOTIABLE TRADE-OFFS TABLE -->
