@@ -2721,322 +2721,324 @@ sequenceDiagram
         </div>
       
         
-        <!-- SUBSECTION: THE INTERVIEW JARGON BUSTER (21 ADVANCED TERMS DECODED) -->
+        
+        <!-- SUBSECTION: 21 CORE SYSTEM CAPABILITIES IN PLAIN, EVERYDAY WORDS -->
         <div class="subsection-title" style="margin-top: 2.5rem;">
           <span>💡</span>
-          <span class="lang-en">THE MASTER INTERVIEW JARGON BUSTER: 21 ADVANCED ARCHITECTURAL TERMS EXPLAINED WITH ZERO JARGON</span>
-          <span class="lang-vi">BỘ GIẢI MÃ THUẬT NGỮ PHỎNG VẤN MASTER: 21 KHÁI NIỆM NÂNG CAO ĐƯỢC BÌNH DÂN HÓA DỄ HIỂU NHẤT</span>
+          <span class="lang-en">THE PLAIN-ENGLISH MASTER GUIDE: 21 SYSTEM CAPABILITIES EXPLAINED IN SIMPLE WORDS</span>
+          <span class="lang-vi">CẨM NANG THỰC CHIẾN: 21 TÍNH NĂNG CỐT LÕI CỦA HỆ THỐNG DIỄN ĐẠT BẰNG TỪ NGỮ ĐỜI THƯỜNG</span>
         </div>
 
         <div class="highlight-box" style="border-left: 4px solid var(--accent-blue); background: var(--bg-surface-elevated); margin-bottom: 1.5rem; padding: 1.25rem 1.5rem; border-radius: 8px; box-shadow: var(--shadow-sm);">
           <div style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--accent-blue);">
-            <span class="lang-en">🎯 Why Technical Candidates Stumble in Architecture Interviews</span>
-            <span class="lang-vi">🎯 Vì sao ứng viên thường bị "khớp" trong các buổi phỏng vấn Kiến trúc</span>
+            <span class="lang-en">🎯 Golden Rule for Interviews: Speak in Plain Words, Not Confusing Jargon</span>
+            <span class="lang-vi">🎯 Nguyên tắc vàng khi phỏng vấn: Nói bằng từ ngữ đời thường, tuyệt đối không dùng từ ngữ khó hiểu</span>
           </div>
           <p class="lang-en" style="margin-bottom: 0.75rem; line-height: 1.6; color: var(--text-secondary);">
-            The biggest mistake engineers make in System Design interviews is <em>buzzword dropping</em>—using complex terms like <em>"Saga compensation", "Bulkhead isolation", "WiredTiger tickets", "BAPI/BELNR", "HNSW vector search"</em> without being able to explain what they actually mean in plain English. 
-            Interviewers will intentionally stop you and ask: <em>"Explain that to me like I am 10 years old."</em><br>
-            Below is your master translation cheat-sheet: <strong>21 advanced architectural terms</strong> broken down into <strong>Real-World Everyday Metaphors</strong> and <strong>1-Sentence Spoken Interview Pitches</strong>. Memorize these simple mental models, and you will sound like a seasoned Principal Architect.
+            When interviewing with Engineering Directors or CTOs, candidates who drop heavy technical words often fail because they sound like they just memorized a textbook.<br>
+            Top engineers do the exact opposite: they explain the most complex systems using <strong>simple, common-sense words that anyone can understand immediately</strong>.<br>
+            Below are the <strong>21 core capabilities of this platform</strong>, described using everyday language, real-world analogies, and natural spoken interview answers.
           </p>
           <p class="lang-vi" style="margin-bottom: 0.75rem; line-height: 1.6; color: var(--text-secondary);">
-            Sai lầm lớn nhất của các kỹ sư khi đi phỏng vấn System Design là <em>bắn thuật ngữ hàn lâm</em> (buzzword dropping)—nói những từ rất ngầu như <em>"Saga compensation", "Vách ngăn Bulkhead", "WiredTiger tickets", "BAPI/BELNR", "HNSW vector search"</em> nhưng khi người phỏng vấn vặn lại: <em>"Giải thích cho người bình thường hiểu bản chất là gì?"</em> thì lại ấp úng, lúng túng!<br>
-            Dưới đây là cẩm nang giải mã toàn diện: <strong>21 thuật ngữ kiến trúc nâng cao nhất</strong> được quy đổi về <strong>Ẩn dụ đời thường (Everyday Metaphors)</strong> và <strong>Câu trả lời 1 dòng ăn điểm khi phỏng vấn</strong>. Chỉ cần nắm vững các hình ảnh đời thực này, bạn sẽ tự tin đối đáp trôi chảy với bất kỳ Lead hay Giám đốc công nghệ nào!
+            Khi đi phỏng vấn với Giám đốc Công nghệ hay Trưởng bộ phận kỹ thuật, những ai cố tình dùng thuật ngữ cao siêu thường bị đánh giá thấp vì nghe như học vẹt sách giáo khoa.<br>
+            Những kỹ sư thực chiến giỏi nhất luôn làm điều ngược lại: họ giải thích những hệ thống phức tạp nhất bằng <strong>từ ngữ đời thường, bình dân, nói câu nào là người nghe hiểu ngay câu đó</strong>.<br>
+            Dưới đây là <strong>21 tính năng cốt lõi của hệ thống</strong> được diễn giải hoàn toàn bằng ngôn từ tự nhiên, dễ đọc, dễ nhớ và cực kỳ tự tin khi đi phỏng vấn.
           </p>
         </div>
 
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 1.25rem; margin-bottom: 2rem;">
 
-          <!-- CARD 1: WIREDTIGER TICKETS -->
+          <!-- CARD 1 -->
           <div style="border: 1px solid var(--border-subtle); border-top: 4px solid var(--accent-red); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-              <span style="font-weight: 700; color: var(--accent-red); font-size: 0.95rem;">1. WiredTiger 128 Tickets</span>
-              <span style="font-size: 0.75rem; background: var(--bg-surface-elevated); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">MongoDB Storage Engine</span>
+            <div style="font-weight: 700; color: var(--accent-red); font-size: 0.95rem; margin-bottom: 0.5rem;">
+              <span class="lang-en">1. Preventing Database Overload from Slow Queries</span>
+              <span class="lang-vi">1. Chống nghẽn Database do các lệnh tìm kiếm chậm</span>
             </div>
-            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary); margin-bottom: 0.75rem;">
-              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>🏢 Everyday Metaphor:</strong> A bank branch with exactly 128 service counters. If customers bring simple paperwork, queues move in milliseconds. If 128 people sit down to fill out 20-page forms with no indexes, all 128 counters are occupied, and thousands of people behind them freeze outside the door.</p>
-              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>🏢 Ẩn dụ đời thường:</strong> Chi nhánh ngân hàng có đúng 128 quầy phục vụ. Nếu ai cũng chỉ rút tiền nhanh (có index), dòng người trôi vèo vèo. Nếu 128 người vào ngồi ôm quầy làm thủ tục dài 5 phút (truy vấn quét bảng không index), cả 128 quầy bị chiếm trọn và hàng nghìn người phía sau phải đứng chôn chân ngoài cửa.</p>
-              <p class="lang-en" style="margin: 0;"><strong>🎤 Interview Pitch:</strong> <em>"MongoDB only allows 128 concurrent active reads and 128 writes at any instant. We prevent ticket starvation by enforcing strict compound indexes and capping microservice connection pools."</em></p>
-              <p class="lang-vi" style="margin: 0;"><strong>🎤 Câu nói khi phỏng vấn:</strong> <em>"MongoDB chỉ cho phép tối đa 128 lệnh đọc và 128 lệnh ghi chạy cùng lúc tại một thời điểm. Tụi em tránh nghẽn quầy vé bằng cách đánh compound index chuẩn và giới hạn connection pool ở mức hợp lý."</em></p>
+            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary);">
+              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>🏢 Everyday Analogy:</strong> A bank branch with 128 counters. If customers do quick transactions, queues move fast. If 128 people sit down to fill out 20-page forms with no index, all counters get blocked and thousands wait outside.</p>
+              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>🏢 Ẩn dụ đời thường:</strong> Chi nhánh ngân hàng có đúng 128 quầy phục vụ. Nếu ai cũng chỉ rút tiền nhanh, dòng người trôi rất lẹ. Nếu 128 người vào ngồi ôm quầy làm thủ tục giấy tờ chậm chạp, toàn bộ quầy bị tắc và hàng nghìn người phía sau phải đứng chờ ngoài cửa.</p>
+              <p class="lang-en" style="margin: 0;"><strong>🎤 Spoken Answer:</strong> <em>"Our database can only run 128 queries at the exact same time. We prevent slowdowns by setting up smart indexes so queries finish in milliseconds instead of holding up the system."</em></p>
+              <p class="lang-vi" style="margin: 0;"><strong>🎤 Lời nói phỏng vấn:</strong> <em>"Cơ sở dữ liệu chỉ chạy được tối đa 128 lệnh cùng một lúc. Tụi em đánh chỉ mục (index) cẩn thận để lệnh nào cũng chạy xong trong vài mili-giây, không để lệnh chậm chiếm chỗ làm nghẽn cả hệ thống."</em></p>
             </div>
           </div>
 
-          <!-- CARD 2: SAGA PATTERN VS 2PC -->
+          <!-- CARD 2 -->
           <div style="border: 1px solid var(--border-subtle); border-top: 4px solid var(--accent-purple); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-              <span style="font-weight: 700; color: var(--accent-purple); font-size: 0.95rem;">2. Temporal Saga Pattern vs. 2PC</span>
-              <span style="font-size: 0.75rem; background: var(--bg-surface-elevated); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">Distributed Transactions</span>
+            <div style="font-weight: 700; color: var(--accent-purple); font-size: 0.95rem; margin-bottom: 0.5rem;">
+              <span class="lang-en">2. Automatic Refund &amp; Rollback on Failures</span>
+              <span class="lang-vi">2. Tự động hoàn tiền và lùi lại khi có bước bị lỗi</span>
             </div>
-            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary); margin-bottom: 0.75rem;">
-              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>🔄 Everyday Metaphor:</strong> Two-Phase Commit (2PC) is forcing 5 people to hold hands and walk together; if one trips, everyone freezes. Saga is letting each person step forward independently, but equipping everyone with a reliable <strong>Ctrl+Z (Undo) button</strong> to step backward if step 4 fails.</p>
-              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>🔄 Ẩn dụ đời thường:</strong> 2PC là bắt 5 người nắm chặt tay nhau cùng bước, 1 người vấp ngã là cả 5 người đứng khựng lại. Saga là cho từng dịch vụ tự bước về phía trước, nhưng luôn chuẩn bị sẵn <strong>nút Ctrl+Z (hành động bù hoàn)</strong> để lùi lại nếu bước số 4 gặp sự cố.</p>
-              <p class="lang-en" style="margin: 0;"><strong>🎤 Interview Pitch:</strong> <em>"In distributed microservices, 2PC creates dangerous locks across databases. We use Temporal Saga to execute local transactions step-by-step with automated compensating activities on failure."</em></p>
-              <p class="lang-vi" style="margin: 0;"><strong>🎤 Câu nói khi phỏng vấn:</strong> <em>"Trên hệ thống phân tán, 2PC tạo ra khóa chết giữa các database. Tụi em dùng Saga của Temporal để mỗi dịch vụ commit dữ liệu cục bộ, nếu lỗi ở đâu thì tự động chạy hành động bù trừ (compensate) để hoàn lại tiền."</em></p>
+            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary);">
+              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>🔄 Everyday Analogy:</strong> The ultimate Undo button (Ctrl+Z). Instead of forcing 5 people to hold hands and freeze if one trips, each service takes its own step. If step 4 fails, the system automatically runs reverse steps to undo changes and restore balance.</p>
+              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>🔄 Ẩn dụ đời thường:</strong> Chiếc nút bấm Ctrl+Z (Undo) thần kỳ. Thay vì bắt 5 người nắm chặt tay nhau khiến 1 người vấp ngã là cả 5 người đứng chôn chân, mỗi dịch vụ tự làm phần việc của mình. Nếu bước số 4 bị hỏng, hệ thống tự động đi lùi lại từng bước để trả tiền và đưa mọi thứ về trạng thái an toàn.</p>
+              <p class="lang-en" style="margin: 0;"><strong>🎤 Spoken Answer:</strong> <em>"If a payment succeeds but the accounting step fails, our workflow engine automatically triggers a refund and reopens the invoice so money is never lost."</em></p>
+              <p class="lang-vi" style="margin: 0;"><strong>🎤 Lời nói phỏng vấn:</strong> <em>"Nếu khách đã thanh toán thành công nhưng bước ghi sổ kế toán bị lỗi, quy trình tự động kích hoạt lệnh hoàn tiền và mở lại hóa đơn, đảm bảo không bao giờ bị thất thoát tiền của khách."</em></p>
             </div>
           </div>
 
-          <!-- CARD 3: IDEMPOTENCY -->
+          <!-- CARD 3 -->
           <div style="border: 1px solid var(--border-subtle); border-top: 4px solid var(--accent-green); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-              <span style="font-weight: 700; color: var(--accent-green); font-size: 0.95rem;">3. Idempotency &amp; Mutex Lock</span>
-              <span style="font-size: 0.75rem; background: var(--bg-surface-elevated); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">Data Integrity &amp; Payments</span>
+            <div style="font-weight: 700; color: var(--accent-green); font-size: 0.95rem; margin-bottom: 0.5rem;">
+              <span class="lang-en">3. Preventing Duplicate Payments When Network Lags</span>
+              <span class="lang-vi">3. Chống trừ tiền 2 lần khi mạng bị chập chờn</span>
             </div>
-            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary); margin-bottom: 0.75rem;">
-              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>🔘 Everyday Metaphor:</strong> An elevator call button. No matter how many times you impatiently press the button (1 time or 10 times), the elevator only receives one call and stops on your floor once.</p>
+            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary);">
+              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>🔘 Everyday Analogy:</strong> An elevator call button. No matter how many times you press it (1 time or 10 times), the elevator only receives one call and stops on your floor once.</p>
               <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>🔘 Ẩn dụ đời thường:</strong> Nút bấm gọi thang máy. Dù bạn có sốt ruột bấm 1 lần hay bấm liên tục 10 lần thì thang máy cũng chỉ nhận lệnh 1 lần và dừng đón bạn đúng 1 lần.</p>
-              <p class="lang-en" style="margin: 0;"><strong>🎤 Interview Pitch:</strong> <em>"An idempotency key ensures that even if the bank resends a payment webhook 5 times due to network retries, we only deduct fees and release the container once."</em></p>
-              <p class="lang-vi" style="margin: 0;"><strong>🎤 Câu nói khi phỏng vấn:</strong> <em>"Khóa Idempotency bảo đảm dù mạng chập chờn khiến ngân hàng gửi trùng Webhook 5 lần thì hệ thống cũng chỉ gạch nợ và cấp lệnh xuất kho đúng 1 lần duy nhất."</em></p>
+              <p class="lang-en" style="margin: 0;"><strong>🎤 Spoken Answer:</strong> <em>"Even if a user double-clicks or the bank sends the payment confirmation 5 times due to network glitches, we lock the invoice so money is only deducted once."</em></p>
+              <p class="lang-vi" style="margin: 0;"><strong>🎤 Lời nói phỏng vấn:</strong> <em>"Dù khách hàng có bấm thanh toán 2 lần hoặc ngân hàng gửi tin nhắn báo tiền vào 5 lần do lag mạng, hệ thống vẫn khóa đơn và bảo đảm chỉ trừ tiền và nhả hàng đúng 1 lần duy nhất."</em></p>
             </div>
           </div>
 
-          <!-- CARD 4: BULKHEAD PATTERN -->
+          <!-- CARD 4 -->
           <div style="border: 1px solid var(--border-subtle); border-top: 4px solid var(--accent-blue); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-              <span style="font-weight: 700; color: var(--accent-blue); font-size: 0.95rem;">4. Bulkhead Isolation Pattern</span>
-              <span style="font-size: 0.75rem; background: var(--bg-surface-elevated); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">Fault Tolerance &amp; SRE</span>
+            <div style="font-weight: 700; color: var(--accent-blue); font-size: 0.95rem; margin-bottom: 0.5rem;">
+              <span class="lang-en">4. Isolating Bank Failures So One Bank Cannot Sink Others</span>
+              <span class="lang-vi">4. Tách biệt các ngân hàng để một bên sập không kéo bên khác sập theo</span>
             </div>
-            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary); margin-bottom: 0.75rem;">
-              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>🚢 Everyday Metaphor:</strong> The watertight compartment walls inside the hull of a ship. If water leaks into Cabin 1, the steel bulkheads seal off that compartment so the entire ship does not sink.</p>
-              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>🚢 Ẩn dụ đời thường:</strong> Các vách ngăn chống chìm kín nước bên trong thân tàu thủy. Nếu một khoang bị thủng thủng nước tràn vào, vách ngăn sẽ chặn lại không cho nước tràn sang các khoang khác để giữ cho toàn bộ con tàu không bị chìm.</p>
-              <p class="lang-en" style="margin: 0;"><strong>🎤 Interview Pitch:</strong> <em>"If a partner bank in Thailand suffers an outage and hangs requests, our Bulkhead thread pools isolate the failure so Vietnam HSBC and Singapore PayNow continue operating at 100% capacity."</em></p>
-              <p class="lang-vi" style="margin: 0;"><strong>🎤 Câu nói khi phỏng vấn:</strong> <em>"Nếu cổng ngân hàng bên Thái Lan bị nghẽn làm treo request, vách ngăn Bulkhead sẽ cô lập lỗi trong pool riêng, không cho nó ngốn hết thread làm sập cổng HSBC Việt Nam hay PayNow Singapore."</em></p>
+            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary);">
+              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>🚢 Everyday Analogy:</strong> Watertight compartment walls in a ship hull. If water leaks into Cabin 1, steel walls seal it off so water cannot spread and sink the whole ship.</p>
+              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>🚢 Ẩn dụ đời thường:</strong> Các vách ngăn kín nước trên thân tàu thủy. Nếu khoang số 1 bị thủng nước tràn vào, vách ngăn lập tức đóng kín lại, không cho nước tràn sang các khoang khác để giữ cho toàn bộ con tàu an toàn.</p>
+              <p class="lang-en" style="margin: 0;"><strong>🎤 Spoken Answer:</strong> <em>"We give each bank partner its own separate connection pool. If Thailand bank servers go down, it cannot consume server memory and affect Vietnam or Singapore payments."</em></p>
+              <p class="lang-vi" style="margin: 0;"><strong>🎤 Lời nói phỏng vấn:</strong> <em>"Tụi em chia đường truyền riêng cho từng ngân hàng. Nếu hệ thống ngân hàng bên Thái Lan bị treo, nó chỉ bị cô lập ở vùng của nó, cổng thanh toán Việt Nam và Singapore vẫn chạy phăng phăng 100%."</em></p>
             </div>
           </div>
 
-          <!-- CARD 5: CIRCUIT BREAKER -->
+          <!-- CARD 5 -->
           <div style="border: 1px solid var(--border-subtle); border-top: 4px solid var(--accent-amber); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-              <span style="font-weight: 700; color: var(--accent-amber); font-size: 0.95rem;">5. Circuit Breaker Pattern</span>
-              <span style="font-size: 0.75rem; background: var(--bg-surface-elevated); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">Cascading Failure Prevention</span>
+            <div style="font-weight: 700; color: var(--accent-amber); font-size: 0.95rem; margin-bottom: 0.5rem;">
+              <span class="lang-en">5. Automatic Fuse to Cut Off Broken Connections</span>
+              <span class="lang-vi">5. Cầu chì tự ngắt khi đối tác bị lỗi</span>
             </div>
-            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary); margin-bottom: 0.75rem;">
-              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>⚡ Everyday Metaphor:</strong> The electrical fuse box (Aptomat) in your home. When high voltage or a short circuit happens, the fuse trips immediately to cut the power and protect your house from burning down.</p>
-              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>⚡ Ẩn dụ đời thường:</strong> Chiếc Aptomat (cầu chì tự ngắt) trong nhà bạn. Khi dây điện bị chập hoặc quá tải, cầu chì lập tức nhảy ngắt điện để bảo vệ toàn bộ ngôi nhà không bị chập cháy.</p>
-              <p class="lang-en" style="margin: 0;"><strong>🎤 Interview Pitch:</strong> <em>"When an external bank endpoint fails over 50% of calls, the circuit breaker trips OPEN: we fail fast and return a clean fallback instead of exhausting server threads on dead connections."</em></p>
-              <p class="lang-vi" style="margin: 0;"><strong>🎤 Câu nói khi phỏng vấn:</strong> <em>"Khi một cổng ngân hàng bị lỗi quá 50%, cầu chì Circuit Breaker sẽ nhảy NGẮT: hệ thống trả ngay thông báo lỗi thân thiện thay vì để hàng nghìn request đứng chờ làm nghẽn chết server."</em></p>
+            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary);">
+              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>⚡ Everyday Analogy:</strong> The electric safety fuse (Aptomat) in your home. When wires short-circuit, the fuse trips immediately to cut the current and protect your home from fire.</p>
+              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>⚡ Ẩn dụ đời thường:</strong> Chiếc Aptomat (cầu chì tự ngắt) trong nhà. Khi đường điện bị chập hoặc quá tải, cầu chì lập tức nhảy ngắt điện để cả ngôi nhà không bị chập cháy.</p>
+              <p class="lang-en" style="margin: 0;"><strong>🎤 Spoken Answer:</strong> <em>"If a partner bank starts failing over 50% of requests, our system temporarily stops sending traffic to them and immediately shows a helpful message to the user."</em></p>
+              <p class="lang-vi" style="margin: 0;"><strong>🎤 Lời nói phỏng vấn:</strong> <em>"Nếu một ngân hàng đối tác bị lỗi quá nửa số yêu cầu, hệ thống tự động nhảy cầu chì ngắt kết nối tạm thời, báo cho khách hàng chuyển sang ngân hàng khác thay vì để nghẽn server."</em></p>
             </div>
           </div>
 
-          <!-- CARD 6: WORM STORAGE -->
+          <!-- CARD 6 -->
           <div style="border: 1px solid var(--border-subtle); border-top: 4px solid var(--accent-teal); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-              <span style="font-weight: 700; color: var(--accent-teal); font-size: 0.95rem;">6. WORM Storage (Immutable Audit)</span>
-              <span style="font-size: 0.75rem; background: var(--bg-surface-elevated); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">Compliance &amp; SOX 404</span>
+            <div style="font-weight: 700; color: var(--accent-teal); font-size: 0.95rem; margin-bottom: 0.5rem;">
+              <span class="lang-en">6. Tamper-Proof Financial Logs That Nobody Can Erase</span>
+              <span class="lang-vi">6. Khóa cứng sổ sách tài chính không ai có thể sửa hoặc xóa</span>
             </div>
-            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary); margin-bottom: 0.75rem;">
-              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>📜 Everyday Metaphor:</strong> Carving words into wet cement or permanent stone. Once the stone hardens, nobody can erase, rewrite, or alter a single letter.</p>
-              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>📜 Ẩn dụ đời thường:</strong> Khắc chữ lên tấm bia đá hoặc khắc vào xi măng ướt. Một khi xi măng đã đông cứng, không ai có thể tẩy xóa, viết đè hay sửa chữa dù chỉ một nét chữ.</p>
-              <p class="lang-en" style="margin: 0;"><strong>🎤 Interview Pitch:</strong> <em>"WORM stands for Write Once, Read Many. Financial audit logs are cryptographically locked on cloud storage so that not even root admins can delete or alter them for 7 years."</em></p>
-              <p class="lang-vi" style="margin: 0;"><strong>🎤 Câu nói khi phỏng vấn:</strong> <em>"WORM nghĩa là Ghi một lần, Đọc nhiều lần. Nhật ký kiểm toán tài chính được khóa cứng trên cloud, kể cả quản trị viên cao nhất cũng không thể sửa hay xóa trong vòng 7 năm theo chuẩn SOX 404."</em></p>
+            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary);">
+              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>📜 Everyday Analogy:</strong> Carving words into wet cement or solid stone. Once it dries, nobody—not even the building owner—can change or erase a single letter.</p>
+              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>📜 Ẩn dụ đời thường:</strong> Khắc chữ lên bia đá hoặc khắc vào xi măng ướt. Một khi xi măng đã khô, không một ai (kể cả chủ nhà) có thể sửa chữa hay tẩy xóa dù chỉ một nét chữ.</p>
+              <p class="lang-en" style="margin: 0;"><strong>🎤 Spoken Answer:</strong> <em>"Every financial transaction is written to locked cloud storage. Not even system administrators can delete or modify records for 7 years, guaranteeing 100% audit trust."</em></p>
+              <p class="lang-vi" style="margin: 0;"><strong>🎤 Lời nói phỏng vấn:</strong> <em>"Mọi nhật ký chuyển tiền đều được khóa cứng trên bộ nhớ đám mây. Kể cả quản trị viên cao nhất cũng không thể sửa hay xóa trong vòng 7 năm để phục vụ thanh tra tài chính."</em></p>
             </div>
           </div>
 
-          <!-- CARD 7: MTLS -->
+          <!-- CARD 7 -->
           <div style="border: 1px solid var(--border-subtle); border-top: 4px solid var(--accent-indigo); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-              <span style="font-weight: 700; color: var(--accent-indigo); font-size: 0.95rem;">7. Mutual TLS (mTLS)</span>
-              <span style="font-size: 0.75rem; background: var(--bg-surface-elevated); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">Zero-Trust Security</span>
+            <div style="font-weight: 700; color: var(--accent-indigo); font-size: 0.95rem; margin-bottom: 0.5rem;">
+              <span class="lang-en">7. Two-Way ID Verification for Bank Security</span>
+              <span class="lang-vi">7. Xác thực căn cước 2 chiều giữa hệ thống và ngân hàng</span>
             </div>
-            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary); margin-bottom: 0.75rem;">
-              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>🪪 Everyday Metaphor:</strong> Standard HTTPS is like a guest checking a hotel's business license. mTLS is when BOTH the hotel AND the guest demand to inspect certified government ID cards before opening the door.</p>
-              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>🪪 Ẩn dụ đời thường:</strong> HTTPS thường giống như khách kiểm tra giấy phép kinh doanh của khách sạn. Còn mTLS là CẢ HAI BÊN (khách sạn và vị khách) đều phải xuất trình căn cước công dân có công chứng trước khi bắt tay mở cửa.</p>
-              <p class="lang-en" style="margin: 0;"><strong>🎤 Interview Pitch:</strong> <em>"In banking integrations, passwords and API tokens are not enough. mTLS ensures that both our API Gateway and HSBC authenticate each other using trusted X.509 digital certificates."</em></p>
-              <p class="lang-vi" style="margin: 0;"><strong>🎤 Câu nói khi phỏng vấn:</strong> <em>"Khi tích hợp ngân hàng, password hay API token là không đủ. mTLS bảo đảm cả Gateway của mình và HSBC đều phải xác thực chứng chỉ số X.509 của nhau trước khi truyền dữ liệu tiền tệ."</em></p>
+            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary);">
+              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>🪪 Everyday Analogy:</strong> Normal website visits are like a guest checking a hotel's sign. Here, BOTH the hotel and the guest must show notarized government ID cards before opening the door.</p>
+              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>🪪 Ẩn dụ đời thường:</strong> Lướt web bình thường giống như khách nhìn biển hiệu khách sạn. Ở đây thì CẢ HAI BÊN (khách sạn và vị khách) đều phải xuất trình căn cước công dân có công chứng trước khi bắt tay mở cửa.</p>
+              <p class="lang-en" style="margin: 0;"><strong>🎤 Spoken Answer:</strong> <em>"We don't just rely on passwords. Both our gateway and the bank must present verified digital security certificates to talk to each other."</em></p>
+              <p class="lang-vi" style="margin: 0;"><strong>🎤 Lời nói phỏng vấn:</strong> <em>"Hệ thống không chỉ dùng mật khẩu thông thường. Cả cổng của tụi em và ngân hàng đều phải xuất trình chứng chỉ bảo mật số đã được phê duyệt trước khi truyền tin chuyển tiền."</em></p>
             </div>
           </div>
 
-          <!-- CARD 8: MT940 VS CAMT.053 -->
+          <!-- CARD 8 -->
           <div style="border: 1px solid var(--border-subtle); border-top: 4px solid var(--accent-cyan); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-              <span style="font-weight: 700; color: var(--accent-cyan); font-size: 0.95rem;">8. SWIFT MT940 vs. CAMT.053</span>
-              <span style="font-size: 0.75rem; background: var(--bg-surface-elevated); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">Bank Statement Protocols</span>
+            <div style="font-weight: 700; color: var(--accent-cyan); font-size: 0.95rem; margin-bottom: 0.5rem;">
+              <span class="lang-en">8. Reading Bank Statements for Automated Accounting</span>
+              <span class="lang-vi">8. Đọc file sao kê ngân hàng để tự động gạch nợ kế toán</span>
             </div>
-            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary); margin-bottom: 0.75rem;">
-              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>📠 Everyday Metaphor:</strong> MT940 is like an old 1980s black-and-white fax message. CAMT.053 is a modern high-resolution color digital PDF with structured barcodes and rich XML tags.</p>
-              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>📠 Ẩn dụ đời thường:</strong> MT940 giống như bức điện báo fax đen trắng từ thập niên 1980. CAMT.053 là tài liệu điện tử XML chuẩn quốc tế hiện đại, có gắn mã vạch và phân tách từng trường dữ liệu rõ ràng.</p>
-              <p class="lang-en" style="margin: 0;"><strong>🎤 Interview Pitch:</strong> <em>"MT940 is the legacy SWIFT text format for bank statements. CAMT.053 is the modern ISO 20022 XML standard that carries rich payer tax IDs and QR invoice codes for automated reconciliation."</em></p>
-              <p class="lang-vi" style="margin: 0;"><strong>🎤 Câu nói khi phỏng vấn:</strong> <em>"MT940 là chuẩn sao kê dạng text cũ của SWIFT. Còn CAMT.053 là chuẩn XML hiện đại theo ISO 20022 chứa đầy đủ mã số thuế, mã hóa đơn QR giúp gạch nợ tự động 100% trên SAP."</em></p>
+            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary);">
+              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>📠 Everyday Analogy:</strong> Old black-and-white fax messages versus modern structured digital PDFs with clear barcodes that a computer can read and match in seconds.</p>
+              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>📠 Ẩn dụ đời thường:</strong> Bản fax đen trắng từ thập niên cũ so với file tài liệu điện tử hiện đại có gắn mã vạch rõ ràng, máy tính nhìn vào là hiểu và khớp lệnh trong tích tắc.</p>
+              <p class="lang-en" style="margin: 0;"><strong>🎤 Spoken Answer:</strong> <em>"At the end of each day, our system downloads official bank statements and automatically matches 10,000 payments against company books with zero manual effort."</em></p>
+              <p class="lang-vi" style="margin: 0;"><strong>🎤 Lời nói phỏng vấn:</strong> <em>"Cuối mỗi ngày, hệ thống tự động tải file sao kê chính thức từ ngân hàng về và tự động gạch nợ hơn 10.000 hóa đơn kế toán mà không cần con người phải ngồi dò tay."</em></p>
             </div>
           </div>
 
-          <!-- CARD 9: ELECTRONIC DELIVERY ORDER (E-D/O) -->
+          <!-- CARD 9 -->
           <div style="border: 1px solid var(--border-subtle); border-top: 4px solid var(--accent-green); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-              <span style="font-weight: 700; color: var(--accent-green); font-size: 0.95rem;">9. Electronic Delivery Order (e-D/O)</span>
-              <span style="font-size: 0.75rem; background: var(--bg-surface-elevated); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">Maritime Operations</span>
+            <div style="font-weight: 700; color: var(--accent-green); font-size: 0.95rem; margin-bottom: 0.5rem;">
+              <span class="lang-en">9. Digital Boarding Pass to Release 30-Ton Containers</span>
+              <span class="lang-vi">9. Giấy phép điện tử để nhả thùng container 30 tấn tại cổng cảng</span>
             </div>
-            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary); margin-bottom: 0.75rem;">
-              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>🎫 Everyday Metaphor:</strong> An airline digital boarding pass on your smartphone. Without the boarding pass, the security gate will never let you board the plane, even if you paid for the ticket.</p>
-              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>🎫 Ẩn dụ đời thường:</strong> Thẻ lên máy bay (boarding pass) có mã QR trên điện thoại. Dù bạn đã mua vé máy bay nhưng không có thẻ lên tàu bay này thì an ninh sân bay không bao giờ cho bạn bước lên máy bay.</p>
-              <p class="lang-en" style="margin: 0;"><strong>🎤 Interview Pitch:</strong> <em>"In maritime logistics, an e-D/O is the digital legal authorization that instructs seaport gate barriers to open and release a 30-ton container to the trucker. Generating this e-D/O is the final goal of payment clearance."</em></p>
-              <p class="lang-vi" style="margin: 0;"><strong>🎤 Câu nói khi phỏng vấn:</strong> <em>"Lệnh e-D/O là giấy phép điện tử có giá trị pháp lý để bảo vệ cảng mở barie cho xe kéo chở container 30 tấn ra khỏi cảng. Cấp được lệnh e-D/O này chính là đích đến cuối cùng của luồng thanh toán."</em></p>
+            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary);">
+              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>🎫 Everyday Analogy:</strong> An airline digital boarding pass on your phone. Even if you paid for a flight, security won't let you board without this verified barcode pass.</p>
+              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>🎫 Ẩn dụ đời thường:</strong> Chiếc vé máy bay điện tử (boarding pass) có mã QR trên điện thoại. Dù đã trả tiền vé máy bay, nếu không có mã xác nhận này thì bảo vệ sân bay không bao giờ cho bạn bước lên máy bay.</p>
+              <p class="lang-en" style="margin: 0;"><strong>🎤 Spoken Answer:</strong> <em>"As soon as payment clears, our system instantly creates a digital gate pass that tells seaport barriers to open and let the container truck drive out."</em></p>
+              <p class="lang-vi" style="margin: 0;"><strong>🎤 Lời nói phỏng vấn:</strong> <em>"Ngay khi tiền vào tài khoản, hệ thống tạo ngay một mã lệnh điện tử hợp pháp để thanh chắn barie cổng cảng tự động mở ra cho xe kéo chở container đi."</em></p>
             </div>
           </div>
 
-          <!-- CARD 10: CANARY DEPLOYMENT -->
+          <!-- CARD 10 -->
           <div style="border: 1px solid var(--border-subtle); border-top: 4px solid var(--accent-orange); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-              <span style="font-weight: 700; color: var(--accent-orange); font-size: 0.95rem;">10. Canary Deployment (GitOps)</span>
-              <span style="font-size: 0.75rem; background: var(--bg-surface-elevated); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">CI/CD &amp; Release Strategy</span>
+            <div style="font-weight: 700; color: var(--accent-orange); font-size: 0.95rem; margin-bottom: 0.5rem;">
+              <span class="lang-en">10. Testing New Code on 5% of Users First</span>
+              <span class="lang-vi">10. Thử nghiệm tính năng mới trên 5% khách hàng trước</span>
             </div>
-            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary); margin-bottom: 0.75rem;">
-              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>🐦 Everyday Metaphor:</strong> Historically, coal miners carried a caged canary bird underground. If dangerous toxic gas leaked, the canary would chirp and warn miners to evacuate before humans were affected.</p>
-              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>🐦 Ẩn dụ đời thường:</strong> Thợ mỏ thời xưa đem theo chú chim hoàng yến vào hầm than. Nếu có khí độc rò rỉ, chú chim sẽ báo động trước để công nhân kịp sơ tán trước khi khí độc lan tới con người.</p>
-              <p class="lang-en" style="margin: 0;"><strong>🎤 Interview Pitch:</strong> <em>"We route 5% of live traffic to the new code release via ArgoCD. If Prometheus detects HTTP 5xx errors or latency spikes, the rollout automatically aborts and rolls back in seconds without hurting 95% of users."</em></p>
-              <p class="lang-vi" style="margin: 0;"><strong>🎤 Câu nói khi phỏng vấn:</strong> <em>"Khi deploy code mới, ArgoCD chỉ chuyển 5% lượng khách hàng sang bản mới để thử tải. Nếu thấy phát sinh lỗi 5xx, hệ thống tự động quay xe lùi phiên bản cũ ngay lập tức mà 95% người dùng không hề hay biết."</em></p>
+            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary);">
+              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>🐦 Everyday Analogy:</strong> Coal miners carrying a canary bird to test for toxic air. If danger appears, the canary reacts first so miners can walk away safely.</p>
+              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>🐦 Ẩn dụ đời thường:</strong> Thợ mỏ mang chim hoàng yến vào hầm than để thử khí độc. Nếu có sự cố, chú chim sẽ báo động trước để công nhân kịp rút lui an toàn.</p>
+              <p class="lang-en" style="margin: 0;"><strong>🎤 Spoken Answer:</strong> <em>"We don't release updates to everyone at once. We route 5% of traffic to the new version. If any error occurs, it rolls back in seconds without affecting 95% of users."</em></p>
+              <p class="lang-vi" style="margin: 0;"><strong>🎤 Lời nói phỏng vấn:</strong> <em>"Khi cập nhật phần mềm mới, tụi em chỉ cho 5% khách hàng dùng thử trước. Nếu thấy có lỗi phát sinh, hệ thống tự quay về bản cũ ngay trong vài giây mà 95% người dùng không hề hay biết."</em></p>
             </div>
           </div>
 
-          <!-- CARD 11: WITHHOLDING TAX (WHT) -->
+          <!-- CARD 11 -->
           <div style="border: 1px solid var(--border-subtle); border-top: 4px solid var(--accent-pink); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-              <span style="font-weight: 700; color: var(--accent-pink); font-size: 0.95rem;">11. Withholding Tax (WHT - Thuế nhà thầu)</span>
-              <span style="font-size: 0.75rem; background: var(--bg-surface-elevated); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">Tax Compliance &amp; Finance</span>
+            <div style="font-weight: 700; color: var(--accent-pink); font-size: 0.95rem; margin-bottom: 0.5rem;">
+              <span class="lang-en">11. Automatically Calculating Taxes Deducted at Source</span>
+              <span class="lang-vi">11. Tự động tính toán thuế nhà thầu khấu trừ tại nguồn</span>
             </div>
-            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary); margin-bottom: 0.75rem;">
-              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>💰 Everyday Metaphor:</strong> Personal income tax deducted at the source from your salary before your paycheck hits your bank account. You never receive the gross amount because your company pays the government directly on your behalf.</p>
-              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>💰 Ẩn dụ đời thường:</strong> Giống như thuế thu nhập cá nhân bị công ty khấu trừ tại nguồn trước khi chuyển lương vào tài khoản của bạn. Công ty giữ lại phần thuế đó để nộp thẳng vào cơ quan thuế.</p>
-              <p class="lang-en" style="margin: 0;"><strong>🎤 Interview Pitch:</strong> <em>"When a local enterprise pays a foreign shipping line, government law requires deducting Withholding Tax (e.g. 5% CIT) at source. Our platform automatically calculates Gross vs. Net formulas so SAP ledgers balance perfectly."</em></p>
-              <p class="lang-vi" style="margin: 0;"><strong>🎤 Câu nói khi phỏng vấn:</strong> <em>"Khi công ty nội địa trả tiền cho hãng tàu quốc tế, luật pháp yêu cầu giữ lại Thuế nhà thầu (ví dụ 5% thuế TNDN). Hệ thống tính toán sẵn công thức Gross và Net để số tiền gạch nợ trên SAP khớp hoàn toàn."</em></p>
+            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary);">
+              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>💰 Everyday Analogy:</strong> Personal income tax deducted from your monthly paycheck before it reaches your account. The company keeps that tax portion and pays the government directly for you.</p>
+              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>💰 Ẩn dụ đời thường:</strong> Thuế thu nhập cá nhân bị trừ thẳng vào bảng lương trước khi tiền về tài khoản của bạn. Công ty giữ lại phần tiền thuế đó để nộp thẳng vào kho bạc nhà nước thay bạn.</p>
+              <p class="lang-en" style="margin: 0;"><strong>🎤 Spoken Answer:</strong> <em>"When local companies pay international shipping lines, government law requires keeping a tax percentage. Our system computes the exact numbers so accounting books balance to the penny."</em></p>
+              <p class="lang-vi" style="margin: 0;"><strong>🎤 Lời nói phỏng vấn:</strong> <em>"Khi công ty trong nước trả tiền cho hãng tàu quốc tế, luật pháp yêu cầu giữ lại một phần tiền thuế. Hệ thống tự động tính toán sẵn để sổ sách kế toán khớp từng đồng."</em></p>
             </div>
           </div>
 
-          <!-- CARD 12: IN-FLIGHT RESCUE VS EOD BATCH -->
+          <!-- CARD 12 -->
           <div style="border: 1px solid var(--border-subtle); border-top: 4px solid var(--accent-amber); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-              <span style="font-weight: 700; color: var(--accent-amber); font-size: 0.95rem;">12. In-Flight Rescue vs. EOD Batch</span>
-              <span style="font-size: 0.75rem; background: var(--bg-surface-elevated); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">2-Tier Polling Strategy</span>
+            <div style="font-weight: 700; color: var(--accent-amber); font-size: 0.95rem; margin-bottom: 0.5rem;">
+              <span class="lang-en">12. Rescuing Trucks in 60s vs. Midnight Accounting Close</span>
+              <span class="lang-vi">12. Cứu xe tải trong 60 giây vs. Chốt sổ kế toán nửa đêm</span>
             </div>
-            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary); margin-bottom: 0.75rem;">
-              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>🚑 Everyday Metaphor:</strong> An emergency ambulance saving an injured person on the road right now (In-Flight Rescue) vs. The hospital's monthly accounting department auditing insurance claims at the end of the month (EOD Batch).</p>
-              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>🚑 Ẩn dụ đời thường:</strong> Xe cứu thương 115 đến sơ cứu khẩn cấp cho người gặp nạn ngay tại chỗ (Cứu hộ In-Flight) vs. Phòng tài vụ bệnh viện chốt sổ thanh toán bảo hiểm vào cuối tháng (Đối soát EOD theo ngày).</p>
-              <p class="lang-en" style="margin: 0;"><strong>🎤 Interview Pitch:</strong> <em>"In-Flight 60s Polling rescues the truck driver idling outside the seaport gate before their 15-minute QR session expires. Daily 23:30 EOD Batch Reconciliation balances the Chief Accountant's books via bank statement files. A production system needs both!"</em></p>
-              <p class="lang-vi" style="margin: 0;"><strong>🎤 Câu nói khi phỏng vấn:</strong> <em>"Polling 60s là cứu bác tài xế xe tải đang nổ máy chờ ngoài cổng cảng trước khi phiên QR 15 phút hết hạn. Còn đối soát 23:30 đêm là để kế toán trưởng chốt cân đối sổ sách qua file sao kê. Cả hai phục vụ hai sứ mệnh hoàn toàn khác nhau!"</em></p>
+            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary);">
+              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>🚑 Everyday Analogy:</strong> An emergency ambulance saving someone injured on the street right now versus the hospital accounting department balancing monthly insurance claims at night.</p>
+              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>🚑 Ẩn dụ đời thường:</strong> Xe cứu thương 115 đến sơ cứu khẩn cấp cho người gặp nạn ngoài đường lúc 14:00 chiều so với phòng tài vụ bệnh viện chốt sổ thanh toán viện phí vào ban đêm.</p>
+              <p class="lang-en" style="margin: 0;"><strong>🎤 Spoken Answer:</strong> <em>"If the bank drops the payment message, we check back after 60 seconds to release the truck waiting at the port gate. At 11:30 PM, we run batch checks to balance the general ledger."</em></p>
+              <p class="lang-vi" style="margin: 0;"><strong>🎤 Lời nói phỏng vấn:</strong> <em>"Nếu ngân hàng bị rớt mạng quên báo tin, hệ thống chủ động gọi kiểm tra sau 60 giây để nhả hàng cho xe tải đang đỗ chờ ở cổng cảng. Còn đêm 23:30 thì chạy mẻ đối soát để chốt sổ cái kế toán."</em></p>
             </div>
           </div>
 
-          <!-- CARD 13: OPENTELEMETRY TRACE ID -->
+          <!-- CARD 13 -->
           <div style="border: 1px solid var(--border-subtle); border-top: 4px solid var(--accent-blue); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-              <span style="font-weight: 700; color: var(--accent-blue); font-size: 0.95rem;">13. Distributed Trace ID (OpenTelemetry)</span>
-              <span style="font-size: 0.75rem; background: var(--bg-surface-elevated); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">Observability &amp; APM</span>
+            <div style="font-weight: 700; color: var(--accent-blue); font-size: 0.95rem; margin-bottom: 0.5rem;">
+              <span class="lang-en">13. Tracking a Single Payment Across 10 Microservices</span>
+              <span class="lang-vi">13. Mã theo dõi một lệnh từ đầu đến cuối hệ thống</span>
             </div>
-            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary); margin-bottom: 0.75rem;">
-              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>🏷️ Everyday Metaphor:</strong> The barcode sticker attached to your luggage at the airport check-in counter. It gets scanned as your bag moves through conveyor belts, cargo planes, and baggage claim carousels so staff know exactly where it is if lost.</p>
-              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>🏷️ Ẩn dụ đời thường:</strong> Chiếc tem mã vạch dán trên va-li hành lý của bạn khi làm thủ tục check-in ở sân bay. Mã vạch được máy quét quét qua từng băng chuyền, khoang máy bay và băng chuyền trả đồ để biết chính xác va-li bị thất lạc hoặc chậm trễ ở khâu nào.</p>
-              <p class="lang-en" style="margin: 0;"><strong>🎤 Interview Pitch:</strong> <em>"A single HTTP request passes through APISIX, Go Ingestion, Temporal, MongoDB, and SAP. We inject a unique Trace ID at the gateway so engineers can trace the exact latency breakdown across 10 microservices in one single dashboard."</em></p>
-              <p class="lang-vi" style="margin: 0;"><strong>🎤 Câu nói khi phỏng vấn:</strong> <em>"Một request đi qua APISIX, Go Ingestion, Temporal, MongoDB và SAP. Tụi em gắn mã Trace ID duy nhất ngay từ cổng vào để khi có lỗi, kỹ sư nhìn một màn hình là biết chính xác microservice nào đang bị chậm bao nhiêu mili-giây."</em></p>
+            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary);">
+              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>🏷️ Everyday Analogy:</strong> The barcode tag stuck on your suitcase at the airport. It gets scanned through conveyor belts, cargo planes, and baggage claim carousels so staff can locate delays instantly.</p>
+              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>🏷️ Ẩn dụ đời thường:</strong> Tem mã vạch dán trên va-li ở sân bay. Qua từng băng chuyền, khoang máy bay đều được quét để biết chính xác va-li đang ở đâu và bị chậm trễ ở khâu nào.</p>
+              <p class="lang-en" style="margin: 0;"><strong>🎤 Spoken Answer:</strong> <em>"We attach a unique tracking ID to every payment request. If something slows down, engineers can pinpoint the exact service causing the delay in one dashboard."</em></p>
+              <p class="lang-vi" style="margin: 0;"><strong>🎤 Lời nói phỏng vấn:</strong> <em>"Tụi em gắn một mã theo dõi duy nhất cho mỗi giao dịch. Khi có lệnh bị chậm, kỹ sư nhìn vào một màn hình là biết chính xác dịch vụ nào đang bị nghẽn bao nhiêu mili-giây."</em></p>
             </div>
           </div>
 
-          <!-- CARD 14: DEAD LETTER QUEUE (DLQ) -->
+          <!-- CARD 14 -->
           <div style="border: 1px solid var(--border-subtle); border-top: 4px solid var(--accent-red); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-              <span style="font-weight: 700; color: var(--accent-red); font-size: 0.95rem;">14. Dead Letter Queue (DLQ)</span>
-              <span style="font-size: 0.75rem; background: var(--bg-surface-elevated); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">Asynchronous Messaging</span>
+            <div style="font-weight: 700; color: var(--accent-red); font-size: 0.95rem; margin-bottom: 0.5rem;">
+              <span class="lang-en">14. Side Holding Area for Corrupted Messages</span>
+              <span class="lang-vi">14. Hộp thư chờ cho các tin nhắn bị lỗi</span>
             </div>
-            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary); margin-bottom: 0.75rem;">
-              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>📦 Everyday Metaphor:</strong> The 'Lost &amp; Found' room at a post office. When a package has an unreadable address, rather than stopping the entire conveyor belt and holding up 10,000 normal packages, postal workers move the bad package to the side room for manual inspection.</p>
-              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>📦 Ẩn dụ đời thường:</strong> Kho hàng 'Thất lạc &amp; Chờ xử lý' tại bưu điện. Khi một bưu phẩm bị sai địa chỉ hoặc rách nhãn, thay vì dừng toàn bộ băng chuyền làm nghẽn 10.000 bưu kiện khác, nhân viên chuyển gói hàng hỏng sang phòng riêng để xử lý thủ công sau.</p>
-              <p class="lang-en" style="margin: 0;"><strong>🎤 Interview Pitch:</strong> <em>"If a corrupted event fails after 3 automated retries, we push it to the Dead Letter Queue. This unblocks the event stream for healthy transactions while sounding an alert for SREs to inspect the payload."</em></p>
-              <p class="lang-vi" style="margin: 0;"><strong>🎤 Câu nói khi phỏng vấn:</strong> <em>"Nếu một message bị lỗi sau 3 lần retry tự động, hệ thống đẩy nó vào hàng đợi Dead Letter Queue (DLQ). Việc này giúp luồng dữ liệu chính thông suốt không bị tắc nghẽn, đồng thời gửi cảnh báo cho đội trực vận hành kiểm tra."</em></p>
+            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary);">
+              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>📦 Everyday Analogy:</strong> The 'Lost &amp; Found' room at a post office. When a parcel has an unreadable address, workers move it to a side room so 10,000 normal packages can keep moving.</p>
+              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>📦 Ẩn dụ đời thường:</strong> Phòng chứa hàng thất lạc tại bưu điện. Khi một gói hàng bị rách nhãn địa chỉ, nhân viên chuyển gói đó sang phòng riêng để 10.000 bưu kiện bình thường khác tiếp tục chạy thông suốt trên băng chuyền.</p>
+              <p class="lang-en" style="margin: 0;"><strong>🎤 Spoken Answer:</strong> <em>"If a message fails 3 retries, we move it to a holding queue. This keeps the main payment highway completely open while alerting engineers to inspect the error."</em></p>
+              <p class="lang-vi" style="margin: 0;"><strong>🎤 Lời nói phỏng vấn:</strong> <em>"Nếu một tin nhắn bị lỗi sau 3 lần thử lại, hệ thống chuyển nó sang hàng đợi chờ riêng. Việc này giúp luồng thanh toán chính thông suốt, đồng thời báo động cho kỹ sư vào kiểm tra."</em></p>
             </div>
           </div>
 
-          <!-- CARD 15: BAPI & BELNR (SAP ERP) -->
+          <!-- CARD 15 -->
           <div style="border: 1px solid var(--border-subtle); border-top: 4px solid var(--accent-indigo); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-              <span style="font-weight: 700; color: var(--accent-indigo); font-size: 0.95rem;">15. SAP BAPI &amp; BELNR</span>
-              <span style="font-size: 0.75rem; background: var(--bg-surface-elevated); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">Enterprise ERP Integration</span>
+            <div style="font-weight: 700; color: var(--accent-indigo); font-size: 0.95rem; margin-bottom: 0.5rem;">
+              <span class="lang-en">15. Safe Accounting Integration &amp; Official Voucher Codes</span>
+              <span class="lang-vi">15. Kết nối an toàn với phần mềm kế toán và lấy số chứng từ</span>
             </div>
-            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary); margin-bottom: 0.75rem;">
-              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>📑 Everyday Metaphor:</strong> A bank teller refusing to let you scribble directly into the master ledger vault. Instead, the teller (BAPI) verifies your paperwork and hands you back an officially stamped receipt number (BELNR - Belegnummer) that proves the transaction is legally recorded.</p>
-              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>📑 Ẩn dụ đời thường:</strong> Thủ quỹ ngân hàng không bao giờ cho bạn tự cầm bút viết vào cuốn sổ cái kho tiền. Bạn phải đưa giấy nộp tiền qua quầy giao dịch (BAPI), thủ quỹ kiểm tra hợp lệ rồi đóng dấu và cấp cho bạn một **Số chứng từ kế toán chính thức (BELNR)** làm bằng chứng pháp lý.</p>
-              <p class="lang-en" style="margin: 0;"><strong>🎤 Interview Pitch:</strong> <em>"We never write directly to SAP database tables. We invoke SAP BAPI functions, which validate accounting constraints and return a unique 10-digit BELNR (Accounting Document Number) as immutable legal proof of payment."</em></p>
-              <p class="lang-vi" style="margin: 0;"><strong>🎤 Câu nói khi phỏng vấn:</strong> <em>"Hệ thống không bao giờ chọc thẳng vào DB của SAP. Tụi em gọi qua SAP BAPI để SAP tự kiểm tra ràng buộc kế toán và trả về mã chứng từ BELNR 10 chữ số làm bằng chứng gạch nợ pháp lý."</em></p>
+            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary);">
+              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>📑 Everyday Analogy:</strong> A bank teller who checks your deposit slip, stamps it officially, and gives you a stamped receipt number instead of letting you write directly into the master vault ledger.</p>
+              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>📑 Ẩn dụ đời thường:</strong> Thủ quỹ ngân hàng kiểm tra giấy nộp tiền, đóng dấu và phát cho bạn một số biên lai chính thức thay vì cho bạn tự cầm bút viết vào cuốn sổ cái của ngân hàng.</p>
+              <p class="lang-en" style="margin: 0;"><strong>🎤 Spoken Answer:</strong> <em>"We never touch raw accounting database tables. We call official accounting APIs, which validate entries and return an official voucher code as legal proof of payment."</em></p>
+              <p class="lang-vi" style="margin: 0;"><strong>🎤 Lời nói phỏng vấn:</strong> <em>"Hệ thống không bao giờ tự ý sửa bảng kế toán. Tụi em gọi hàm chính thống của phần mềm kế toán để kiểm tra hợp lệ và nhận về mã số chứng từ làm bằng chứng pháp lý."</em></p>
             </div>
           </div>
 
-          <!-- CARD 16: TERMINAL OPERATING SYSTEM (TOS) -->
+          <!-- CARD 16 -->
           <div style="border: 1px solid var(--border-subtle); border-top: 4px solid var(--accent-teal); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-              <span style="font-weight: 700; color: var(--accent-teal); font-size: 0.95rem;">16. Terminal Operating System (TOS)</span>
-              <span style="font-size: 0.75rem; background: var(--bg-surface-elevated); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">Seaport Infrastructure</span>
+            <div style="font-weight: 700; color: var(--accent-teal); font-size: 0.95rem; margin-bottom: 0.5rem;">
+              <span class="lang-en">16. Connecting to Seaport Cranes &amp; Barrier Gates</span>
+              <span class="lang-vi">16. Tự động kết nối với cần cẩu và barie cổng cảng</span>
             </div>
-            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary); margin-bottom: 0.75rem;">
-              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>🚢 Everyday Metaphor:</strong> The Air Traffic Control tower at an international airport, but for container ships and giant cranes. The TOS commands which crane lifts which container, which truck carries it, and which physical gate barrier lifts open.</p>
-              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>🚢 Ẩn dụ đời thường:</strong> Đài kiểm soát không lưu ở sân bay, nhưng dành cho tàu biển và cần cẩu khổng lồ. Hệ thống TOS (như Navis N4, CATOS) chỉ huy cần cẩu nào gắp thùng container nào, xe kéo nào chở đi và thanh chắn barie cổng nào được phép nâng lên.</p>
-              <p class="lang-en" style="margin: 0;"><strong>🎤 Interview Pitch:</strong> <em>"The Terminal Operating System (TOS) manages physical port cranes and gate barriers. Our payment system talks to the TOS API to automatically clear cargo holds the second payment settles on SAP."</em></p>
-              <p class="lang-vi" style="margin: 0;"><strong>🎤 Câu nói khi phỏng vấn:</strong> <em>"TOS là hệ điều hành điều khiển cần cẩu và barie cổng cảng. Cổng thanh toán của tụi em tích hợp với API của TOS để tự động gỡ phong tỏa hàng hóa ngay khi tiền vào SAP."</em></p>
+            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary);">
+              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>🚢 Everyday Analogy:</strong> The airport air traffic control tower that tells planes where to land and gates when to open, but for container ships, cranes, and trucks.</p>
+              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>🚢 Ẩn dụ đời thường:</strong> Đài kiểm soát không lưu ở sân bay, nhưng dành cho tàu biển và cần cẩu. Nó chỉ huy cần cẩu nào gắp thùng hàng nào và barie cổng nào được phép nâng lên cho xe chạy qua.</p>
+              <p class="lang-en" style="margin: 0;"><strong>🎤 Spoken Answer:</strong> <em>"Our platform connects directly to seaport gate software. The moment payment settles, the port system lifts the gate barrier automatically without manual paperwork."</em></p>
+              <p class="lang-vi" style="margin: 0;"><strong>🎤 Lời nói phỏng vấn:</strong> <em>"Cổng thanh toán kết nối trực tiếp với phần mềm điều hành cảng. Ngay khi tiền vào tài khoản, thanh chắn barie tự động nâng lên cho xe chở hàng ra ngoài mà không cần ký giấy tờ tay."</em></p>
             </div>
           </div>
 
-          <!-- CARD 17: TERMINAL HANDLING CHARGE (THC) -->
+          <!-- CARD 17 -->
           <div style="border: 1px solid var(--border-subtle); border-top: 4px solid var(--accent-cyan); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-              <span style="font-weight: 700; color: var(--accent-cyan); font-size: 0.95rem;">17. Terminal Handling Charge (THC)</span>
-              <span style="font-size: 0.75rem; background: var(--bg-surface-elevated); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">Maritime Port Surcharges</span>
+            <div style="font-weight: 700; color: var(--accent-cyan); font-size: 0.95rem; margin-bottom: 0.5rem;">
+              <span class="lang-en">17. Separating Sea Shipping Fees from Port Crane Fees</span>
+              <span class="lang-vi">17. Tách bạch tiền cước tàu biển và tiền công cẩu hàng tại cảng</span>
             </div>
-            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary); margin-bottom: 0.75rem;">
-              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>🏗️ Everyday Metaphor:</strong> Paying the moving truck crew who lifts your heavy refrigerator from the street into your 5th-floor apartment, separate from the rental price of the apartment itself.</p>
-              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>🏗️ Ẩn dụ đời thường:</strong> Tiền công bốc vác trả cho đội thợ khuân chiếc tủ lạnh nặng từ xe tải dưới đường lên căn hộ tầng 5 của bạn, tách biệt hoàn toàn với tiền thuê nhà.</p>
-              <p class="lang-en" style="margin: 0;"><strong>🎤 Interview Pitch:</strong> <em>"Ocean freight pays for sea transport from Tokyo to Ho Chi Minh City. THC is the local port surcharge paid to crane operators for lifting the container off the vessel onto the yard."</em></p>
-              <p class="lang-vi" style="margin: 0;"><strong>🎤 Câu nói khi phỏng vấn:</strong> <em>"Tiền cước biển là trả cho chặng chở từ Tokyo về TP.HCM. Còn THC là phụ phí xếp dỡ tại cảng nội địa để trả công cần cẩu bốc container từ trên boong tàu hạ xuống bãi cảng."</em></p>
+            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary);">
+              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>🏗️ Everyday Analogy:</strong> Paying the delivery truck to drive a refrigerator to your building versus paying the moving crew to carry it up the stairs into your room.</p>
+              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>🏗️ Ẩn dụ đời thường:</strong> Tiền thuê xe tải chở tủ lạnh từ cửa hàng đến trước sảnh tòa nhà so với tiền công trả cho thợ bốc vác khuân tủ lạnh lên tận phòng tầng 5 của bạn.</p>
+              <p class="lang-en" style="margin: 0;"><strong>🎤 Spoken Answer:</strong> <em>"Ocean freight pays for sea transport from abroad. Port handling fees pay crane teams for lifting the container onto the yard. Our system splits and reconciles both automatically."</em></p>
+              <p class="lang-vi" style="margin: 0;"><strong>🎤 Lời nói phỏng vấn:</strong> <em>"Tiền cước tàu là trả cho chặng chở trên biển từ nước ngoài về. Tiền phụ phí cảng là trả công đội cần cẩu bốc hàng xuống bãi. Hệ thống tự động tách bạch và đối soát cả 2 khoản."</em></p>
             </div>
           </div>
 
-          <!-- CARD 18: CLAHE OCR PREPROCESSING -->
+          <!-- CARD 18 -->
           <div style="border: 1px solid var(--border-subtle); border-top: 4px solid var(--accent-pink); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-              <span style="font-weight: 700; color: var(--accent-pink); font-size: 0.95rem;">18. CLAHE (Image Contrast Equalization)</span>
-              <span style="font-size: 0.75rem; background: var(--bg-surface-elevated); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">Computer Vision &amp; OCR</span>
+            <div style="font-weight: 700; color: var(--accent-pink); font-size: 0.95rem; margin-bottom: 0.5rem;">
+              <span class="lang-en">18. Auto-Enhancing Blurry Photos of Tax Receipts</span>
+              <span class="lang-vi">18. Tự động làm nét và sáng ảnh hóa đơn bị mờ</span>
             </div>
-            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary); margin-bottom: 0.75rem;">
-              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>📸 Everyday Metaphor:</strong> The auto-enhance button on your smartphone camera when taking a photo of a receipt in a dark restaurant. It removes shadows and sharpens faint ink so faint gray text pops out in crisp black-and-white.</p>
-              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>📸 Ẩn dụ đời thường:</strong> Tính năng tự động cân bằng sáng trên điện thoại khi chụp hóa đơn trong phòng tối. Nó xóa bóng mờ và làm đậm nét mực in nhiệt bị mờ, biến chữ xám nhạt thành chữ đen rõ nét trên nền trắng tinh.</p>
-              <p class="lang-en" style="margin: 0;"><strong>🎤 Interview Pitch:</strong> <em>"Truckers upload blurry, low-light photos of tax declarations. CLAHE equalizes contrast in local image tiles, boosting OCR accuracy from 62% to 94.8% without blowing out white backgrounds."</em></p>
-              <p class="lang-vi" style="margin: 0;"><strong>🎤 Câu nói khi phỏng vấn:</strong> <em>"Tài xế chụp tờ khai thuế hay bị tối và mờ. Thuật toán CLAHE tự cân bằng tương phản từng vùng ảnh, giúp mắt AI OCR tăng độ chính xác từ 62% lên 94.8% mà không làm lóa giấy."</em></p>
+            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary);">
+              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>📸 Everyday Analogy:</strong> The auto-enhance button on your phone camera when photographing a receipt in a dim room. It cleans shadows and turns faint gray ink into crisp black letters.</p>
+              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>📸 Ẩn dụ đời thường:</strong> Tính năng tự động chỉnh sáng trên điện thoại khi chụp hóa đơn trong phòng tối. Nó xóa bóng mờ và làm đậm nét mực in nhiệt bị nhạt, biến chữ xám mờ thành chữ đen sắc nét.</p>
+              <p class="lang-en" style="margin: 0;"><strong>🎤 Spoken Answer:</strong> <em>"Truckers often upload dark or blurry photos of tax papers. We run automatic contrast sharpening so AI can read tax numbers accurately without human manual data entry."</em></p>
+              <p class="lang-vi" style="margin: 0;"><strong>🎤 Lời nói phỏng vấn:</strong> <em>"Tài xế chụp tờ khai thuế hay bị tối và mờ. Hệ thống tự động cân bằng sáng và làm nét ảnh trước khi đưa cho AI đọc, giúp đọc chính xác số thuế mà không cần người gõ tay."</em></p>
             </div>
           </div>
 
-          <!-- CARD 19: HNSW VECTOR SEARCH -->
+          <!-- CARD 19 -->
           <div style="border: 1px solid var(--border-subtle); border-top: 4px solid var(--accent-purple); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-              <span style="font-weight: 700; color: var(--accent-purple); font-size: 0.95rem;">19. HNSW Vector Search</span>
-              <span style="font-size: 0.75rem; background: var(--bg-surface-elevated); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">AI &amp; Semantic Matching</span>
+            <div style="font-weight: 700; color: var(--accent-purple); font-size: 0.95rem; margin-bottom: 0.5rem;">
+              <span class="lang-en">19. Smart Invoice Matching for Misspelled Payment Memos</span>
+              <span class="lang-vi">19. Tìm kiếm hóa đơn thông minh khi người chuyển tiền gõ sai nội dung</span>
             </div>
-            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary); margin-bottom: 0.75rem;">
-              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>🗺️ Everyday Metaphor:</strong> Finding a friend's house in an unfamiliar country. You take an airplane to the capital city, take an express highway to the province, then ask local street signs—instead of knocking on all 10 million doors in the country one-by-one!</p>
-              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>🗺️ Ẩn dụ đời thường:</strong> Tìm nhà bạn ở một đất nước xa lạ. Bạn bay máy bay đến thủ đô, đi cao tốc về tỉnh lỵ rồi mới hỏi đường từng con ngõ nhỏ—thay vì phải đi gõ cửa từng ngôi nhà trong số 10 triệu căn nhà của cả nước!</p>
-              <p class="lang-en" style="margin: 0;"><strong>🎤 Interview Pitch:</strong> <em>"HNSW stands for Hierarchical Navigable Small World. It searches high-dimensional vector embeddings in logarithmic time (O(log N)) to match fuzzy bank memo descriptions against open invoices in under 15ms."</em></p>
-              <p class="lang-vi" style="margin: 0;"><strong>🎤 Câu nói khi phỏng vấn:</strong> <em>"HNSW là thuật toán tìm kiếm vector phân tầng. Nó tìm kiếm nội dung chuyển khoản mờ (viết tắt, gõ sai chính tả) với hóa đơn mở theo thời gian logarit cực nhanh chỉ mất dưới 15 mili-giây."</em></p>
+            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary);">
+              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>🗺️ Everyday Analogy:</strong> Finding a friend's house in an unfamiliar country: you fly to the capital, take the highway to the district, then ask for the street—instead of knocking on 10 million doors one-by-one!</p>
+              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>🗺️ Ẩn dụ đời thường:</strong> Đi tìm nhà bạn ở nước ngoài: bạn bay máy bay đến thủ đô, đi cao tốc về huyện rồi mới hỏi ngõ nhỏ—nhanh hơn hàng triệu lần so với việc đi gõ cửa từng ngôi nhà của cả nước!</p>
+              <p class="lang-en" style="margin: 0;"><strong>🎤 Spoken Answer:</strong> <em>"Customers frequently make typos when writing payment descriptions. Our smart search finds the closest matching invoice in under 15ms so orders clear without delays."</em></p>
+              <p class="lang-vi" style="margin: 0;"><strong>🎤 Lời nói phỏng vấn:</strong> <em>"Khách chuyển tiền hay gõ tắt hoặc gõ sai chính tả nội dung. Hệ thống tìm kiếm thông minh tìm ra đúng hóa đơn khớp nhất chỉ trong 15 mili-giây để gạch nợ ngay lập tức."</em></p>
             </div>
           </div>
 
-          <!-- CARD 20: PKCE OAUTH2 SECURITY -->
+          <!-- CARD 20 -->
           <div style="border: 1px solid var(--border-subtle); border-top: 4px solid var(--accent-green); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-              <span style="font-weight: 700; color: var(--accent-green); font-size: 0.95rem;">20. PKCE (OAuth2 Mobile Security)</span>
-              <span style="font-size: 0.75rem; background: var(--bg-surface-elevated); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">Identity &amp; Auth</span>
+            <div style="font-weight: 700; color: var(--accent-green); font-size: 0.95rem; margin-bottom: 0.5rem;">
+              <span class="lang-en">20. One-Time Dynamic Key to Stop Account Theft on Phones</span>
+              <span class="lang-vi">20. Khóa bảo mật một lần chống mã độc đánh cắp tài khoản trên điện thoại</span>
             </div>
-            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary); margin-bottom: 0.75rem;">
-              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>🔐 Everyday Metaphor:</strong> Tearing a dollar bill in half before shipping a package. The recipient can only claim the valuable cargo if they present the other half that fits the jagged rip perfectly. Intercepting the package alone is useless without the matching half.</p>
-              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>🔐 Ẩn dụ đời thường:</strong> Xé đôi tờ tiền làm mật hiệu trước khi gửi hàng. Người nhận chỉ lấy được hàng quý giá nếu xuất trình đúng nửa tờ tiền còn lại khớp từng đường rách. Kẻ trộm chặn được kiện hàng cũng vô dụng nếu không có nửa tờ tiền bí mật.</p>
-              <p class="lang-en" style="margin: 0;"><strong>🎤 Interview Pitch:</strong> <em>"Mobile apps cannot securely hide client secrets. PKCE generates a dynamic one-time secret (code_verifier) on the mobile device, preventing malicious apps on the phone from intercepting the auth token."</em></p>
-              <p class="lang-vi" style="margin: 0;"><strong>🎤 Câu nói khi phỏng vấn:</strong> <em>"Ứng dụng điện thoại không thể giấu mã secret an toàn. PKCE tạo một mã bí mật một lần động trên máy người dùng, ngăn chặn các app độc hại trên điện thoại đánh cắp token đăng nhập."</em></p>
+            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary);">
+              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>🔐 Everyday Analogy:</strong> Tearing a dollar bill in half before sending a courier. The receiver can only claim the valuable parcel if they present the matching half with the exact jagged tear line.</p>
+              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>🔐 Ẩn dụ đời thường:</strong> Xé đôi tờ tiền làm mật hiệu trước khi gửi đồ. Người nhận chỉ lấy được hàng nếu xuất trình đúng nửa tờ tiền còn lại khớp từng đường rách. Kẻ trộm chặn được kiện hàng cũng vô ích nếu thiếu nửa tờ tiền bí mật.</p>
+              <p class="lang-en" style="margin: 0;"><strong>🎤 Spoken Answer:</strong> <em>"Mobile apps cannot safely hide static passwords. We create a dynamic one-time secret key on the phone for each login, preventing malware apps from stealing user sessions."</em></p>
+              <p class="lang-vi" style="margin: 0;"><strong>🎤 Lời nói phỏng vấn:</strong> <em>"Ứng dụng điện thoại không thể giấu mật khẩu tĩnh an toàn. Hệ thống tự tạo một chìa khóa một lần động cho mỗi lần đăng nhập, chặn đứng các app độc hại đánh cắp tài khoản."</em></p>
             </div>
           </div>
 
-          <!-- CARD 21: SINGLE SOURCE OF TRUTH (SSOT) -->
+          <!-- CARD 21 -->
           <div style="border: 1px solid var(--border-subtle); border-top: 4px solid var(--accent-red); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-              <span style="font-weight: 700; color: var(--accent-red); font-size: 0.95rem;">21. Single Source of Truth (SSOT)</span>
-              <span style="font-size: 0.75rem; background: var(--bg-surface-elevated); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">Enterprise Data Governance</span>
+            <div style="font-weight: 700; color: var(--accent-red); font-size: 0.95rem; margin-bottom: 0.5rem;">
+              <span class="lang-en">21. Master Legal Ledger vs. Fast Temporary Cache</span>
+              <span class="lang-vi">21. Sổ cái pháp lý chính thức vs. Bộ nhớ đệm tạm thời</span>
             </div>
-            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary); margin-bottom: 0.75rem;">
-              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>🕰️ Everyday Metaphor:</strong> The master Big Ben clock in the center of London. People carry pocket watches and phone clocks that drift by a few seconds, but when there is an official dispute, Big Ben is the only clock that matters.</p>
-              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>🕰️ Ẩn dụ đời thường:</strong> Đồng hồ Big Ben ở trung tâm London. Mọi người có thể đeo đồng hồ đeo tay hay nhìn giờ trên điện thoại (có thể lệch vài giây), nhưng khi có tranh chấp giờ giấc chính thức, đồng hồ Big Ben là chuẩn mực duy nhất được công nhận.</p>
-              <p class="lang-en" style="margin: 0;"><strong>🎤 Interview Pitch:</strong> <em>"MongoDB serves as a high-speed operational cache for 15-minute checkout sessions. However, SAP FI-AR is the legal Single Source of Truth (SSOT) for financial ledgers, tax authorities, and international auditors."</em></p>
-              <p class="lang-vi" style="margin: 0;"><strong>🎤 Câu nói khi phỏng vấn:</strong> <em>"MongoDB đóng vai trò bộ nhớ đệm tốc độ cao cho phiên quét QR 15 phút. Nhưng SAP FI-AR mới là Nguồn chân lý duy nhất (SSOT) có giá trị pháp lý trước cơ quan thuế và kiểm toán quốc tế."</em></p>
+            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary);">
+              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>🕰️ Everyday Analogy:</strong> The historic Big Ben clock in London. People carry pocket watches that might drift by a second, but when there is an official legal dispute, Big Ben is the only clock that counts.</p>
+              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>🕰️ Ẩn dụ đời thường:</strong> Chiếc đồng hồ Big Ben ở London. Đồng hồ đeo tay của mọi người có thể lệch nhau vài giây, nhưng khi có tranh chấp giờ giấc chính thức, đồng hồ Big Ben là chuẩn mực duy nhất được công nhận.</p>
+              <p class="lang-en" style="margin: 0;"><strong>🎤 Spoken Answer:</strong> <em>"Our NoSQL database acts as a fast cache for 15-minute checkout sessions, but our enterprise ERP is the official legal source of truth for financial auditors and tax offices."</em></p>
+              <p class="lang-vi" style="margin: 0;"><strong>🎤 Lời nói phỏng vấn:</strong> <em>"Cơ sở dữ liệu NoSQL đóng vai trò bộ nhớ đệm tốc độ cao cho phiên quét mã QR 15 phút, nhưng phần mềm ERP doanh nghiệp mới là nguồn sổ sách pháp lý chính thức phục vụ kiểm toán và cơ quan thuế."</em></p>
             </div>
           </div>
 
@@ -3044,12 +3046,12 @@ sequenceDiagram
 
         <div class="mental-anchor-box" style="margin-bottom: 2rem;">
           <span class="lang-en">
-            🧠 <strong>Interview Gold: The "Explain Like I'm Five" Test:</strong><br>
-            "Whenever you are asked about high-level architecture in an interview, never hide behind textbook jargon. State the <strong>Real-World Metaphor</strong> first (e.g. 'Bulkhead is like watertight compartments on a ship'), then give the <strong>Concrete Engineering Trade-off</strong> (e.g. 'We isolate thread pools so a crashing Thai bank cannot sink our Vietnam gateway'). This immediately proves you have real-world production experience!"
+            🧠 <strong>Interview Gold: How Top Engineers Speak in System Design:</strong><br>
+            "Never say: 'We use HNSW, WiredTiger tickets, and Saga compensation.' Say: 'We use smart fuzzy matching so misspelled payments clear in 15ms, we prevent database overload with smart indexes, and we run automatic refunds if any step fails.' Real-world words prove real-world engineering mastery!"
           </span>
           <span class="lang-vi">
-            🧠 <strong>Câu nói vàng khi phỏng vấn: Thước đo "Giải thích cho người bình dân hiểu":</strong><br>
-            "Khi được hỏi về kiến trúc trong buổi phỏng vấn, đừng bao giờ nói lại lý thuyết sách giáo khoa. Hãy đưa ra **Ẩn dụ đời thường** trước (ví dụ: 'Bulkhead giống như các vách ngăn chống chìm trên thân tàu'), sau đó chốt bằng **Giải pháp kỹ thuật thực chiến** (ví dụ: 'Tụi em chia thread pool riêng để cổng ngân hàng Thái Lan có sập cũng không làm chìm cổng Việt Nam'). Cách trả lời này chứng minh bạn là một kỹ sư thực chiến dày dặn kinh nghiệm!"
+            🧠 <strong>Câu nói vàng khi phỏng vấn: Cách kỹ sư thực chiến giao tiếp:</strong><br>
+            "Đừng nói: 'Em dùng HNSW, WiredTiger tickets với Saga compensation.' Hãy nói: 'Tụi em có cơ chế tìm kiếm thông minh để khách gõ sai nội dung vẫn gạch nợ được trong 15ms, có cơ chế đánh index để chống nghẽn database, và có quy trình tự động hoàn tiền nếu gặp sự cố.' Nói bằng từ ngữ thực tế mới chứng minh bạn là một kỹ sư thực chiến dày dặn kinh nghiệm!"
           </span>
         </div>
       </section>
