@@ -980,6 +980,60 @@ tr:hover td {
   }
 }
 
+  
+  /* ==========================================================================
+     CLICK-TO-READ (TEXT-TO-SPEECH) STYLES
+     ========================================================================== */
+  .clickable-speech {
+    cursor: pointer !important;
+    position: relative;
+    transition: background-color 0.15s ease, outline 0.15s ease, box-shadow 0.15s ease;
+  }
+  .clickable-speech:hover {
+    background-color: rgba(245, 158, 11, 0.12) !important;
+    border-radius: 4px;
+  }
+  .speaking-active {
+    background-color: #fef3c7 !important;
+    color: #78350f !important;
+    outline: 2px solid #f59e0b !important;
+    border-radius: 6px !important;
+    box-shadow: 0 0 14px rgba(245, 158, 11, 0.5) !important;
+    transition: background-color 0.2s ease, outline 0.2s ease;
+  }
+  [data-theme="dark"] .speaking-active, .dark .speaking-active {
+    background-color: rgba(120, 53, 15, 0.9) !important;
+    color: #fef3c7 !important;
+    outline: 2px solid #f59e0b !important;
+    box-shadow: 0 0 16px rgba(245, 158, 11, 0.6) !important;
+  }
+  #audio-status-toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 99999;
+    padding: 10px 20px;
+    border-radius: 9999px;
+    background: rgba(15, 23, 42, 0.95);
+    color: #ffffff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border: 1px solid rgba(245, 158, 11, 0.8);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 0 15px rgba(245, 158, 11, 0.35);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    backdrop-filter: blur(8px);
+  }
+  #audio-status-toast.hidden {
+    opacity: 0;
+    transform: translate(-50%, 15px);
+    pointer-events: none;
+  }
+
   </style>
 </head>
 <body>
@@ -3079,6 +3133,237 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   });
+
+
+  // ==========================================================================
+  // CLICK-TO-READ (TEXT-TO-SPEECH) ENGINE
+  // ==========================================================================
+  const synth = window.speechSynthesis;
+  let activeSpeakingEl = null;
+  let activeUtterance = null;
+  let hasPrimedSpeech = false;
+  let selectedSpeechRate = 0.95;
+
+  function isVietnamese(text) {
+    return /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđĐ]/.test(text);
+  }
+
+  function scoreVoice(v, forVi) {
+    if (!v || !v.lang) return -1;
+    const lang = v.lang.replace('_', '-').toLowerCase();
+    const name = v.name || '';
+    if (forVi) {
+      if (!lang.startsWith('vi')) return -1;
+      let score = 10;
+      if (name.includes('Natural') || name.includes('Online')) score += 50;
+      if (name.includes('Google') || name.includes('Linh') || name.includes('An') || name.includes('Mai')) score += 30;
+      return score;
+    } else {
+      if (!lang.startsWith('en')) return -1;
+      let score = 10;
+      if (lang === 'en-us') score += 20;
+      else if (lang === 'en-gb') score += 10;
+      if (name.includes('Natural') || name.includes('Online')) score += 100;
+      else if (name.includes('Google US English')) score += 95;
+      else if (name.includes('Premium') || name.includes('Enhanced') || name.includes('Siri')) score += 85;
+      else if (name.includes('Samantha') || name.includes('Jenny') || name.includes('Guy')) score += 70;
+      return score;
+    }
+  }
+
+  function getBestVoice(forVi) {
+    if (!synth) return null;
+    const voices = synth.getVoices() || [];
+    const matched = voices.filter(v => scoreVoice(v, forVi) > 0).sort((a, b) => scoreVoice(b, forVi) - scoreVoice(a, forVi));
+    return matched.length > 0 ? matched[0] : null;
+  }
+
+  function showAudioToast(html, duration = 3000) {
+    let toast = document.getElementById('audio-status-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'audio-status-toast';
+      document.body.appendChild(toast);
+    }
+    toast.innerHTML = html;
+    toast.classList.remove('hidden');
+    clearTimeout(window._audioToastTimeout);
+    window._audioToastTimeout = setTimeout(() => {
+      toast.classList.add('hidden');
+    }, duration);
+  }
+
+  function unlockMobileAudio() {
+    try {
+      const silentAudio = new Audio("data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA");
+      silentAudio.volume = 0.01;
+      silentAudio.play().catch(() => {});
+    } catch (e) {}
+
+    try {
+      if (synth && synth.paused) synth.resume();
+      if (synth && !hasPrimedSpeech) {
+        hasPrimedSpeech = true;
+        const prime = new SpeechSynthesisUtterance("");
+        synth.speak(prime);
+      }
+    } catch (e) {}
+  }
+
+  function stopSpeech() {
+    if (synth) {
+      try {
+        if (synth.speaking || synth.pending) synth.cancel();
+        if (synth.paused) synth.resume();
+      } catch (e) {}
+    }
+    if (activeSpeakingEl) {
+      activeSpeakingEl.classList.remove('speaking-active');
+      activeSpeakingEl = null;
+    }
+    activeUtterance = null;
+    window._activeUtterance = null;
+  }
+
+  function cleanReadableText(text) {
+    if (!text) return '';
+    return text
+      .replace(/^[\s"“”'•\-–—►⚡🔄💡🏢⚖️📚🛡️🍃⭐🧠🎤📜🪪📠🎫🐦💰🚑🏷️📦📑🚢🏗️📸🗺️🔐🕰️]+/gu, '')
+      .replace(/[•\-–—]+$/g, '')
+      .replace(/<[^>]+>/g, '')
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .trim();
+  }
+
+  function speakElement(el, e) {
+    if (e) {
+      e.stopPropagation();
+    }
+
+    unlockMobileAudio();
+
+    if (!synth) {
+      alert("Trình duyệt không hỗ trợ Web Speech API.");
+      return;
+    }
+
+    // Toggle stop if tapping currently speaking element
+    if (activeSpeakingEl === el) {
+      stopSpeech();
+      return;
+    }
+
+    stopSpeech();
+
+    // Determine readable text:
+    const currentLang = document.body.getAttribute('data-lang') || 'en';
+    let textToRead = '';
+
+    // If el has both lang-en and lang-vi children, pick the active one
+    const enChild = el.querySelector('.lang-en');
+    const viChild = el.querySelector('.lang-vi');
+
+    if (enChild && viChild) {
+      textToRead = currentLang === 'vi' ? viChild.innerText : enChild.innerText;
+    } else if (el.classList.contains('lang-en')) {
+      textToRead = el.innerText;
+    } else if (el.classList.contains('lang-vi')) {
+      textToRead = el.innerText;
+    } else {
+      textToRead = el.innerText;
+    }
+
+    textToRead = cleanReadableText(textToRead);
+    if (!textToRead) return;
+
+    el.classList.add('speaking-active');
+    activeSpeakingEl = el;
+
+    const forVi = isVietnamese(textToRead);
+    const utt = new SpeechSynthesisUtterance(textToRead);
+    utt.lang = forVi ? 'vi-VN' : 'en-US';
+    utt.rate = selectedSpeechRate;
+    utt.pitch = 1.0;
+
+    const bestVoice = getBestVoice(forVi);
+    if (bestVoice) {
+      utt.voice = bestVoice;
+      utt.lang = bestVoice.lang || (forVi ? 'vi-VN' : 'en-US');
+    }
+
+    activeUtterance = utt;
+    window._activeUtterance = utt; // Prevents Mobile Garbage Collection bug
+
+    utt.onstart = () => {
+      const msg = forVi 
+        ? "🔊 Đang đọc... <span style='font-size:11px; color:#fde68a;'>(Bấm lại để dừng)</span>"
+        : "🔊 Reading aloud... <span style='font-size:11px; color:#fde68a;'>(Tap to stop)</span>";
+      showAudioToast(msg, 2500);
+    };
+
+    utt.onend = () => {
+      if (activeSpeakingEl === el) {
+        el.classList.remove('speaking-active');
+        activeSpeakingEl = null;
+      }
+      activeUtterance = null;
+      window._activeUtterance = null;
+    };
+
+    utt.onerror = (err) => {
+      console.warn("TTS Error:", err);
+      if (activeSpeakingEl === el) {
+        el.classList.remove('speaking-active');
+        activeSpeakingEl = null;
+      }
+      activeUtterance = null;
+      window._activeUtterance = null;
+    };
+
+    synth.speak(utt);
+    if (synth.paused) synth.resume();
+  }
+
+  function initClickToSpeak() {
+    if (!('speechSynthesis' in window)) return;
+
+    // Populate voices when loaded
+    window.speechSynthesis.onvoiceschanged = () => {
+      getBestVoice(false);
+      getBestVoice(true);
+    };
+
+    // Attach to readable elements
+    const selectors = [
+      'p',
+      '.spoken-text',
+      '.mental-anchor-box',
+      '.highlight-box p',
+      '.qa-answer p',
+      'table tbody td',
+      '.card p',
+      'ul > li',
+      'ol > li'
+    ];
+
+    const elements = document.querySelectorAll(selectors.join(', '));
+    elements.forEach(el => {
+      // Avoid tiny badges, code blocks, or buttons
+      if (el.closest('pre') || el.closest('code') || el.closest('button') || el.closest('.copy-btn') || el.closest('a') || el.closest('.diagram-container') || el.closest('.toc-nav') || el.closest('.navbar')) {
+        return;
+      }
+      const rawText = el.innerText ? el.innerText.trim() : '';
+      if (rawText.length < 5) return;
+
+      el.classList.add('clickable-speech');
+      el.setAttribute('title', '🔊 Bấm để nghe đọc (Click to speak)');
+      el.addEventListener('click', (e) => speakElement(el, e));
+    });
+  }
+
+  initClickToSpeak();
 
 });
 
