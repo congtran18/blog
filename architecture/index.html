@@ -2720,11 +2720,12 @@ sequenceDiagram
           </table>
         </div>
       
-        <!-- SUBSECTION: THE INTERVIEW JARGON BUSTER (14 ADVANCED TERMS DECODED) -->
+        
+        <!-- SUBSECTION: THE INTERVIEW JARGON BUSTER (21 ADVANCED TERMS DECODED) -->
         <div class="subsection-title" style="margin-top: 2.5rem;">
           <span>💡</span>
-          <span class="lang-en">THE INTERVIEW JARGON BUSTER: 14 ADVANCED ARCHITECTURAL TERMS EXPLAINED WITH ZERO JARGON</span>
-          <span class="lang-vi">BỘ GIẢI MÃ THUẬT NGỮ PHỎNG VẤN: 14 KHÁI NIỆM NÂNG CAO ĐƯỢC BÌNH DÂN HÓA DỄ HIỂU NHẤT</span>
+          <span class="lang-en">THE MASTER INTERVIEW JARGON BUSTER: 21 ADVANCED ARCHITECTURAL TERMS EXPLAINED WITH ZERO JARGON</span>
+          <span class="lang-vi">BỘ GIẢI MÃ THUẬT NGỮ PHỎNG VẤN MASTER: 21 KHÁI NIỆM NÂNG CAO ĐƯỢC BÌNH DÂN HÓA DỄ HIỂU NHẤT</span>
         </div>
 
         <div class="highlight-box" style="border-left: 4px solid var(--accent-blue); background: var(--bg-surface-elevated); margin-bottom: 1.5rem; padding: 1.25rem 1.5rem; border-radius: 8px; box-shadow: var(--shadow-sm);">
@@ -2733,13 +2734,13 @@ sequenceDiagram
             <span class="lang-vi">🎯 Vì sao ứng viên thường bị "khớp" trong các buổi phỏng vấn Kiến trúc</span>
           </div>
           <p class="lang-en" style="margin-bottom: 0.75rem; line-height: 1.6; color: var(--text-secondary);">
-            The biggest mistake engineers make in System Design interviews is <em>buzzword dropping</em>—using complex terms like <em>"Saga compensation", "Bulkhead isolation", "WiredTiger tickets"</em> without being able to explain what they actually mean in plain English. 
+            The biggest mistake engineers make in System Design interviews is <em>buzzword dropping</em>—using complex terms like <em>"Saga compensation", "Bulkhead isolation", "WiredTiger tickets", "BAPI/BELNR", "HNSW vector search"</em> without being able to explain what they actually mean in plain English. 
             Interviewers will intentionally stop you and ask: <em>"Explain that to me like I am 10 years old."</em><br>
-            Below is your master translation cheat-sheet: <strong>14 advanced architectural terms</strong> broken down into <strong>Real-World Everyday Metaphors</strong> and <strong>1-Sentence Spoken Interview Pitches</strong>. Memorize these simple mental models, and you will sound like a seasoned Principal Architect.
+            Below is your master translation cheat-sheet: <strong>21 advanced architectural terms</strong> broken down into <strong>Real-World Everyday Metaphors</strong> and <strong>1-Sentence Spoken Interview Pitches</strong>. Memorize these simple mental models, and you will sound like a seasoned Principal Architect.
           </p>
           <p class="lang-vi" style="margin-bottom: 0.75rem; line-height: 1.6; color: var(--text-secondary);">
-            Sai lầm lớn nhất của các kỹ sư khi đi phỏng vấn System Design là <em>bắn thuật ngữ hàn lâm</em> (buzzword dropping)—nói những từ rất ngầu như <em>"Saga compensation", "Vách ngăn Bulkhead", "WiredTiger tickets"</em> nhưng khi người phỏng vấn vặn lại: <em>"Giải thích cho người bình thường hiểu bản chất là gì?"</em> thì lại ấp úng, lúng túng!<br>
-            Dưới đây là cẩm nang giải mã toàn diện: <strong>14 thuật ngữ kiến trúc nâng cao nhất</strong> được quy đổi về <strong>Ẩn dụ đời thường (Everyday Metaphors)</strong> và <strong>Câu trả lời 1 dòng ăn điểm khi phỏng vấn</strong>. Chỉ cần nắm vững các hình ảnh đời thực này, bạn sẽ tự tin đối đáp trôi chảy với bất kỳ Lead hay Giám đốc công nghệ nào!
+            Sai lầm lớn nhất của các kỹ sư khi đi phỏng vấn System Design là <em>bắn thuật ngữ hàn lâm</em> (buzzword dropping)—nói những từ rất ngầu như <em>"Saga compensation", "Vách ngăn Bulkhead", "WiredTiger tickets", "BAPI/BELNR", "HNSW vector search"</em> nhưng khi người phỏng vấn vặn lại: <em>"Giải thích cho người bình thường hiểu bản chất là gì?"</em> thì lại ấp úng, lúng túng!<br>
+            Dưới đây là cẩm nang giải mã toàn diện: <strong>21 thuật ngữ kiến trúc nâng cao nhất</strong> được quy đổi về <strong>Ẩn dụ đời thường (Everyday Metaphors)</strong> và <strong>Câu trả lời 1 dòng ăn điểm khi phỏng vấn</strong>. Chỉ cần nắm vững các hình ảnh đời thực này, bạn sẽ tự tin đối đáp trôi chảy với bất kỳ Lead hay Giám đốc công nghệ nào!
           </p>
         </div>
 
@@ -2938,6 +2939,104 @@ sequenceDiagram
               <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>📦 Ẩn dụ đời thường:</strong> Kho hàng 'Thất lạc &amp; Chờ xử lý' tại bưu điện. Khi một bưu phẩm bị sai địa chỉ hoặc rách nhãn, thay vì dừng toàn bộ băng chuyền làm nghẽn 10.000 bưu kiện khác, nhân viên chuyển gói hàng hỏng sang phòng riêng để xử lý thủ công sau.</p>
               <p class="lang-en" style="margin: 0;"><strong>🎤 Interview Pitch:</strong> <em>"If a corrupted event fails after 3 automated retries, we push it to the Dead Letter Queue. This unblocks the event stream for healthy transactions while sounding an alert for SREs to inspect the payload."</em></p>
               <p class="lang-vi" style="margin: 0;"><strong>🎤 Câu nói khi phỏng vấn:</strong> <em>"Nếu một message bị lỗi sau 3 lần retry tự động, hệ thống đẩy nó vào hàng đợi Dead Letter Queue (DLQ). Việc này giúp luồng dữ liệu chính thông suốt không bị tắc nghẽn, đồng thời gửi cảnh báo cho đội trực vận hành kiểm tra."</em></p>
+            </div>
+          </div>
+
+          <!-- CARD 15: BAPI & BELNR (SAP ERP) -->
+          <div style="border: 1px solid var(--border-subtle); border-top: 4px solid var(--accent-indigo); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span style="font-weight: 700; color: var(--accent-indigo); font-size: 0.95rem;">15. SAP BAPI &amp; BELNR</span>
+              <span style="font-size: 0.75rem; background: var(--bg-surface-elevated); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">Enterprise ERP Integration</span>
+            </div>
+            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary); margin-bottom: 0.75rem;">
+              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>📑 Everyday Metaphor:</strong> A bank teller refusing to let you scribble directly into the master ledger vault. Instead, the teller (BAPI) verifies your paperwork and hands you back an officially stamped receipt number (BELNR - Belegnummer) that proves the transaction is legally recorded.</p>
+              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>📑 Ẩn dụ đời thường:</strong> Thủ quỹ ngân hàng không bao giờ cho bạn tự cầm bút viết vào cuốn sổ cái kho tiền. Bạn phải đưa giấy nộp tiền qua quầy giao dịch (BAPI), thủ quỹ kiểm tra hợp lệ rồi đóng dấu và cấp cho bạn một **Số chứng từ kế toán chính thức (BELNR)** làm bằng chứng pháp lý.</p>
+              <p class="lang-en" style="margin: 0;"><strong>🎤 Interview Pitch:</strong> <em>"We never write directly to SAP database tables. We invoke SAP BAPI functions, which validate accounting constraints and return a unique 10-digit BELNR (Accounting Document Number) as immutable legal proof of payment."</em></p>
+              <p class="lang-vi" style="margin: 0;"><strong>🎤 Câu nói khi phỏng vấn:</strong> <em>"Hệ thống không bao giờ chọc thẳng vào DB của SAP. Tụi em gọi qua SAP BAPI để SAP tự kiểm tra ràng buộc kế toán và trả về mã chứng từ BELNR 10 chữ số làm bằng chứng gạch nợ pháp lý."</em></p>
+            </div>
+          </div>
+
+          <!-- CARD 16: TERMINAL OPERATING SYSTEM (TOS) -->
+          <div style="border: 1px solid var(--border-subtle); border-top: 4px solid var(--accent-teal); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span style="font-weight: 700; color: var(--accent-teal); font-size: 0.95rem;">16. Terminal Operating System (TOS)</span>
+              <span style="font-size: 0.75rem; background: var(--bg-surface-elevated); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">Seaport Infrastructure</span>
+            </div>
+            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary); margin-bottom: 0.75rem;">
+              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>🚢 Everyday Metaphor:</strong> The Air Traffic Control tower at an international airport, but for container ships and giant cranes. The TOS commands which crane lifts which container, which truck carries it, and which physical gate barrier lifts open.</p>
+              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>🚢 Ẩn dụ đời thường:</strong> Đài kiểm soát không lưu ở sân bay, nhưng dành cho tàu biển và cần cẩu khổng lồ. Hệ thống TOS (như Navis N4, CATOS) chỉ huy cần cẩu nào gắp thùng container nào, xe kéo nào chở đi và thanh chắn barie cổng nào được phép nâng lên.</p>
+              <p class="lang-en" style="margin: 0;"><strong>🎤 Interview Pitch:</strong> <em>"The Terminal Operating System (TOS) manages physical port cranes and gate barriers. Our payment system talks to the TOS API to automatically clear cargo holds the second payment settles on SAP."</em></p>
+              <p class="lang-vi" style="margin: 0;"><strong>🎤 Câu nói khi phỏng vấn:</strong> <em>"TOS là hệ điều hành điều khiển cần cẩu và barie cổng cảng. Cổng thanh toán của tụi em tích hợp với API của TOS để tự động gỡ phong tỏa hàng hóa ngay khi tiền vào SAP."</em></p>
+            </div>
+          </div>
+
+          <!-- CARD 17: TERMINAL HANDLING CHARGE (THC) -->
+          <div style="border: 1px solid var(--border-subtle); border-top: 4px solid var(--accent-cyan); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span style="font-weight: 700; color: var(--accent-cyan); font-size: 0.95rem;">17. Terminal Handling Charge (THC)</span>
+              <span style="font-size: 0.75rem; background: var(--bg-surface-elevated); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">Maritime Port Surcharges</span>
+            </div>
+            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary); margin-bottom: 0.75rem;">
+              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>🏗️ Everyday Metaphor:</strong> Paying the moving truck crew who lifts your heavy refrigerator from the street into your 5th-floor apartment, separate from the rental price of the apartment itself.</p>
+              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>🏗️ Ẩn dụ đời thường:</strong> Tiền công bốc vác trả cho đội thợ khuân chiếc tủ lạnh nặng từ xe tải dưới đường lên căn hộ tầng 5 của bạn, tách biệt hoàn toàn với tiền thuê nhà.</p>
+              <p class="lang-en" style="margin: 0;"><strong>🎤 Interview Pitch:</strong> <em>"Ocean freight pays for sea transport from Tokyo to Ho Chi Minh City. THC is the local port surcharge paid to crane operators for lifting the container off the vessel onto the yard."</em></p>
+              <p class="lang-vi" style="margin: 0;"><strong>🎤 Câu nói khi phỏng vấn:</strong> <em>"Tiền cước biển là trả cho chặng chở từ Tokyo về TP.HCM. Còn THC là phụ phí xếp dỡ tại cảng nội địa để trả công cần cẩu bốc container từ trên boong tàu hạ xuống bãi cảng."</em></p>
+            </div>
+          </div>
+
+          <!-- CARD 18: CLAHE OCR PREPROCESSING -->
+          <div style="border: 1px solid var(--border-subtle); border-top: 4px solid var(--accent-pink); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span style="font-weight: 700; color: var(--accent-pink); font-size: 0.95rem;">18. CLAHE (Image Contrast Equalization)</span>
+              <span style="font-size: 0.75rem; background: var(--bg-surface-elevated); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">Computer Vision &amp; OCR</span>
+            </div>
+            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary); margin-bottom: 0.75rem;">
+              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>📸 Everyday Metaphor:</strong> The auto-enhance button on your smartphone camera when taking a photo of a receipt in a dark restaurant. It removes shadows and sharpens faint ink so faint gray text pops out in crisp black-and-white.</p>
+              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>📸 Ẩn dụ đời thường:</strong> Tính năng tự động cân bằng sáng trên điện thoại khi chụp hóa đơn trong phòng tối. Nó xóa bóng mờ và làm đậm nét mực in nhiệt bị mờ, biến chữ xám nhạt thành chữ đen rõ nét trên nền trắng tinh.</p>
+              <p class="lang-en" style="margin: 0;"><strong>🎤 Interview Pitch:</strong> <em>"Truckers upload blurry, low-light photos of tax declarations. CLAHE equalizes contrast in local image tiles, boosting OCR accuracy from 62% to 94.8% without blowing out white backgrounds."</em></p>
+              <p class="lang-vi" style="margin: 0;"><strong>🎤 Câu nói khi phỏng vấn:</strong> <em>"Tài xế chụp tờ khai thuế hay bị tối và mờ. Thuật toán CLAHE tự cân bằng tương phản từng vùng ảnh, giúp mắt AI OCR tăng độ chính xác từ 62% lên 94.8% mà không làm lóa giấy."</em></p>
+            </div>
+          </div>
+
+          <!-- CARD 19: HNSW VECTOR SEARCH -->
+          <div style="border: 1px solid var(--border-subtle); border-top: 4px solid var(--accent-purple); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span style="font-weight: 700; color: var(--accent-purple); font-size: 0.95rem;">19. HNSW Vector Search</span>
+              <span style="font-size: 0.75rem; background: var(--bg-surface-elevated); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">AI &amp; Semantic Matching</span>
+            </div>
+            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary); margin-bottom: 0.75rem;">
+              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>🗺️ Everyday Metaphor:</strong> Finding a friend's house in an unfamiliar country. You take an airplane to the capital city, take an express highway to the province, then ask local street signs—instead of knocking on all 10 million doors in the country one-by-one!</p>
+              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>🗺️ Ẩn dụ đời thường:</strong> Tìm nhà bạn ở một đất nước xa lạ. Bạn bay máy bay đến thủ đô, đi cao tốc về tỉnh lỵ rồi mới hỏi đường từng con ngõ nhỏ—thay vì phải đi gõ cửa từng ngôi nhà trong số 10 triệu căn nhà của cả nước!</p>
+              <p class="lang-en" style="margin: 0;"><strong>🎤 Interview Pitch:</strong> <em>"HNSW stands for Hierarchical Navigable Small World. It searches high-dimensional vector embeddings in logarithmic time (O(log N)) to match fuzzy bank memo descriptions against open invoices in under 15ms."</em></p>
+              <p class="lang-vi" style="margin: 0;"><strong>🎤 Câu nói khi phỏng vấn:</strong> <em>"HNSW là thuật toán tìm kiếm vector phân tầng. Nó tìm kiếm nội dung chuyển khoản mờ (viết tắt, gõ sai chính tả) với hóa đơn mở theo thời gian logarit cực nhanh chỉ mất dưới 15 mili-giây."</em></p>
+            </div>
+          </div>
+
+          <!-- CARD 20: PKCE OAUTH2 SECURITY -->
+          <div style="border: 1px solid var(--border-subtle); border-top: 4px solid var(--accent-green); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span style="font-weight: 700; color: var(--accent-green); font-size: 0.95rem;">20. PKCE (OAuth2 Mobile Security)</span>
+              <span style="font-size: 0.75rem; background: var(--bg-surface-elevated); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">Identity &amp; Auth</span>
+            </div>
+            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary); margin-bottom: 0.75rem;">
+              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>🔐 Everyday Metaphor:</strong> Tearing a dollar bill in half before shipping a package. The recipient can only claim the valuable cargo if they present the other half that fits the jagged rip perfectly. Intercepting the package alone is useless without the matching half.</p>
+              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>🔐 Ẩn dụ đời thường:</strong> Xé đôi tờ tiền làm mật hiệu trước khi gửi hàng. Người nhận chỉ lấy được hàng quý giá nếu xuất trình đúng nửa tờ tiền còn lại khớp từng đường rách. Kẻ trộm chặn được kiện hàng cũng vô dụng nếu không có nửa tờ tiền bí mật.</p>
+              <p class="lang-en" style="margin: 0;"><strong>🎤 Interview Pitch:</strong> <em>"Mobile apps cannot securely hide client secrets. PKCE generates a dynamic one-time secret (code_verifier) on the mobile device, preventing malicious apps on the phone from intercepting the auth token."</em></p>
+              <p class="lang-vi" style="margin: 0;"><strong>🎤 Câu nói khi phỏng vấn:</strong> <em>"Ứng dụng điện thoại không thể giấu mã secret an toàn. PKCE tạo một mã bí mật một lần động trên máy người dùng, ngăn chặn các app độc hại trên điện thoại đánh cắp token đăng nhập."</em></p>
+            </div>
+          </div>
+
+          <!-- CARD 21: SINGLE SOURCE OF TRUTH (SSOT) -->
+          <div style="border: 1px solid var(--border-subtle); border-top: 4px solid var(--accent-red); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span style="font-weight: 700; color: var(--accent-red); font-size: 0.95rem;">21. Single Source of Truth (SSOT)</span>
+              <span style="font-size: 0.75rem; background: var(--bg-surface-elevated); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">Enterprise Data Governance</span>
+            </div>
+            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary); margin-bottom: 0.75rem;">
+              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>🕰️ Everyday Metaphor:</strong> The master Big Ben clock in the center of London. People carry pocket watches and phone clocks that drift by a few seconds, but when there is an official dispute, Big Ben is the only clock that matters.</p>
+              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>🕰️ Ẩn dụ đời thường:</strong> Đồng hồ Big Ben ở trung tâm London. Mọi người có thể đeo đồng hồ đeo tay hay nhìn giờ trên điện thoại (có thể lệch vài giây), nhưng khi có tranh chấp giờ giấc chính thức, đồng hồ Big Ben là chuẩn mực duy nhất được công nhận.</p>
+              <p class="lang-en" style="margin: 0;"><strong>🎤 Interview Pitch:</strong> <em>"MongoDB serves as a high-speed operational cache for 15-minute checkout sessions. However, SAP FI-AR is the legal Single Source of Truth (SSOT) for financial ledgers, tax authorities, and international auditors."</em></p>
+              <p class="lang-vi" style="margin: 0;"><strong>🎤 Câu nói khi phỏng vấn:</strong> <em>"MongoDB đóng vai trò bộ nhớ đệm tốc độ cao cho phiên quét QR 15 phút. Nhưng SAP FI-AR mới là Nguồn chân lý duy nhất (SSOT) có giá trị pháp lý trước cơ quan thuế và kiểm toán quốc tế."</em></p>
             </div>
           </div>
 
