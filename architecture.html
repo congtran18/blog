@@ -1394,6 +1394,541 @@ sequenceDiagram
           </div>
         </div>
 
+        <!-- SUBSECTION: DEEP-DIVE COMPONENT BREAKDOWN (ROLE, METAPHOR, AND WHY WE NEED IT) -->
+        <div class="subsection-title" style="margin-top: 2.5rem;">
+          <span>🔍</span>
+          <span class="lang-en">DEEP-DIVE: WHAT DOES EACH COMPONENT DO, WHAT IS ITS ROLE, AND WHY DO WE NEED IT?</span>
+          <span class="lang-vi">GIẢI THÍCH CHI TIẾT TỪNG THÀNH PHẦN: ĐÓNG VAI TRÒ GÌ, ẨN DỤ ĐỜI THỰC & VÌ SAO BẮT BUỘC PHẢI CÓ?</span>
+        </div>
+        <p class="lang-en" style="color: var(--text-secondary); margin-bottom: 1.5rem; line-height: 1.6;">
+          In Staff Architect interviews, interviewers love to point at individual boxes on the whiteboard and ask: <em>"Why is this box here? What role does it play, and what happens to the system if we remove it?"</em>. Here is the deep-dive guide for all 10 core components, explained in <strong>plain basic English</strong> and natural real-world metaphors that anyone can understand:
+        </p>
+        <p class="lang-vi" style="color: var(--text-secondary); margin-bottom: 1.5rem; line-height: 1.6;">
+          Trong các buổi phỏng vấn System Design, người phỏng vấn rất hay chỉ vào từng khối trên bảng và hỏi: <em>"Khối này ở đây làm gì? Nó đóng vai trò gì, và nếu tôi vứt bỏ khối này đi thì hệ thống sẽ toang ở đâu?"</em>. Dưới đây là lời giải thích cặn kẽ cho 10 thành phần nòng cốt, sử dụng <strong>từ ngữ đời thường, tiếng Anh cơ bản và ẩn dụ thực tế</strong> để đọc tới đâu là hiểu ngay tới đó:
+        </p>
+
+        <div style="display: flex; flex-direction: column; gap: 1.5rem; margin-bottom: 2.5rem;">
+
+          <!-- COMPONENT 1: APISIX EDGE GATEWAY -->
+          <div class="component-card" style="border: 1px solid var(--border-subtle); border-left: 5px solid var(--accent-cyan); background: var(--bg-surface); padding: 1.5rem; border-radius: 8px; box-shadow: var(--shadow-sm);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h4 style="margin: 0; font-size: 1.1rem; font-weight: 700; color: var(--accent-cyan);">
+                1. Apache APISIX Edge Gateway
+              </h4>
+              <span class="badge" style="background: rgba(2, 132, 199, 0.1); color: var(--accent-cyan); padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">
+                <span class="lang-en">The Front Door Security Guard</span>
+                <span class="lang-vi">Anh bảo vệ gác cổng soát vé</span>
+              </span>
+            </div>
+            <div style="font-size: 0.92rem; line-height: 1.65; color: var(--text-secondary);">
+              <div class="lang-en">
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>🏷️ Real-World Metaphor:</strong> Think of a large office building with thousands of visitors daily. You cannot let anyone walk straight into the accounting office or the cash vault. You need a <strong>Security Guard standing at the Front Door</strong> to check everyone's ID badge before letting them in.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>⚙️ What Role Does It Play?</strong><br>
+                  • <strong>Ticket Checking (Authentication):</strong> When a customer clicks Pay on the website, APISIX inspects their login token (JWT) directly inside shared RAM in just <strong>0.02 milliseconds</strong>—thousands of times faster than asking an external identity server.<br>
+                  • <strong>Traffic Guiding (Routing):</strong> It directs payment requests to payment servers, and report queries to reporting servers.<br>
+                  • <strong>Stopping Bad Actors (DDoS & Rate Limiting):</strong> If a bot tries to spam 10,000 requests per second, APISIX blocks it immediately right at the gate.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>❓ Why Do We Need It? What Happens Without It?</strong><br>
+                  • <em>Without APISIX:</em> Every single customer request and hacker attack would hit internal backend servers directly. Those servers would waste CPU checking login badges instead of doing business logic, causing complete system crashes.<br>
+                  • <em>Why APISIX over NGINX?</em> Traditional NGINX reloads its worker processes every time server IPs change, dropping active user connections. APISIX syncs routes dynamically via <code>etcd</code> in RAM without restarts, ensuring zero dropped user sessions.
+                </p>
+                <div style="background: rgba(2, 132, 199, 0.05); padding: 0.6rem 0.8rem; border-radius: 6px; font-style: italic; border-left: 3px solid var(--accent-cyan);">
+                  🎙️ <strong>Interview Pitch (Basic English):</strong> "APISIX is our Front Door Security Guard. It validates security tokens in RAM in 0.02ms and updates roadmaps on the fly without ever dropping connections."
+                </div>
+              </div>
+              <div class="lang-vi">
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>🏷️ Ẩn dụ đời thực:</strong> Hãy tưởng tượng một tòa nhà tập đoàn có hàng nghìn người ra vào mỗi ngày. Bạn không thể để ai cũng tự do đi thẳng vào kho tiền hay phòng kế toán. Phải có một <strong>Anh bảo vệ đứng ngay cổng ra vào</strong> để kiểm tra thẻ nhân viên.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>⚙️ Đóng vai trò gì trong hệ thống?</strong><br>
+                  • <strong>Soát vé (Authentication):</strong> Khi khách bấm thanh toán, APISIX kiểm tra vé đăng nhập (Token) của khách ngay trong bộ nhớ RAM chỉ mất <strong>0.02 mili-giây</strong> mà không cần gọi ra ngoài.<br>
+                  • <strong>Chỉ đường (Routing):</strong> Dẫn request thanh toán sang máy chủ thanh toán, request hóa đơn sang máy chủ hóa đơn.<br>
+                  • <strong>Chặn kẻ xấu (DDoS & Giới hạn tốc độ):</strong> Nếu có máy tính lạ cố tình spam hàng nghìn request phá hoại, APISIX chặn đứng ngay ngoài cổng.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>❓ Vì sao bắt buộc phải cần nó? Nếu không có thì sao?</strong><br>
+                  • <em>Nếu không có APISIX:</em> Mọi request tốt lẫn xấu đều tràn thẳng vào máy chủ bên trong. Máy chủ kế toán sẽ bị quá tải vì vừa phải tính tiền vừa phải đi kiểm tra vé đăng nhập, dẫn đến sập toàn bộ hệ thống.<br>
+                  • <em>Vì sao chọn APISIX thay vì NGINX cũ?</em> NGINX cũ mỗi lần thêm server mới là phải khởi động lại tiến trình làm rớt mạng của khách. APISIX cập nhật đường đi trực tiếp trong RAM qua <code>etcd</code>, xe cộ chạy liên tục mà không cần dừng lại một giây nào.
+                </p>
+                <div style="background: rgba(2, 132, 199, 0.05); padding: 0.6rem 0.8rem; border-radius: 6px; font-style: italic; border-left: 3px solid var(--accent-cyan);">
+                  🎙️ <strong>Câu chốt phỏng vấn:</strong> "APISIX là anh bảo vệ gác cổng: kiểm tra vé đăng nhập trong 0.02ms và dẫn đường mạng trực tiếp trong RAM mà không bao giờ làm rớt kết nối của khách."
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- COMPONENT 2: DIRECT BANK RAILS -->
+          <div class="component-card" style="border: 1px solid var(--border-subtle); border-left: 5px solid var(--accent-blue); background: var(--bg-surface); padding: 1.5rem; border-radius: 8px; box-shadow: var(--shadow-sm);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h4 style="margin: 0; font-size: 1.1rem; font-weight: 700; color: var(--accent-blue);">
+                2. Direct Domestic Bank Rails (VietQR / PromptPay / BOC NetBank)
+              </h4>
+              <span class="badge" style="background: rgba(37, 99, 235, 0.1); color: var(--accent-blue); padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">
+                <span class="lang-en">The Direct Money Highway</span>
+                <span class="lang-vi">Đường cao tốc chuyển tiền trực tiếp</span>
+              </span>
+            </div>
+            <div style="font-size: 0.92rem; line-height: 1.65; color: var(--text-secondary);">
+              <div class="lang-en">
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>🏷️ Real-World Metaphor:</strong> Instead of paying through an expensive middleman wire service that takes a percentage cut, you use your mobile banking app to <strong>transfer money directly from your bank to the seller's bank</strong> over the national banking network.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>⚙️ What Role Does It Play?</strong><br>
+                  • Connects directly to domestic clearing networks (VietQR in Vietnam, PromptPay in Thailand, Bank of China in China).<br>
+                  • When a customer selects invoices, the system creates a <strong>Dynamic QR Code</strong> with the exact amount down to the penny and the unique order ID. The customer scans the QR with their mobile banking app, and cash lands in ONE's bank account in <strong>3 seconds</strong>.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>❓ Why Do We Need It? What Happens Without It?</strong><br>
+                  • <em>If using international card aggregators (Stripe, Visa, PayPal):</em> They charge <strong>2.8% to 3.0%</strong>. On a $50,000 container shipment, that single payment fee costs <strong>$1,450 USD!</strong> Across billions in maritime volume, percentage fees bleed tens of millions of dollars annually. Furthermore, aggregators freeze a 10% rolling reserve for 90 days.<br>
+                  • <em>With Direct Bank Rails:</em> Fees drop to a <strong>flat 10 cents ($0.10) per payment</strong>. This saves ONE over <strong>$25M USD every year</strong>, deposits money into corporate accounts in seconds, and requires zero rolling reserves.
+                </p>
+                <div style="background: rgba(37, 99, 235, 0.05); padding: 0.6rem 0.8rem; border-radius: 6px; font-style: italic; border-left: 3px solid var(--accent-blue);">
+                  🎙️ <strong>Interview Pitch (Basic English):</strong> "Direct Bank Rails are our Money Highway. We cut payment fees from 2.8% to a flat 10 cents, saving $25 million every year with instant cash deposit in seconds."
+                </div>
+              </div>
+              <div class="lang-vi">
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>🏷️ Ẩn dụ đời thực:</strong> Thay vì gửi tiền qua dịch vụ trung gian đắt đỏ bị cắt phế hoa hồng, bạn <strong>chuyển khoản trực tiếp từ tài khoản ngân hàng của bạn sang tài khoản ngân hàng người bán</strong> qua Internet Banking.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>⚙️ Đóng vai trò gì trong hệ thống?</strong><br>
+                  • Đấu nối trực tiếp vào mạng ngân hàng nội địa (VietQR tại VN, PromptPay tại Thái Lan, BOC tại Trung Quốc).<br>
+                  • Tạo ra mã **Dynamic QR** có sẵn số tiền chính xác từng đồng và mã hóa đơn. Khách chỉ cần quét mã là tiền chuyển thẳng vào tài khoản ngân hàng của hãng tàu trong 3 giây.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>❓ Vì sao bắt buộc phải cần nó? Nếu không có thì sao?</strong><br>
+                  • <em>Nếu dùng Stripe hay thẻ Visa:</em> Bị thu phí **2.8% đến 3.0%**. Đơn hàng container $50,000 bị mất tới **$1,450 (gần 36 triệu VNĐ) tiền phí cho đúng 1 lần quẹt!** Mỗi năm hãng tàu mất hàng chục triệu USD tiền phí và bị giam tiền cọc 3 tháng.<br>
+                  • <em>Có cổng ngân hàng nội địa:</em> Phí giảm xuống chỉ còn **10 xu (chưa tới 3.000 VNĐ)** cho mỗi đơn hàng! Giúp công ty **tiết kiệm hơn 25 triệu USD mỗi năm** và tiền về tài khoản ngay lập tức.
+                </p>
+                <div style="background: rgba(37, 99, 235, 0.05); padding: 0.6rem 0.8rem; border-radius: 6px; font-style: italic; border-left: 3px solid var(--accent-blue);">
+                  🎙️ <strong>Câu chốt phỏng vấn:</strong> "Cổng ngân hàng nội địa là cao tốc chuyển tiền: hạ phí từ 2.8% xuống 10 xu/đơn, tiết kiệm hơn 25 triệu USD mỗi năm và tiền về tài khoản công ty trong vài giây."
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- COMPONENT 3: GO WEBHOOK BROKER -->
+          <div class="component-card" style="border: 1px solid var(--border-subtle); border-left: 5px solid var(--accent-green); background: var(--bg-surface); padding: 1.5rem; border-radius: 8px; box-shadow: var(--shadow-sm);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h4 style="margin: 0; font-size: 1.1rem; font-weight: 700; color: var(--accent-green);">
+                3. Go Webhook Ingestion Broker
+              </h4>
+              <span class="badge" style="background: rgba(5, 150, 105, 0.1); color: var(--accent-green); padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">
+                <span class="lang-en">The High-Speed Toll Booth Clerk</span>
+                <span class="lang-vi">Nhân viên trạm thu phí siêu tốc</span>
+              </span>
+            </div>
+            <div style="font-size: 0.92rem; line-height: 1.65; color: var(--text-secondary);">
+              <div class="lang-en">
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>🏷️ Real-World Metaphor:</strong> An express electronic toll booth on the highway. When thousands of cars drive through at full speed, the toll clerk must scan each vehicle, verify payment, and raise the barrier in a fraction of a second. If the clerk is slow, traffic jams back up for miles.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>⚙️ What Role Does It Play?</strong><br>
+                  • The moment money lands in ONE's bank account, the bank server sends an automated message (Webhook) proving payment.<br>
+                  • The <strong>Go Broker</strong> catches this message, verifies the bank's digital cryptographic signature (RSA-2048) in under 1ms, locks the invoice on Redis, and returns <code>HTTP 200 OK</code> to the bank in exactly <strong>4.2 milliseconds</strong> before handing work to Temporal.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>❓ Why Do We Need It? What Happens Without It?</strong><br>
+                  • <em>If written in Node.js or Python:</em> Verifying RSA signatures requires heavy math. Node.js is single-threaded; during peak cut-off hours when banks flush thousands of queued webhooks, Node.js event loops freeze for 4 seconds. The bank thinks the connection timed out and spams duplicate webhooks, worsening the freeze.<br>
+                  • <em>Why Golang?</em> Go uses lightweight goroutines mapped across all CPU cores. It verifies math in 0.8ms and replies in 4.2ms flat, keeping queues completely empty.
+                </p>
+                <div style="background: rgba(5, 150, 105, 0.05); padding: 0.6rem 0.8rem; border-radius: 6px; font-style: italic; border-left: 3px solid var(--accent-green);">
+                  🎙️ <strong>Interview Pitch (Basic English):</strong> "Go Webhook Broker is our Fast Toll Clerk. It verifies heavy bank crypto signatures across all CPU cores and replies in 4.2ms so queues never back up."
+                </div>
+              </div>
+              <div class="lang-vi">
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>🏷️ Ẩn dụ đời thực:</strong> Nhân viên tại trạm thu phí không dừng trên cao tốc. Khi hàng nghìn xe chạy qua cùng lúc, nhân viên phải quét thẻ, kiểm tra tiền và mở barie trong tích tắc. Nếu làm chậm, cả đoạn đường cao tốc sẽ bị kẹt cứng hàng cây số.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>⚙️ Đóng vai trò gì trong hệ thống?</strong><br>
+                  • Ngay khi tiền vào tài khoản, ngân hàng tự động bắn một tin nhắn kỹ thuật số (Webhook) báo tin.<br>
+                  • Tầng **Go Broker** đón tin nhắn này, giải mã chữ ký số RSA-2048 của ngân hàng trong chưa đầy 1ms, chiếm khóa Redis và trả lời ngay <code>HTTP 200 OK</code> cho ngân hàng trong đúng **4.2 mili-giây** rồi mới giao việc cho Temporal.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>❓ Vì sao bắt buộc phải cần nó? Nếu không có thì sao?</strong><br>
+                  • <em>Nếu dùng Node.js cũ:</em> Node.js chạy đơn luồng. Việc giải mã chữ ký số ngốn rất nhiều CPU. Giờ cao điểm ngân hàng xả hàng nghìn webhook, Node.js sẽ bị "đơ" mất 4 giây mới trả lời được. Ngân hàng tưởng lỗi nên bắn lại liên tục làm sập hệ thống.<br>
+                  • <em>Vì sao dùng Go (Golang)?</em> Go chạy đa nhân CPU, bẻ khóa và kiểm tra chữ ký trong 0.8ms và trả lời ngân hàng trong 4.2ms, giữ cho hàng đợi luôn sạch trơn.
+                </p>
+                <div style="background: rgba(5, 150, 105, 0.05); padding: 0.6rem 0.8rem; border-radius: 6px; font-style: italic; border-left: 3px solid var(--accent-green);">
+                  🎙️ <strong>Câu chốt phỏng vấn:</strong> "Go Webhook Broker là nhân viên thu phí siêu tốc: giải mã chữ ký số ngân hàng bằng đa nhân CPU và trả lời trong 4.2ms để hệ thống không bao giờ bị nghẽn mạng."
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- COMPONENT 4: REDIS MUTEX LOCK -->
+          <div class="component-card" style="border: 1px solid var(--border-subtle); border-left: 5px solid var(--accent-amber); background: var(--bg-surface); padding: 1.5rem; border-radius: 8px; box-shadow: var(--shadow-sm);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h4 style="margin: 0; font-size: 1.1rem; font-weight: 700; color: var(--accent-amber);">
+                4. Redis Distributed Mutex Lock
+              </h4>
+              <span class="badge" style="background: rgba(217, 119, 6, 0.1); color: var(--accent-amber); padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">
+                <span class="lang-en">The Digital Deadbolt</span>
+                <span class="lang-vi">Chiếc khóa an toàn chống trừ tiền 2 lần</span>
+              </span>
+            </div>
+            <div style="font-size: 0.92rem; line-height: 1.65; color: var(--text-secondary);">
+              <div class="lang-en">
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>🏷️ Real-World Metaphor:</strong> The deadbolt lock on an airplane restroom door. When someone steps inside and turns the latch to RED (Locked), the person outside cannot enter no matter how many times they turn the handle.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>⚙️ What Role Does It Play?</strong><br>
+                  • As soon as a payment notification arrives, Go uses an atomic Redis command (<code>MSETNX</code>) to lock all invoice IDs in memory for <strong>15 minutes</strong>.<br>
+                  • The first request acquires the lock and continues processing. Any duplicate request (e.g., customer clicked twice in two browser tabs, or bank sent a duplicate webhook) fails to acquire the lock and is immediately rejected with HTTP 409 Conflict.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>❓ Why Do We Need It? What Happens Without It?</strong><br>
+                  • <em>Without the Redis lock:</em> Two concurrent threads would process the same invoice simultaneously, calling SAP twice and <strong>charging the customer twice for the same container</strong>! This is the worst nightmare in financial systems.<br>
+                  • Redis stores keys in RAM, locking in just <strong>0.3 milliseconds</strong> without slow SQL database row locks.
+                </p>
+                <div style="background: rgba(217, 119, 6, 0.05); padding: 0.6rem 0.8rem; border-radius: 6px; font-style: italic; border-left: 3px solid var(--accent-amber);">
+                  🎙️ <strong>Interview Pitch (Basic English):</strong> "Redis Mutex is our Digital Deadbolt. It locks the invoice in 0.3ms so no customer can ever be charged twice."
+                </div>
+              </div>
+              <div class="lang-vi">
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>🏷️ Ẩn dụ đời thực:</strong> Chiếc khóa chốt cửa phòng vệ sinh trên máy bay. Khi đã có người bên trong gạt chốt sang màu ĐỎ, người bên ngoài dù có vặn tay nắm cửa thế nào cũng không thể vào được.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>⚙️ Đóng vai trò gì trong hệ thống?</strong><br>
+                  • Ngay khi có tin nhắn báo tiền về, Go dùng lệnh <code>MSETNX</code> chiếm một chiếc khóa trên RAM của Redis cho mã hóa đơn đó trong <strong>15 phút</strong>.<br>
+                  • Request đầu tiên chiếm được khóa thì cho đi tiếp. Request thứ hai (do khách bấm 2 tab hoặc ngân hàng bắn trùng tin nhắn) bị trượt khóa sẽ bị chặn đứng ngay lập tức.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>❓ Vì sao bắt buộc phải cần nó? Nếu không có thì sao?</strong><br>
+                  • <em>Nếu không có khóa Redis:</em> Hai tiến trình sẽ chạy song song, cùng gọi sang SAP và **khách hàng bị trừ tiền 2 lần cho cùng một thùng container**! Đây là lỗi nghiêm trọng nhất trong hệ thống tài chính.<br>
+                  • Redis thao tác trên RAM nên chiếm khóa chỉ mất **0.3 mili-giây**, nhanh hơn hàng nghìn lần so với khóa bảng trong SQL.
+                </p>
+                <div style="background: rgba(217, 119, 6, 0.05); padding: 0.6rem 0.8rem; border-radius: 6px; font-style: italic; border-left: 3px solid var(--accent-amber);">
+                  🎙️ <strong>Câu chốt phỏng vấn:</strong> "Redis Mutex là chiếc khóa chốt an toàn: khóa mã hóa đơn trong 0.3ms để bảo đảm khách không bao giờ bị trừ tiền 2 lần."
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- COMPONENT 5: TEMPORAL SAGA ENGINE -->
+          <div class="component-card" style="border: 1px solid var(--border-subtle); border-left: 5px solid var(--accent-purple); background: var(--bg-surface); padding: 1.5rem; border-radius: 8px; box-shadow: var(--shadow-sm);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h4 style="margin: 0; font-size: 1.1rem; font-weight: 700; color: var(--accent-purple);">
+                5. Temporal Distributed Saga Engine
+              </h4>
+              <span class="badge" style="background: rgba(124, 58, 237, 0.1); color: var(--accent-purple); padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">
+                <span class="lang-en">The Master Conductor with Photographic Memory</span>
+                <span class="lang-vi">Vị Nhạc trưởng có trí nhớ siêu việt</span>
+              </span>
+            </div>
+            <div style="font-size: 0.92rem; line-height: 1.65; color: var(--text-secondary);">
+              <div class="lang-en">
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>🏷️ Real-World Metaphor:</strong> An orchestra conductor directing 100 musicians. If the concert hall suffers a sudden power blackout, when power returns, the conductor remembers the exact musical note where the symphony stopped and commands everyone to resume from that exact beat, without restarting from the beginning.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>⚙️ What Role Does It Play?</strong><br>
+                  • <strong>Step-by-Step Coordination:</strong> Guides the 5-step lifecycle: Validate ➔ Extract Tax with AI ➔ Post Debt to SAP ➔ Call Port for Cargo Release ➔ Text Driver.<br>
+                  • <strong>Durable Execution:</strong> Saves every single step into an immutable event history. If a server pod crashes at Step 3, a newly launched pod resumes from Step 3 with zero state loss.<br>
+                  • <strong>Zero-CPU Sleep:</strong> When SAP undergoes 4 hours of scheduled weekend maintenance, Temporal puts the workflow to sleep with 0% CPU and automatically wakes up when SAP is back.<br>
+                  • <strong>Saga Rollback:</strong> If the port terminal rejects cargo release, Temporal automatically runs a 5-step rollback: reversing SAP clearing and refunding customer bank money in under 3 minutes.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>❓ Why Do We Need It? What Happens Without It?</strong><br>
+                  • <em>If using Kafka queues and database status flags:</em> Pod crashes leave transactions in zombie states (money deducted but cargo not released). When SAP has scheduled downtime, Kafka queues back up and retry cron jobs flood SAP when it reboots.
+                </p>
+                <div style="background: rgba(124, 58, 237, 0.05); padding: 0.6rem 0.8rem; border-radius: 6px; font-style: italic; border-left: 3px solid var(--accent-purple);">
+                  🎙️ <strong>Interview Pitch (Basic English):</strong> "Temporal is our Master Conductor. If a server dies, it resumes from the exact line of code; if SAP sleeps for 4 hours, it sleeps with 0% CPU; and if the port fails, it automatically refunds the customer."
+                </div>
+              </div>
+              <div class="lang-vi">
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>🏷️ Ẩn dụ đời thực:</strong> Vị nhạc trưởng chỉ huy dàn nhạc 100 người. Nếu nhà hát bị mất điện đột ngột, khi có điện lại, vị nhạc trưởng nhớ chính xác bản nhạc đang dừng ở nốt nào và yêu cầu mọi người chơi tiếp từ đúng nốt đó, không phải chơi lại từ đầu.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>⚙️ Đóng vai trò gì trong hệ thống?</strong><br>
+                  • **Điều phối 5 bước:** Khóa đơn ➔ AI đọc thuế ➔ Gạch nợ SAP ➔ Cấp lệnh lấy hàng ở cảng ➔ Nhắn tin cho tài xế.<br>
+                  • **Thực thi bền bỉ (Durable Execution):** Toàn bộ lịch sử các bước được ghi lại. Nếu server bị sập giữa chừng, server mới dựng lên sẽ chạy tiếp đúng dòng code bị ngắt quãng.<br>
+                  • **Ngủ đông 0% CPU:** Khi SAP bảo trì 4 tiếng cuối tuần, Temporal tự cho quy trình ngủ đông và tự thức dậy chạy tiếp khi SAP mở lại.<br>
+                  • **Hoàn tiền tự động (Saga Rollback):** Nếu bước lấy hàng ở cảng biển bị lỗi, Temporal tự động kích hoạt quy trình hoàn tiền về tài khoản ngân hàng của khách và hủy bút toán trên SAP trong 3 phút.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>❓ Vì sao bắt buộc phải cần nó? Nếu không có thì sao?</strong><br>
+                  • <em>Nếu dùng cách cũ (Kafka + Cronjob):</em> Mỗi lần server bị sập là giao dịch bị kẹt vĩnh viễn (giao dịch ma). Cuối tuần SAP bảo trì, hàng nghìn cronjob chạy retry liên tục sẽ làm spam sập cổng SAP.
+                </p>
+                <div style="background: rgba(124, 58, 237, 0.05); padding: 0.6rem 0.8rem; border-radius: 6px; font-style: italic; border-left: 3px solid var(--accent-purple);">
+                  🎙️ <strong>Câu chốt phỏng vấn:</strong> "Temporal là vị Nhạc trưởng: server sập thì chạy tiếp đúng dòng code đó; SAP bảo trì thì ngủ đông 0% CPU; cảng lỗi thì tự động hoàn tiền cho khách."
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- COMPONENT 6: AI FINOPS PIPELINE -->
+          <div class="component-card" style="border: 1px solid var(--border-subtle); border-left: 5px solid var(--accent-red); background: var(--bg-surface); padding: 1.5rem; border-radius: 8px; box-shadow: var(--shadow-sm);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h4 style="margin: 0; font-size: 1.1rem; font-weight: 700; color: var(--accent-red);">
+                6. Multimodal AI FinOps Pipeline (OpenCV + Gemini Flash + Redis Vector)
+              </h4>
+              <span class="badge" style="background: rgba(220, 38, 38, 0.1); color: var(--accent-red); padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">
+                <span class="lang-en">The Smart Tax Document Clerk</span>
+                <span class="lang-vi">Trợ lý đọc chứng từ thuế thông minh</span>
+              </span>
+            </div>
+            <div style="font-size: 0.92rem; line-height: 1.65; color: var(--text-secondary);">
+              <div class="lang-en">
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>🏷️ Real-World Metaphor:</strong> An office assistant who inspects crumpled paper invoices: flattening folded corners, using a magnifying glass to read faded numbers, and checking the company accounting rulebook to find the right expense category.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>⚙️ What Role Does It Play?</strong><br>
+                  • Customers upload photos of withholding tax certificates (WHT) to deduct tax from their freight bill. These images are often blurry, crooked, and oily.<br>
+                  • <strong>Image Cleanup (C++ OpenCV - 18ms):</strong> Straightens angles and compresses the scan.<br>
+                  • <strong>Reading Tax Numbers (Gemini Flash - 258ms):</strong> Reads tax IDs and deduction amounts.<br>
+                  • <strong>Matching Local Fee Names (Redis Vector - 1.2ms):</strong> Maps messy local names (e.g., <em>"ve sinh cont"</em>) to standard SAP accounting codes.<br>
+                  • <strong>Math Verification:</strong> Checks that *Invoice Total - Tax Deduction = Bank Transfer Amount* down to the penny.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>❓ Why Do We Need It? What Happens Without It?</strong><br>
+                  • <em>Without AI:</em> Shipping lines must hire dozens of human accountants to manually inspect tax certificates, delaying container release by 1 to 2 days.<br>
+                  • <em>Why combine C++, Gemini Flash, and Vector search?</em> Sending raw 15MB PDFs directly to multimodal LLMs takes 8 seconds and costs $0.08 per call. C++ image optimization + prompt caching on Vertex AI RAM cuts AI costs by **77%**, parsing in just **258ms** for under 0.2 cents!
+                </p>
+                <div style="background: rgba(220, 38, 38, 0.05); padding: 0.6rem 0.8rem; border-radius: 6px; font-style: italic; border-left: 3px solid var(--accent-red);">
+                  🎙️ <strong>Interview Pitch (Basic English):</strong> "AI FinOps is our Smart Tax Clerk. It straightens messy scans, reads tax amounts in 258ms, and maps local fee names to SAP codes with 98.4% accuracy."
+                </div>
+              </div>
+              <div class="lang-vi">
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>🏷️ Ẩn dụ đời thực:</strong> Nhân viên văn phòng chuyên xem các tờ hóa đơn giấy: vuốt phẳng các nếp gấp, lấy kính lúp đọc các con số bị mờ và tra sổ tay kế toán xem khoản này tương ứng với mục chi phí nào.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>⚙️ Đóng vai trò gì trong hệ thống?</strong><br>
+                  • Khách nộp ảnh chụp giấy nộp thuế khấu trừ (WHT) để cấn trừ tiền cước. Ảnh này thường bị nghiêng, mờ và bóng dầu.<br>
+                  • **Làm sạch ảnh (C++ OpenCV - 18ms):** Xoay thẳng góc và làm nét chữ.<br>
+                  • **Đọc số tiền thuế (Gemini Flash - 258ms):** Đọc chính xác mã số thuế và số tiền khấu trừ.<br>
+                  • **Khớp mã chi phí (Redis Vector - 1.2ms):** Tự động hiểu các tên phí viết tắt tiếng địa phương và khớp sang đúng mã kế toán chuẩn của SAP.<br>
+                  • **Kiểm tra số học:** Tính lại tiền cước trừ tiền thuế xem có khớp từng xu với số tiền khách chuyển không.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>❓ Vì sao bắt buộc phải cần nó? Nếu không có thì sao?</strong><br>
+                  • <em>Nếu không có AI:</em> Hãng tàu phải thuê hàng chục kế toán ngồi gõ tay từng tờ giấy nộp thuế, mất từ vài tiếng đến cả ngày mới duyệt xong một đơn hàng.<br>
+                  • <em>Vì sao kết hợp cả 3 công nghệ?</em> Ném cả ảnh 15MB lên AI vừa mất 8 giây vừa tốn tiền. Dùng C++ nén ảnh và lưu prompt trên RAM Vertex AI giúp giảm **77% chi phí gọi AI**, xử lý chỉ mất **258 mili-giây** với giá chưa tới 0.2 xu!
+                </p>
+                <div style="background: rgba(220, 38, 38, 0.05); padding: 0.6rem 0.8rem; border-radius: 6px; font-style: italic; border-left: 3px solid var(--accent-red);">
+                  🎙️ <strong>Câu chốt phỏng vấn:</strong> "AI FinOps là trợ lý đọc thuế: làm thẳng ảnh mờ, đọc tiền thuế trong 258ms và khớp tên phí sang mã SAP với độ chính xác 98.4%."
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- COMPONENT 7: SAP S/4HANA ERP -->
+          <div class="component-card" style="border: 1px solid var(--border-subtle); border-left: 5px solid #0f172a; background: var(--bg-surface); padding: 1.5rem; border-radius: 8px; box-shadow: var(--shadow-sm);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h4 style="margin: 0; font-size: 1.1rem; font-weight: 700; color: #0f172a;">
+                7. SAP S/4HANA Core Enterprise ERP (FI-AR)
+              </h4>
+              <span class="badge" style="background: rgba(15, 23, 42, 0.1); color: #0f172a; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">
+                <span class="lang-en">The Chief Accountant & Master Vault</span>
+                <span class="lang-vi">Kế toán trưởng & Két sắt dữ liệu gốc</span>
+              </span>
+            </div>
+            <div style="font-size: 0.92rem; line-height: 1.65; color: var(--text-secondary);">
+              <div class="lang-en">
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>🏷️ Real-World Metaphor:</strong> The company's Chief Accountant who holds the master general ledger and keys to the cash vault. Every single dollar must be approved, recorded, and balanced in the Chief Accountant's ledger to be legally recognized.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>⚙️ What Role Does It Play?</strong><br>
+                  • SAP S/4HANA is ONE's core enterprise ERP. It holds 100% of customer profiles, debt balances, container tariffs, and general ledgers.<br>
+                  • When Temporal calls SAP, SAP posts the accounts receivable clearing entry (FI-AR), balances debit and credit lines, and issues an official accounting document number.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>❓ Why Do We Need It? Golden Architecture Principle:</strong><br>
+                  • <strong>SAP is the Single Source of Truth (SSOT):</strong> Our web platform is not the bank and not the ERP. We never modify customer debt balances directly in our own database. We act like a handheld card swipe machine: we collect money, hand the receipt to SAP, and let SAP clear the debt.
+                </p>
+                <div style="background: rgba(15, 23, 42, 0.05); padding: 0.6rem 0.8rem; border-radius: 6px; font-style: italic; border-left: 3px solid #0f172a;">
+                  🎙️ <strong>Interview Pitch (Basic English):</strong> "SAP S/4HANA is our Chief Accountant. It owns 100% of debt ledgers and master data; our platform never edits debt directly, we just hand cleared receipts to SAP."
+                </div>
+              </div>
+              <div class="lang-vi">
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>🏷️ Ẩn dụ đời thực:</strong> Bác Kế toán trưởng quyền lực của công ty, người duy nhất nắm giữ cuốn sổ cái tài chính tổng và chìa khóa két sắt. Mọi khoản thu chi đều phải được bác Kế toán trưởng ký duyệt và ghi vào sổ thì mới được coi là hợp pháp.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>⚙️ Đóng vai trò gì trong hệ thống?</strong><br>
+                  • SAP S/4HANA là hệ thống quản trị khổng lồ của hãng tàu ONE, nắm giữ 100% danh mục khách hàng, công nợ hóa đơn và sổ sách tài chính.<br>
+                  • Khi Temporal gọi sang, SAP sẽ thực hiện bút toán **gạch nợ (Clearing)**: xác nhận khoản nợ đã trả xong, cân bằng sổ kế toán và sinh ra **Số chứng từ kế toán chính thức**.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>❓ Vì sao bắt buộc phải cần nó? Nguyên lý tối thượng:</strong><br>
+                  • **SAP là Nguồn chân lý duy nhất (SSOT):** Hệ thống web bên ngoài tuyệt đối không được tự ý sửa số nợ của khách trên DB riêng. Hệ thống web chỉ như chiếc máy quẹt thẻ POS cầm tay: thu tiền xong là đem biên lai về nộp cho Kế toán trưởng SAP ghi sổ.
+                </p>
+                <div style="background: rgba(15, 23, 42, 0.05); padding: 0.6rem 0.8rem; border-radius: 6px; font-style: italic; border-left: 3px solid #0f172a;">
+                  🎙️ <strong>Câu chốt phỏng vấn:</strong> "SAP S/4HANA là Kế toán trưởng: nắm giữ 100% sổ nợ và dữ liệu gốc; hệ thống của tụi em không bao giờ tự ý sửa nợ, chỉ đưa biên lai cho SAP gạch nợ."
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- COMPONENT 8: MONGODB ATLAS (2 COLLECTIONS) -->
+          <div class="component-card" style="border: 1px solid var(--border-subtle); border-left: 5px solid #10b981; background: var(--bg-surface); padding: 1.5rem; border-radius: 8px; box-shadow: var(--shadow-sm);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h4 style="margin: 0; font-size: 1.1rem; font-weight: 700; color: #10b981;">
+                8. MongoDB Atlas (The Handheld POS Principle: Only 2 Collections)
+              </h4>
+              <span class="badge" style="background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">
+                <span class="lang-en">The Handheld POS Card Machine</span>
+                <span class="lang-vi">Chiếc máy quẹt thẻ POS cầm tay</span>
+              </span>
+            </div>
+            <div style="font-size: 0.92rem; line-height: 1.65; color: var(--text-secondary);">
+              <div class="lang-en">
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>🏷️ Real-World Metaphor:</strong> The small handheld card swipe machine held by a supermarket cashier. It does not manage customer profiles or bank balance sheets. It only needs to know two slips of paper: <strong>The Bill Amount</strong> and <strong>The Card Swipe Receipt</strong>.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>⚙️ What Role Does It Play?</strong><br>
+                  Our database requires **only 2 collections**:<br>
+                  1. <code>purchase_orders</code> (The Bill): A temporary checkout snapshot of container invoices the customer selected.<br>
+                  2. <code>payment_transactions</code> (The Receipt): An immutable append-only log of QR payment scan attempts.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>❓ Why Only 2 Collections While Other Payment Apps Have 40+ Tables?</strong><br>
+                  • Consumer apps like Stripe or MoMo need 40+ tables because they act as both the wallet and the bank (managing KYC, wallet balances, reward points, merchant accounts, and ledgers).<br>
+                  • Our platform is NOT the bank and NOT the ERP—SAP already owns all master data. Keeping only 2 collections gives us sub-2ms query speed, requires zero complex SQL joins, and completely eliminates any risk of data drifting out of sync with SAP.
+                </p>
+                <div style="background: rgba(16, 185, 129, 0.05); padding: 0.6rem 0.8rem; border-radius: 6px; font-style: italic; border-left: 3px solid #10b981;">
+                  🎙️ <strong>Interview Pitch (Basic English):</strong> "MongoDB is our Handheld POS Card Machine. Because SAP owns all master data, we only need 2 collections (the Bill and the Swipe Log), giving us sub-2ms speed with zero data drift."
+                </div>
+              </div>
+              <div class="lang-vi">
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>🏷️ Ẩn dụ đời thực:</strong> Chiếc máy quẹt thẻ POS nhỏ gọn cầm trên tay của nhân viên thu ngân siêu thị. Chiếc máy đó không lưu hồ sơ khách hàng hay sổ sách kế toán. Nó chỉ cần biết đúng 2 tờ giấy: **Tờ hóa đơn tính tiền** và **Biên lai quẹt thẻ thành công**.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>⚙️ Đóng vai trò gì trong hệ thống?</strong><br>
+                  Database chỉ cần đúng **2 bảng (Collections)**:<br>
+                  1. <code>purchase_orders</code> (Tờ hóa đơn): Lưu tạm thời danh sách container khách đang chọn thanh toán.<br>
+                  2. <code>payment_transactions</code> (Biên lai): Ghi lại nhật ký các lần quét mã QR của khách.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>❓ Vì sao MoMo, Stripe cần 40 bảng mà dự án này chỉ cần 2 bảng?</strong><br>
+                  • MoMo, Stripe có hàng chục bảng vì họ vừa là ví vừa là ngân hàng (quản lý ví tiền, voucher, tài khoản người bán,...).<br>
+                  • Dự án này không phải ngân hàng và không phải kế toán—mọi thông tin đã nằm trong SAP rồi! Giữ đúng 2 bảng giúp hệ thống đạt tốc độ **dưới 2 mili-giây**, không cần SQL JOIN, và **không bao giờ lo bị lệch dữ liệu so với SAP**.
+                </p>
+                <div style="background: rgba(16, 185, 129, 0.05); padding: 0.6rem 0.8rem; border-radius: 6px; font-style: italic; border-left: 3px solid #10b981;">
+                  🎙️ <strong>Câu chốt phỏng vấn:</strong> "MongoDB là máy quẹt POS cầm tay: vì SAP đã giữ hết dữ liệu gốc, tụi em chỉ cần 2 bảng (Hóa đơn & Nhật ký quẹt thẻ), đạt tốc độ dưới 2ms và không bao giờ lệch số liệu với SAP."
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- COMPONENT 9: PORT TERMINAL SYSTEM (TOS) -->
+          <div class="component-card" style="border: 1px solid var(--border-subtle); border-left: 5px solid #0284c7; background: var(--bg-surface); padding: 1.5rem; border-radius: 8px; box-shadow: var(--shadow-sm);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h4 style="margin: 0; font-size: 1.1rem; font-weight: 700; color: #0284c7;">
+                9. Port Terminal Operating System (TOS)
+              </h4>
+              <span class="badge" style="background: rgba(2, 132, 199, 0.1); color: #0284c7; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">
+                <span class="lang-en">The Port Gate & Crane Master</span>
+                <span class="lang-vi">Người điều khiển Cần cẩu & Cổng cảng biển</span>
+              </span>
+            </div>
+            <div style="font-size: 0.92rem; line-height: 1.65; color: var(--text-secondary);">
+              <div class="lang-en">
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>🏷️ Real-World Metaphor:</strong> The seaport guardhouse and giant gantry crane operator. Only when an official cargo release order is presented does the barrier gate lift, and the gantry crane lowers its arms to mount a 30-ton container onto the truck chassis.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>⚙️ What Role Does It Play?</strong><br>
+                  • TOS is the terminal operating software at major international ports (Cat Lai, Hai Phong, Laem Chabang).<br>
+                  • Once SAP clears the debt, Temporal calls the port's API, which issues an encrypted <strong>Electronic Delivery Order (e-D/O)</strong> barcode and PIN.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>❓ Why Do We Need It? What Happens Without It?</strong><br>
+                  • <em>Without direct port integration:</em> Truck drivers must drive to physical shipping line offices, wait in long counter lines for paper stamps, and hand paper orders to port guards—taking 1 to 2 days while expensive container storage fees pile up.<br>
+                  • Direct TOS integration lets truck drivers pick up 30-ton containers in **under 60 seconds** without touching paper.
+                </p>
+                <div style="background: rgba(2, 132, 199, 0.05); padding: 0.6rem 0.8rem; border-radius: 6px; font-style: italic; border-left: 3px solid #0284c7;">
+                  🎙️ <strong>Interview Pitch (Basic English):</strong> "Port TOS is our Crane & Gate Master. Connecting directly to the port lets truck drivers pick up 30-ton containers in under 60 seconds without touching a single piece of paper."
+                </div>
+              </div>
+              <div class="lang-vi">
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>🏷️ Ẩn dụ đời thực:</strong> Trạm gác cổng cảng biển và người lái chiếc cần cẩu khổng lồ. Chỉ khi nào có lệnh cho phép xuất hàng thì barie mới mở và cần cẩu mới hạ xuống gắp thùng container 30 tấn đặt lên xe tải.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>⚙️ Đóng vai trò gì trong hệ thống?</strong><br>
+                  • TOS là hệ thống phần mềm quản lý của các cảng biển lớn như Cát Lái, Hải Phòng, Laem Chabang.<br>
+                  • Khi SAP gạch nợ xong, Temporal gọi sang TOS để phát hành một **Lệnh giao hàng điện tử (e-D/O)** có chứa mã PIN và mã vạch bảo mật.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>❓ Vì sao bắt buộc phải cần nó? Nếu không có thì sao?</strong><br>
+                  • <em>Nếu không kết nối trực tiếp với TOS:</em> Bác tài xế vẫn phải cầm giấy tờ in ra chạy đến nộp cho phòng kiểm soát cảng xếp hàng chờ đối soát, mất thêm nửa ngày trời.<br>
+                  • Kết nối thẳng vào TOS giúp bác tài lái xe thẳng qua cổng cảng kéo container ra ngoài trong **chưa đầy 60 giây**.
+                </p>
+                <div style="background: rgba(2, 132, 199, 0.05); padding: 0.6rem 0.8rem; border-radius: 6px; font-style: italic; border-left: 3px solid #0284c7;">
+                  🎙️ <strong>Câu chốt phỏng vấn:</strong> "Cảng TOS là người điều khiển cần cẩu và cổng cảng: kết nối trực tiếp giúp tài xế lấy thùng container 30 tấn chỉ trong 60 giây mà không cần một tờ giấy nào."
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- COMPONENT 10: NOTIFICATION SERVICE -->
+          <div class="component-card" style="border: 1px solid var(--border-subtle); border-left: 5px solid #d97706; background: var(--bg-surface); padding: 1.5rem; border-radius: 8px; box-shadow: var(--shadow-sm);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h4 style="margin: 0; font-size: 1.1rem; font-weight: 700; color: #d97706;">
+                10. Multi-Channel Notification Service (Zalo ZNS / SMS / Email)
+              </h4>
+              <span class="badge" style="background: rgba(217, 119, 6, 0.1); color: #d97706; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">
+                <span class="lang-en">The Digital Courier</span>
+                <span class="lang-vi">Người đưa thư báo tin siêu tốc</span>
+              </span>
+            </div>
+            <div style="font-size: 0.92rem; line-height: 1.65; color: var(--text-secondary);">
+              <div class="lang-en">
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>🏷️ Real-World Metaphor:</strong> An express courier riding a motorbike to deliver an urgent VIP letter straight into the recipient's hands within seconds.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>⚙️ What Role Does It Play?</strong><br>
+                  • The moment the port issues the e-D/O release pass, this service automatically texts the QR barcode and PIN directly to the container truck driver's smartphone via **Zalo ZNS or SMS**, and emails the tax invoice to the shipper.<br>
+                  • The driver simply holds up their phone at the terminal gate barrier scanner to roll in.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>❓ Why Do We Need It? Smart Fallback:</strong><br>
+                  • Truck drivers are on the highway; they don't have laptops. If Zalo delivery fails after 5 seconds due to poor 4G connection, the service automatically falls back to standard SMS, guaranteeing the driver never gets stuck outside the gate.
+                </p>
+                <div style="background: rgba(217, 119, 6, 0.05); padding: 0.6rem 0.8rem; border-radius: 6px; font-style: italic; border-left: 3px solid #d97706;">
+                  🎙️ <strong>Interview Pitch (Basic English):</strong> "Notification Service is our Digital Courier. It texts the QR gate pass directly to the driver's phone with automatic Zalo-to-SMS fallback."
+                </div>
+              </div>
+              <div class="lang-vi">
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>🏷️ Ẩn dụ đời thực:</strong> Bác đưa thư chạy xe máy mang bức thư hỏa tốc đến tận tay người nhận ngay trong tích tắc.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>⚙️ Đóng vai trò gì trong hệ thống?</strong><br>
+                  • Ngay khi cảng biển cấp mã Lệnh giao hàng (e-D/O), dịch vụ này tự động gửi tin nhắn kèm **Mã QR lấy hàng** thẳng về điện thoại di động của bác tài xế xe tải qua **Zalo ZNS hoặc SMS**.<br>
+                  • Bác tài chỉ việc giơ màn hình điện thoại cho máy quét tại barie cổng cảng đọc là xong!
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>❓ Vì sao bắt buộc phải cần nó? Cơ chế dự phòng thông minh:</strong><br>
+                  • Bác tài đang lái xe trên đường không thể mở máy tính. Hệ thống gửi qua Zalo trước; nếu sau 5 giây Zalo không nhận được do mất sóng 4G, hệ thống tự động chuyển sang tin nhắn SMS truyền thống, bảo đảm bác tài luôn nhận được vé ra cổng.
+                </p>
+                <div style="background: rgba(217, 119, 6, 0.05); padding: 0.6rem 0.8rem; border-radius: 6px; font-style: italic; border-left: 3px solid #d97706;">
+                  🎙️ <strong>Câu chốt phỏng vấn:</strong> "Dịch vụ thông báo là người đưa thư: bắn mã QR lấy hàng thẳng về máy tài xế, tự động chuyển từ Zalo sang SMS nếu mất mạng."
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
         <!-- MENTAL ANCHOR BOX -->
         <div class="mental-anchor-box" style="margin-bottom: 2rem;">
           <span class="lang-en">
