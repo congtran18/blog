@@ -2719,6 +2719,240 @@ sequenceDiagram
             </tbody>
           </table>
         </div>
+      
+        <!-- SUBSECTION: THE INTERVIEW JARGON BUSTER (14 ADVANCED TERMS DECODED) -->
+        <div class="subsection-title" style="margin-top: 2.5rem;">
+          <span>💡</span>
+          <span class="lang-en">THE INTERVIEW JARGON BUSTER: 14 ADVANCED ARCHITECTURAL TERMS EXPLAINED WITH ZERO JARGON</span>
+          <span class="lang-vi">BỘ GIẢI MÃ THUẬT NGỮ PHỎNG VẤN: 14 KHÁI NIỆM NÂNG CAO ĐƯỢC BÌNH DÂN HÓA DỄ HIỂU NHẤT</span>
+        </div>
+
+        <div class="highlight-box" style="border-left: 4px solid var(--accent-blue); background: var(--bg-surface-elevated); margin-bottom: 1.5rem; padding: 1.25rem 1.5rem; border-radius: 8px; box-shadow: var(--shadow-sm);">
+          <div style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--accent-blue);">
+            <span class="lang-en">🎯 Why Technical Candidates Stumble in Architecture Interviews</span>
+            <span class="lang-vi">🎯 Vì sao ứng viên thường bị "khớp" trong các buổi phỏng vấn Kiến trúc</span>
+          </div>
+          <p class="lang-en" style="margin-bottom: 0.75rem; line-height: 1.6; color: var(--text-secondary);">
+            The biggest mistake engineers make in System Design interviews is <em>buzzword dropping</em>—using complex terms like <em>"Saga compensation", "Bulkhead isolation", "WiredTiger tickets"</em> without being able to explain what they actually mean in plain English. 
+            Interviewers will intentionally stop you and ask: <em>"Explain that to me like I am 10 years old."</em><br>
+            Below is your master translation cheat-sheet: <strong>14 advanced architectural terms</strong> broken down into <strong>Real-World Everyday Metaphors</strong> and <strong>1-Sentence Spoken Interview Pitches</strong>. Memorize these simple mental models, and you will sound like a seasoned Principal Architect.
+          </p>
+          <p class="lang-vi" style="margin-bottom: 0.75rem; line-height: 1.6; color: var(--text-secondary);">
+            Sai lầm lớn nhất của các kỹ sư khi đi phỏng vấn System Design là <em>bắn thuật ngữ hàn lâm</em> (buzzword dropping)—nói những từ rất ngầu như <em>"Saga compensation", "Vách ngăn Bulkhead", "WiredTiger tickets"</em> nhưng khi người phỏng vấn vặn lại: <em>"Giải thích cho người bình thường hiểu bản chất là gì?"</em> thì lại ấp úng, lúng túng!<br>
+            Dưới đây là cẩm nang giải mã toàn diện: <strong>14 thuật ngữ kiến trúc nâng cao nhất</strong> được quy đổi về <strong>Ẩn dụ đời thường (Everyday Metaphors)</strong> và <strong>Câu trả lời 1 dòng ăn điểm khi phỏng vấn</strong>. Chỉ cần nắm vững các hình ảnh đời thực này, bạn sẽ tự tin đối đáp trôi chảy với bất kỳ Lead hay Giám đốc công nghệ nào!
+          </p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 1.25rem; margin-bottom: 2rem;">
+
+          <!-- CARD 1: WIREDTIGER TICKETS -->
+          <div style="border: 1px solid var(--border-subtle); border-top: 4px solid var(--accent-red); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span style="font-weight: 700; color: var(--accent-red); font-size: 0.95rem;">1. WiredTiger 128 Tickets</span>
+              <span style="font-size: 0.75rem; background: var(--bg-surface-elevated); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">MongoDB Storage Engine</span>
+            </div>
+            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary); margin-bottom: 0.75rem;">
+              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>🏢 Everyday Metaphor:</strong> A bank branch with exactly 128 service counters. If customers bring simple paperwork, queues move in milliseconds. If 128 people sit down to fill out 20-page forms with no indexes, all 128 counters are occupied, and thousands of people behind them freeze outside the door.</p>
+              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>🏢 Ẩn dụ đời thường:</strong> Chi nhánh ngân hàng có đúng 128 quầy phục vụ. Nếu ai cũng chỉ rút tiền nhanh (có index), dòng người trôi vèo vèo. Nếu 128 người vào ngồi ôm quầy làm thủ tục dài 5 phút (truy vấn quét bảng không index), cả 128 quầy bị chiếm trọn và hàng nghìn người phía sau phải đứng chôn chân ngoài cửa.</p>
+              <p class="lang-en" style="margin: 0;"><strong>🎤 Interview Pitch:</strong> <em>"MongoDB only allows 128 concurrent active reads and 128 writes at any instant. We prevent ticket starvation by enforcing strict compound indexes and capping microservice connection pools."</em></p>
+              <p class="lang-vi" style="margin: 0;"><strong>🎤 Câu nói khi phỏng vấn:</strong> <em>"MongoDB chỉ cho phép tối đa 128 lệnh đọc và 128 lệnh ghi chạy cùng lúc tại một thời điểm. Tụi em tránh nghẽn quầy vé bằng cách đánh compound index chuẩn và giới hạn connection pool ở mức hợp lý."</em></p>
+            </div>
+          </div>
+
+          <!-- CARD 2: SAGA PATTERN VS 2PC -->
+          <div style="border: 1px solid var(--border-subtle); border-top: 4px solid var(--accent-purple); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span style="font-weight: 700; color: var(--accent-purple); font-size: 0.95rem;">2. Temporal Saga Pattern vs. 2PC</span>
+              <span style="font-size: 0.75rem; background: var(--bg-surface-elevated); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">Distributed Transactions</span>
+            </div>
+            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary); margin-bottom: 0.75rem;">
+              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>🔄 Everyday Metaphor:</strong> Two-Phase Commit (2PC) is forcing 5 people to hold hands and walk together; if one trips, everyone freezes. Saga is letting each person step forward independently, but equipping everyone with a reliable <strong>Ctrl+Z (Undo) button</strong> to step backward if step 4 fails.</p>
+              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>🔄 Ẩn dụ đời thường:</strong> 2PC là bắt 5 người nắm chặt tay nhau cùng bước, 1 người vấp ngã là cả 5 người đứng khựng lại. Saga là cho từng dịch vụ tự bước về phía trước, nhưng luôn chuẩn bị sẵn <strong>nút Ctrl+Z (hành động bù hoàn)</strong> để lùi lại nếu bước số 4 gặp sự cố.</p>
+              <p class="lang-en" style="margin: 0;"><strong>🎤 Interview Pitch:</strong> <em>"In distributed microservices, 2PC creates dangerous locks across databases. We use Temporal Saga to execute local transactions step-by-step with automated compensating activities on failure."</em></p>
+              <p class="lang-vi" style="margin: 0;"><strong>🎤 Câu nói khi phỏng vấn:</strong> <em>"Trên hệ thống phân tán, 2PC tạo ra khóa chết giữa các database. Tụi em dùng Saga của Temporal để mỗi dịch vụ commit dữ liệu cục bộ, nếu lỗi ở đâu thì tự động chạy hành động bù trừ (compensate) để hoàn lại tiền."</em></p>
+            </div>
+          </div>
+
+          <!-- CARD 3: IDEMPOTENCY -->
+          <div style="border: 1px solid var(--border-subtle); border-top: 4px solid var(--accent-green); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span style="font-weight: 700; color: var(--accent-green); font-size: 0.95rem;">3. Idempotency &amp; Mutex Lock</span>
+              <span style="font-size: 0.75rem; background: var(--bg-surface-elevated); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">Data Integrity &amp; Payments</span>
+            </div>
+            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary); margin-bottom: 0.75rem;">
+              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>🔘 Everyday Metaphor:</strong> An elevator call button. No matter how many times you impatiently press the button (1 time or 10 times), the elevator only receives one call and stops on your floor once.</p>
+              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>🔘 Ẩn dụ đời thường:</strong> Nút bấm gọi thang máy. Dù bạn có sốt ruột bấm 1 lần hay bấm liên tục 10 lần thì thang máy cũng chỉ nhận lệnh 1 lần và dừng đón bạn đúng 1 lần.</p>
+              <p class="lang-en" style="margin: 0;"><strong>🎤 Interview Pitch:</strong> <em>"An idempotency key ensures that even if the bank resends a payment webhook 5 times due to network retries, we only deduct fees and release the container once."</em></p>
+              <p class="lang-vi" style="margin: 0;"><strong>🎤 Câu nói khi phỏng vấn:</strong> <em>"Khóa Idempotency bảo đảm dù mạng chập chờn khiến ngân hàng gửi trùng Webhook 5 lần thì hệ thống cũng chỉ gạch nợ và cấp lệnh xuất kho đúng 1 lần duy nhất."</em></p>
+            </div>
+          </div>
+
+          <!-- CARD 4: BULKHEAD PATTERN -->
+          <div style="border: 1px solid var(--border-subtle); border-top: 4px solid var(--accent-blue); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span style="font-weight: 700; color: var(--accent-blue); font-size: 0.95rem;">4. Bulkhead Isolation Pattern</span>
+              <span style="font-size: 0.75rem; background: var(--bg-surface-elevated); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">Fault Tolerance &amp; SRE</span>
+            </div>
+            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary); margin-bottom: 0.75rem;">
+              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>🚢 Everyday Metaphor:</strong> The watertight compartment walls inside the hull of a ship. If water leaks into Cabin 1, the steel bulkheads seal off that compartment so the entire ship does not sink.</p>
+              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>🚢 Ẩn dụ đời thường:</strong> Các vách ngăn chống chìm kín nước bên trong thân tàu thủy. Nếu một khoang bị thủng thủng nước tràn vào, vách ngăn sẽ chặn lại không cho nước tràn sang các khoang khác để giữ cho toàn bộ con tàu không bị chìm.</p>
+              <p class="lang-en" style="margin: 0;"><strong>🎤 Interview Pitch:</strong> <em>"If a partner bank in Thailand suffers an outage and hangs requests, our Bulkhead thread pools isolate the failure so Vietnam HSBC and Singapore PayNow continue operating at 100% capacity."</em></p>
+              <p class="lang-vi" style="margin: 0;"><strong>🎤 Câu nói khi phỏng vấn:</strong> <em>"Nếu cổng ngân hàng bên Thái Lan bị nghẽn làm treo request, vách ngăn Bulkhead sẽ cô lập lỗi trong pool riêng, không cho nó ngốn hết thread làm sập cổng HSBC Việt Nam hay PayNow Singapore."</em></p>
+            </div>
+          </div>
+
+          <!-- CARD 5: CIRCUIT BREAKER -->
+          <div style="border: 1px solid var(--border-subtle); border-top: 4px solid var(--accent-amber); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span style="font-weight: 700; color: var(--accent-amber); font-size: 0.95rem;">5. Circuit Breaker Pattern</span>
+              <span style="font-size: 0.75rem; background: var(--bg-surface-elevated); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">Cascading Failure Prevention</span>
+            </div>
+            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary); margin-bottom: 0.75rem;">
+              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>⚡ Everyday Metaphor:</strong> The electrical fuse box (Aptomat) in your home. When high voltage or a short circuit happens, the fuse trips immediately to cut the power and protect your house from burning down.</p>
+              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>⚡ Ẩn dụ đời thường:</strong> Chiếc Aptomat (cầu chì tự ngắt) trong nhà bạn. Khi dây điện bị chập hoặc quá tải, cầu chì lập tức nhảy ngắt điện để bảo vệ toàn bộ ngôi nhà không bị chập cháy.</p>
+              <p class="lang-en" style="margin: 0;"><strong>🎤 Interview Pitch:</strong> <em>"When an external bank endpoint fails over 50% of calls, the circuit breaker trips OPEN: we fail fast and return a clean fallback instead of exhausting server threads on dead connections."</em></p>
+              <p class="lang-vi" style="margin: 0;"><strong>🎤 Câu nói khi phỏng vấn:</strong> <em>"Khi một cổng ngân hàng bị lỗi quá 50%, cầu chì Circuit Breaker sẽ nhảy NGẮT: hệ thống trả ngay thông báo lỗi thân thiện thay vì để hàng nghìn request đứng chờ làm nghẽn chết server."</em></p>
+            </div>
+          </div>
+
+          <!-- CARD 6: WORM STORAGE -->
+          <div style="border: 1px solid var(--border-subtle); border-top: 4px solid var(--accent-teal); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span style="font-weight: 700; color: var(--accent-teal); font-size: 0.95rem;">6. WORM Storage (Immutable Audit)</span>
+              <span style="font-size: 0.75rem; background: var(--bg-surface-elevated); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">Compliance &amp; SOX 404</span>
+            </div>
+            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary); margin-bottom: 0.75rem;">
+              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>📜 Everyday Metaphor:</strong> Carving words into wet cement or permanent stone. Once the stone hardens, nobody can erase, rewrite, or alter a single letter.</p>
+              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>📜 Ẩn dụ đời thường:</strong> Khắc chữ lên tấm bia đá hoặc khắc vào xi măng ướt. Một khi xi măng đã đông cứng, không ai có thể tẩy xóa, viết đè hay sửa chữa dù chỉ một nét chữ.</p>
+              <p class="lang-en" style="margin: 0;"><strong>🎤 Interview Pitch:</strong> <em>"WORM stands for Write Once, Read Many. Financial audit logs are cryptographically locked on cloud storage so that not even root admins can delete or alter them for 7 years."</em></p>
+              <p class="lang-vi" style="margin: 0;"><strong>🎤 Câu nói khi phỏng vấn:</strong> <em>"WORM nghĩa là Ghi một lần, Đọc nhiều lần. Nhật ký kiểm toán tài chính được khóa cứng trên cloud, kể cả quản trị viên cao nhất cũng không thể sửa hay xóa trong vòng 7 năm theo chuẩn SOX 404."</em></p>
+            </div>
+          </div>
+
+          <!-- CARD 7: MTLS -->
+          <div style="border: 1px solid var(--border-subtle); border-top: 4px solid var(--accent-indigo); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span style="font-weight: 700; color: var(--accent-indigo); font-size: 0.95rem;">7. Mutual TLS (mTLS)</span>
+              <span style="font-size: 0.75rem; background: var(--bg-surface-elevated); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">Zero-Trust Security</span>
+            </div>
+            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary); margin-bottom: 0.75rem;">
+              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>🪪 Everyday Metaphor:</strong> Standard HTTPS is like a guest checking a hotel's business license. mTLS is when BOTH the hotel AND the guest demand to inspect certified government ID cards before opening the door.</p>
+              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>🪪 Ẩn dụ đời thường:</strong> HTTPS thường giống như khách kiểm tra giấy phép kinh doanh của khách sạn. Còn mTLS là CẢ HAI BÊN (khách sạn và vị khách) đều phải xuất trình căn cước công dân có công chứng trước khi bắt tay mở cửa.</p>
+              <p class="lang-en" style="margin: 0;"><strong>🎤 Interview Pitch:</strong> <em>"In banking integrations, passwords and API tokens are not enough. mTLS ensures that both our API Gateway and HSBC authenticate each other using trusted X.509 digital certificates."</em></p>
+              <p class="lang-vi" style="margin: 0;"><strong>🎤 Câu nói khi phỏng vấn:</strong> <em>"Khi tích hợp ngân hàng, password hay API token là không đủ. mTLS bảo đảm cả Gateway của mình và HSBC đều phải xác thực chứng chỉ số X.509 của nhau trước khi truyền dữ liệu tiền tệ."</em></p>
+            </div>
+          </div>
+
+          <!-- CARD 8: MT940 VS CAMT.053 -->
+          <div style="border: 1px solid var(--border-subtle); border-top: 4px solid var(--accent-cyan); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span style="font-weight: 700; color: var(--accent-cyan); font-size: 0.95rem;">8. SWIFT MT940 vs. CAMT.053</span>
+              <span style="font-size: 0.75rem; background: var(--bg-surface-elevated); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">Bank Statement Protocols</span>
+            </div>
+            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary); margin-bottom: 0.75rem;">
+              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>📠 Everyday Metaphor:</strong> MT940 is like an old 1980s black-and-white fax message. CAMT.053 is a modern high-resolution color digital PDF with structured barcodes and rich XML tags.</p>
+              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>📠 Ẩn dụ đời thường:</strong> MT940 giống như bức điện báo fax đen trắng từ thập niên 1980. CAMT.053 là tài liệu điện tử XML chuẩn quốc tế hiện đại, có gắn mã vạch và phân tách từng trường dữ liệu rõ ràng.</p>
+              <p class="lang-en" style="margin: 0;"><strong>🎤 Interview Pitch:</strong> <em>"MT940 is the legacy SWIFT text format for bank statements. CAMT.053 is the modern ISO 20022 XML standard that carries rich payer tax IDs and QR invoice codes for automated reconciliation."</em></p>
+              <p class="lang-vi" style="margin: 0;"><strong>🎤 Câu nói khi phỏng vấn:</strong> <em>"MT940 là chuẩn sao kê dạng text cũ của SWIFT. Còn CAMT.053 là chuẩn XML hiện đại theo ISO 20022 chứa đầy đủ mã số thuế, mã hóa đơn QR giúp gạch nợ tự động 100% trên SAP."</em></p>
+            </div>
+          </div>
+
+          <!-- CARD 9: ELECTRONIC DELIVERY ORDER (E-D/O) -->
+          <div style="border: 1px solid var(--border-subtle); border-top: 4px solid var(--accent-green); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span style="font-weight: 700; color: var(--accent-green); font-size: 0.95rem;">9. Electronic Delivery Order (e-D/O)</span>
+              <span style="font-size: 0.75rem; background: var(--bg-surface-elevated); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">Maritime Operations</span>
+            </div>
+            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary); margin-bottom: 0.75rem;">
+              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>🎫 Everyday Metaphor:</strong> An airline digital boarding pass on your smartphone. Without the boarding pass, the security gate will never let you board the plane, even if you paid for the ticket.</p>
+              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>🎫 Ẩn dụ đời thường:</strong> Thẻ lên máy bay (boarding pass) có mã QR trên điện thoại. Dù bạn đã mua vé máy bay nhưng không có thẻ lên tàu bay này thì an ninh sân bay không bao giờ cho bạn bước lên máy bay.</p>
+              <p class="lang-en" style="margin: 0;"><strong>🎤 Interview Pitch:</strong> <em>"In maritime logistics, an e-D/O is the digital legal authorization that instructs seaport gate barriers to open and release a 30-ton container to the trucker. Generating this e-D/O is the final goal of payment clearance."</em></p>
+              <p class="lang-vi" style="margin: 0;"><strong>🎤 Câu nói khi phỏng vấn:</strong> <em>"Lệnh e-D/O là giấy phép điện tử có giá trị pháp lý để bảo vệ cảng mở barie cho xe kéo chở container 30 tấn ra khỏi cảng. Cấp được lệnh e-D/O này chính là đích đến cuối cùng của luồng thanh toán."</em></p>
+            </div>
+          </div>
+
+          <!-- CARD 10: CANARY DEPLOYMENT -->
+          <div style="border: 1px solid var(--border-subtle); border-top: 4px solid var(--accent-orange); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span style="font-weight: 700; color: var(--accent-orange); font-size: 0.95rem;">10. Canary Deployment (GitOps)</span>
+              <span style="font-size: 0.75rem; background: var(--bg-surface-elevated); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">CI/CD &amp; Release Strategy</span>
+            </div>
+            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary); margin-bottom: 0.75rem;">
+              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>🐦 Everyday Metaphor:</strong> Historically, coal miners carried a caged canary bird underground. If dangerous toxic gas leaked, the canary would chirp and warn miners to evacuate before humans were affected.</p>
+              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>🐦 Ẩn dụ đời thường:</strong> Thợ mỏ thời xưa đem theo chú chim hoàng yến vào hầm than. Nếu có khí độc rò rỉ, chú chim sẽ báo động trước để công nhân kịp sơ tán trước khi khí độc lan tới con người.</p>
+              <p class="lang-en" style="margin: 0;"><strong>🎤 Interview Pitch:</strong> <em>"We route 5% of live traffic to the new code release via ArgoCD. If Prometheus detects HTTP 5xx errors or latency spikes, the rollout automatically aborts and rolls back in seconds without hurting 95% of users."</em></p>
+              <p class="lang-vi" style="margin: 0;"><strong>🎤 Câu nói khi phỏng vấn:</strong> <em>"Khi deploy code mới, ArgoCD chỉ chuyển 5% lượng khách hàng sang bản mới để thử tải. Nếu thấy phát sinh lỗi 5xx, hệ thống tự động quay xe lùi phiên bản cũ ngay lập tức mà 95% người dùng không hề hay biết."</em></p>
+            </div>
+          </div>
+
+          <!-- CARD 11: WITHHOLDING TAX (WHT) -->
+          <div style="border: 1px solid var(--border-subtle); border-top: 4px solid var(--accent-pink); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span style="font-weight: 700; color: var(--accent-pink); font-size: 0.95rem;">11. Withholding Tax (WHT - Thuế nhà thầu)</span>
+              <span style="font-size: 0.75rem; background: var(--bg-surface-elevated); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">Tax Compliance &amp; Finance</span>
+            </div>
+            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary); margin-bottom: 0.75rem;">
+              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>💰 Everyday Metaphor:</strong> Personal income tax deducted at the source from your salary before your paycheck hits your bank account. You never receive the gross amount because your company pays the government directly on your behalf.</p>
+              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>💰 Ẩn dụ đời thường:</strong> Giống như thuế thu nhập cá nhân bị công ty khấu trừ tại nguồn trước khi chuyển lương vào tài khoản của bạn. Công ty giữ lại phần thuế đó để nộp thẳng vào cơ quan thuế.</p>
+              <p class="lang-en" style="margin: 0;"><strong>🎤 Interview Pitch:</strong> <em>"When a local enterprise pays a foreign shipping line, government law requires deducting Withholding Tax (e.g. 5% CIT) at source. Our platform automatically calculates Gross vs. Net formulas so SAP ledgers balance perfectly."</em></p>
+              <p class="lang-vi" style="margin: 0;"><strong>🎤 Câu nói khi phỏng vấn:</strong> <em>"Khi công ty nội địa trả tiền cho hãng tàu quốc tế, luật pháp yêu cầu giữ lại Thuế nhà thầu (ví dụ 5% thuế TNDN). Hệ thống tính toán sẵn công thức Gross và Net để số tiền gạch nợ trên SAP khớp hoàn toàn."</em></p>
+            </div>
+          </div>
+
+          <!-- CARD 12: IN-FLIGHT RESCUE VS EOD BATCH -->
+          <div style="border: 1px solid var(--border-subtle); border-top: 4px solid var(--accent-amber); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span style="font-weight: 700; color: var(--accent-amber); font-size: 0.95rem;">12. In-Flight Rescue vs. EOD Batch</span>
+              <span style="font-size: 0.75rem; background: var(--bg-surface-elevated); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">2-Tier Polling Strategy</span>
+            </div>
+            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary); margin-bottom: 0.75rem;">
+              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>🚑 Everyday Metaphor:</strong> An emergency ambulance saving an injured person on the road right now (In-Flight Rescue) vs. The hospital's monthly accounting department auditing insurance claims at the end of the month (EOD Batch).</p>
+              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>🚑 Ẩn dụ đời thường:</strong> Xe cứu thương 115 đến sơ cứu khẩn cấp cho người gặp nạn ngay tại chỗ (Cứu hộ In-Flight) vs. Phòng tài vụ bệnh viện chốt sổ thanh toán bảo hiểm vào cuối tháng (Đối soát EOD theo ngày).</p>
+              <p class="lang-en" style="margin: 0;"><strong>🎤 Interview Pitch:</strong> <em>"In-Flight 60s Polling rescues the truck driver idling outside the seaport gate before their 15-minute QR session expires. Daily 23:30 EOD Batch Reconciliation balances the Chief Accountant's books via bank statement files. A production system needs both!"</em></p>
+              <p class="lang-vi" style="margin: 0;"><strong>🎤 Câu nói khi phỏng vấn:</strong> <em>"Polling 60s là cứu bác tài xế xe tải đang nổ máy chờ ngoài cổng cảng trước khi phiên QR 15 phút hết hạn. Còn đối soát 23:30 đêm là để kế toán trưởng chốt cân đối sổ sách qua file sao kê. Cả hai phục vụ hai sứ mệnh hoàn toàn khác nhau!"</em></p>
+            </div>
+          </div>
+
+          <!-- CARD 13: OPENTELEMETRY TRACE ID -->
+          <div style="border: 1px solid var(--border-subtle); border-top: 4px solid var(--accent-blue); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span style="font-weight: 700; color: var(--accent-blue); font-size: 0.95rem;">13. Distributed Trace ID (OpenTelemetry)</span>
+              <span style="font-size: 0.75rem; background: var(--bg-surface-elevated); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">Observability &amp; APM</span>
+            </div>
+            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary); margin-bottom: 0.75rem;">
+              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>🏷️ Everyday Metaphor:</strong> The barcode sticker attached to your luggage at the airport check-in counter. It gets scanned as your bag moves through conveyor belts, cargo planes, and baggage claim carousels so staff know exactly where it is if lost.</p>
+              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>🏷️ Ẩn dụ đời thường:</strong> Chiếc tem mã vạch dán trên va-li hành lý của bạn khi làm thủ tục check-in ở sân bay. Mã vạch được máy quét quét qua từng băng chuyền, khoang máy bay và băng chuyền trả đồ để biết chính xác va-li bị thất lạc hoặc chậm trễ ở khâu nào.</p>
+              <p class="lang-en" style="margin: 0;"><strong>🎤 Interview Pitch:</strong> <em>"A single HTTP request passes through APISIX, Go Ingestion, Temporal, MongoDB, and SAP. We inject a unique Trace ID at the gateway so engineers can trace the exact latency breakdown across 10 microservices in one single dashboard."</em></p>
+              <p class="lang-vi" style="margin: 0;"><strong>🎤 Câu nói khi phỏng vấn:</strong> <em>"Một request đi qua APISIX, Go Ingestion, Temporal, MongoDB và SAP. Tụi em gắn mã Trace ID duy nhất ngay từ cổng vào để khi có lỗi, kỹ sư nhìn một màn hình là biết chính xác microservice nào đang bị chậm bao nhiêu mili-giây."</em></p>
+            </div>
+          </div>
+
+          <!-- CARD 14: DEAD LETTER QUEUE (DLQ) -->
+          <div style="border: 1px solid var(--border-subtle); border-top: 4px solid var(--accent-red); background: var(--bg-surface); padding: 1.25rem; border-radius: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span style="font-weight: 700; color: var(--accent-red); font-size: 0.95rem;">14. Dead Letter Queue (DLQ)</span>
+              <span style="font-size: 0.75rem; background: var(--bg-surface-elevated); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-subtle); color: var(--text-secondary);">Asynchronous Messaging</span>
+            </div>
+            <div style="font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary); margin-bottom: 0.75rem;">
+              <p class="lang-en" style="margin: 0 0 0.4rem 0;"><strong>📦 Everyday Metaphor:</strong> The 'Lost &amp; Found' room at a post office. When a package has an unreadable address, rather than stopping the entire conveyor belt and holding up 10,000 normal packages, postal workers move the bad package to the side room for manual inspection.</p>
+              <p class="lang-vi" style="margin: 0 0 0.4rem 0;"><strong>📦 Ẩn dụ đời thường:</strong> Kho hàng 'Thất lạc &amp; Chờ xử lý' tại bưu điện. Khi một bưu phẩm bị sai địa chỉ hoặc rách nhãn, thay vì dừng toàn bộ băng chuyền làm nghẽn 10.000 bưu kiện khác, nhân viên chuyển gói hàng hỏng sang phòng riêng để xử lý thủ công sau.</p>
+              <p class="lang-en" style="margin: 0;"><strong>🎤 Interview Pitch:</strong> <em>"If a corrupted event fails after 3 automated retries, we push it to the Dead Letter Queue. This unblocks the event stream for healthy transactions while sounding an alert for SREs to inspect the payload."</em></p>
+              <p class="lang-vi" style="margin: 0;"><strong>🎤 Câu nói khi phỏng vấn:</strong> <em>"Nếu một message bị lỗi sau 3 lần retry tự động, hệ thống đẩy nó vào hàng đợi Dead Letter Queue (DLQ). Việc này giúp luồng dữ liệu chính thông suốt không bị tắc nghẽn, đồng thời gửi cảnh báo cho đội trực vận hành kiểm tra."</em></p>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="mental-anchor-box" style="margin-bottom: 2rem;">
+          <span class="lang-en">
+            🧠 <strong>Interview Gold: The "Explain Like I'm Five" Test:</strong><br>
+            "Whenever you are asked about high-level architecture in an interview, never hide behind textbook jargon. State the <strong>Real-World Metaphor</strong> first (e.g. 'Bulkhead is like watertight compartments on a ship'), then give the <strong>Concrete Engineering Trade-off</strong> (e.g. 'We isolate thread pools so a crashing Thai bank cannot sink our Vietnam gateway'). This immediately proves you have real-world production experience!"
+          </span>
+          <span class="lang-vi">
+            🧠 <strong>Câu nói vàng khi phỏng vấn: Thước đo "Giải thích cho người bình dân hiểu":</strong><br>
+            "Khi được hỏi về kiến trúc trong buổi phỏng vấn, đừng bao giờ nói lại lý thuyết sách giáo khoa. Hãy đưa ra **Ẩn dụ đời thường** trước (ví dụ: 'Bulkhead giống như các vách ngăn chống chìm trên thân tàu'), sau đó chốt bằng **Giải pháp kỹ thuật thực chiến** (ví dụ: 'Tụi em chia thread pool riêng để cổng ngân hàng Thái Lan có sập cũng không làm chìm cổng Việt Nam'). Cách trả lời này chứng minh bạn là một kỹ sư thực chiến dày dặn kinh nghiệm!"
+          </span>
+        </div>
       </section>
 
       <!-- CHAPTER 01: MARITIME DOMAIN & FINTECH ECONOMICS -->
