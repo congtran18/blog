@@ -1953,6 +1953,514 @@ sequenceDiagram
           </span>
         </div>
 
+        <!-- ========================================================================= -->
+        <!-- SUBSECTION: 10 MASTER SYSTEM ARCHITECTURE DIMENSIONS                     -->
+        <!-- ========================================================================= -->
+        <div class="subsection-title" style="margin-top: 2.5rem;">
+          <span>🌟</span>
+          <span class="lang-en">THE 10 MASTER ARCHITECTURAL DIMENSIONS: THE COMPLETE SYSTEM PLAYBOOK</span>
+          <span class="lang-vi">10 TRỤ CỘT KIẾN TRÚC TỔNG THỂ: BẢN THIẾT KẾ TOÀN DIỆN TỪ A ĐẾN Z</span>
+        </div>
+        <p class="lang-en" style="color: var(--text-secondary); margin-bottom: 1.5rem; line-height: 1.6;">
+          To ace Principal and Staff System Design interviews, you must see the system from every angle: its core business purpose, high-ticket invoice math, multi-country controls, fault tolerance, and real-world failure modes. Here is the complete 10-dimension architectural playbook, explained in <strong>plain basic English</strong> and natural real-world analogies:
+        </p>
+        <p class="lang-vi" style="color: var(--text-secondary); margin-bottom: 1.5rem; line-height: 1.6;">
+          Để vượt qua vòng phỏng vấn Principal và Staff System Design xuất sắc nhất, bạn cần nắm trọn vẹn hệ thống từ mọi góc độ: bài toán kinh tế, cách tính tiền hóa đơn, cơ chế kiểm soát 14 quốc gia, khả năng chịu tải và cách xử lý từng rủi ro thực tế. Dưới đây là 10 trụ cột kiến trúc toàn cảnh, giải thích bằng <strong>từ ngữ đời thường, tiếng Anh cơ bản và hình tượng thực tế</strong>:
+        </p>
+
+        <div style="display: flex; flex-direction: column; gap: 1.75rem; margin-bottom: 2.5rem;">
+
+          <!-- DIMENSION 1: SYSTEM IDENTITY & CORE MISSION -->
+          <div style="border: 1px solid var(--border-subtle); border-left: 5px solid var(--accent-blue); background: var(--bg-surface); padding: 1.5rem; border-radius: 8px; box-shadow: var(--shadow-sm);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h4 style="margin: 0; font-size: 1.15rem; font-weight: 700; color: var(--accent-blue);">
+                <span class="lang-en">Dimension 1: System Identity, Who It Serves & Why It Is Vital</span>
+                <span class="lang-vi">Trụ cột 1: Bức tranh hệ thống là gì, phục vụ ai và vì sao cần?</span>
+              </h4>
+              <span class="badge" style="background: rgba(37, 99, 235, 0.1); color: var(--accent-blue); padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">
+                <span class="lang-en">The Core Mission</span>
+                <span class="lang-vi">Sứ mệnh cốt lõi</span>
+              </span>
+            </div>
+            <div style="font-size: 0.92rem; line-height: 1.65; color: var(--text-secondary);">
+              <div class="lang-en">
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>• What Is This System?</strong> It is the <strong>Maritime B2B E-Payment & Instant Cargo Release Platform</strong> built for the global shipping carrier Ocean Network Express (ONE). It is <strong>NOT</strong> a standard office billing app; it is the real-time bridge connecting domestic commercial banks, enterprise SAP ERP accounting, and seaport terminal gates.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>• Who Does It Serve?</strong><br>
+                  1. <em>Freight Forwarders & Logistics Agents:</em> Companies clearing hundreds of import cargo containers daily.<br>
+                  2. <em>Cargo Shippers:</em> Manufacturing and export businesses needing raw materials delivered to factories on time.<br>
+                  3. <em>Shipping Line Finance Teams:</em> Accountants reconciling millions of dollars daily into enterprise general ledgers.<br>
+                  4. <em>Container Truck Drivers:</em> Drivers parked outside seaport gates waiting for cargo release passes.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>• Why Is It Vital? (The Real-World Pain Point):</strong><br>
+                  In ocean shipping, physical 30-ton containers <strong>cannot leave the port terminal</strong> until all ocean freight, terminal handling (THC), container cleaning, and storage fees are fully settled. In the old world, shippers had to print paper wire transfers, wait in physical bank lines, take paper receipts to shipping counters, wait for manual SAP data entry, and get a stamped paper delivery order (D/O). This took <strong>1 to 2 full days</strong>, created massive truck traffic outside ports, and cost shippers thousands of dollars in overnight demurrage penalty fees.
+                </p>
+              </div>
+              <div class="lang-vi">
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>• Hệ thống này là gì?</strong> Đây là <strong>Nền tảng thanh toán cước biển trực tuyến và tự động giải phóng container cảng biển</strong> cho hãng tàu toàn cầu Ocean Network Express (ONE). Đây <strong>KHÔNG PHẢI</strong> là web thu nợ nội bộ đơn thuần; nó là chiếc cầu nối thời gian thực giữa ngân hàng thương mại, kế toán doanh nghiệp SAP ERP và cổng bãi cảng biển.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>• Phục vụ những ai?</strong><br>
+                  1. <em>Các công ty giao nhận Logistics (Forwarder):</em> Những người làm thủ tục lấy hàng trăm container hàng hóa ra khỏi cảng mỗi ngày.<br>
+                  2. <em>Chủ hàng xuất nhập khẩu (Shipper):</em> Các nhà máy cần nguyên vật liệu về xưởng sản xuất đúng giờ.<br>
+                  3. <em>Đội ngũ Kế toán & Tài chính hãng tàu:</em> Cần đối soát dòng tiền hàng trăm triệu USD mỗi ngày vào sổ cái kế toán chính xác từng xu.<br>
+                  4. <em>Bác tài xế xe tải container:</em> Người nổ máy xe chờ ngoài barie cổng cảng để kéo thùng hàng 30 tấn ra ngoài.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>• Vì sao bắt buộc phải cần nó? (Nỗi đau thực tế):</strong><br>
+                  Trong ngành hàng hải, một thùng container 30 tấn **không bao giờ được phép mang ra khỏi cảng** nếu chưa trả hết nợ tiền cước biển, phí nâng hạ và tiền phạt lưu kho bãi. Quy trình cũ bắt khách phải in ủy nhiệm chi ra ngân hàng, chờ đóng dấu, cầm giấy sang quầy hãng tàu xếp hàng bốc số, chờ kế toán gõ tay gạch nợ trên SAP rồi in tờ Lệnh giao hàng (D/O) bằng giấy trao cho tài xế. Mất từ **1 đến 2 ngày**, gây kẹt xe quanh cảng và khách bị phạt tiền lưu bãi hàng nghìn USD.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- DIMENSION 2: CONCRETE RESULTS ACHIEVED -->
+          <div style="border: 1px solid var(--border-subtle); border-left: 5px solid var(--accent-green); background: var(--bg-surface); padding: 1.5rem; border-radius: 8px; box-shadow: var(--shadow-sm);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h4 style="margin: 0; font-size: 1.15rem; font-weight: 700; color: var(--accent-green);">
+                <span class="lang-en">Dimension 2: Concrete Business & Engineering Results Achieved</span>
+                <span class="lang-vi">Trụ cột 2: Kết quả kinh doanh và kỹ thuật đạt được là gì?</span>
+              </h4>
+              <span class="badge" style="background: rgba(5, 150, 105, 0.1); color: var(--accent-green); padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">
+                <span class="lang-en">Measurable Metrics</span>
+                <span class="lang-vi">Số liệu thực chứng</span>
+              </span>
+            </div>
+            <div style="font-size: 0.92rem; line-height: 1.65; color: var(--text-secondary);">
+              <div class="lang-en">
+                <p style="margin-bottom: 0.75rem;">
+                  The platform transformed shipping operations from slow manual paperwork into instant digital execution. Here are the verifiable metrics:
+                </p>
+              </div>
+              <div class="lang-vi">
+                <p style="margin-bottom: 0.75rem;">
+                  Hệ thống đã thay đổi hoàn toàn quy trình vận hành từ giấy tờ chậm chạp sang tự động hóa tức thì. Dưới đây là các số liệu đo lường cụ thể:
+                </p>
+              </div>
+
+              <div class="table-responsive">
+                <table>
+                  <thead>
+                    <tr>
+                      <th style="width: 25%;">
+                        <span class="lang-en">Key Metric</span>
+                        <span class="lang-vi">Chỉ số đo lường</span>
+                      </th>
+                      <th style="width: 25%;">
+                        <span class="lang-en">Manual Workflow (Before)</span>
+                        <span class="lang-vi">Quy trình thủ công cũ</span>
+                      </th>
+                      <th style="width: 25%;">
+                        <span class="lang-en">ONE E-Payment Platform (After)</span>
+                        <span class="lang-vi">Hệ thống mới</span>
+                      </th>
+                      <th style="width: 25%;">
+                        <span class="lang-en">Business & Engineering Impact</span>
+                        <span class="lang-vi">Hiệu quả thực tế</span>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><strong>Cargo Release Time</strong><br><small>Thời gian nhả container</small></td>
+                      <td>1 to 2 days (24–48 hours)</td>
+                      <td><strong>Under 60 seconds (&lt; 60s)</strong></td>
+                      <td><strong>2,800x faster</strong> (Instant gate-out pass on phone)</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Payment Transaction Fees</strong><br><small>Chi phí cổng thanh toán</small></td>
+                      <td>2.8% to 3.0% (Stripe / SaaS)</td>
+                      <td><strong>Flat $0.10 (10 cents per order)</strong></td>
+                      <td><strong>Saved $25 Million USD annually</strong> in net fees</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Cash Deposit Speed</strong><br><small>Dòng tiền vào tài khoản</small></td>
+                      <td>Frozen for 3 days to 3 months</td>
+                      <td><strong>Instant deposit in 3 seconds</strong></td>
+                      <td>Zero rolling cash reserves; immediate working capital</td>
+                    </tr>
+                    <tr>
+                      <td><strong>ERP Debt Clearing Automation</strong><br><small>Tự động gạch nợ SAP</small></td>
+                      <td>100% manual typing by accountants</td>
+                      <td><strong>98.4% automated clearing</strong></td>
+                      <td>Reduced accounting overtime by 95% during peak hours</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Webhook Ingestion Speed</strong><br><small>Tốc độ đón tin ngân hàng</small></td>
+                      <td>Node.js froze for 3 to 4 seconds</td>
+                      <td><strong>Go Broker processes in 4.2ms</strong></td>
+                      <td>Handles 50,000+ requests/sec per pod with multi-core crypto</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Tax Document Reading Speed</strong><br><small>Đọc tờ khai thuế bằng AI</small></td>
+                      <td>Accountants took 1–2 hours per scan</td>
+                      <td><strong>Gemini Flash + OpenCV in 258ms</strong></td>
+                      <td>Prompt caching on RAM cut AI token expenses by 77%</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- DIMENSION 3: HIGH-TICKET INVOICING & AI TAX DEDUCTION -->
+          <div style="border: 1px solid var(--border-subtle); border-left: 5px solid var(--accent-amber); background: var(--bg-surface); padding: 1.5rem; border-radius: 8px; box-shadow: var(--shadow-sm);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h4 style="margin: 0; font-size: 1.15rem; font-weight: 700; color: var(--accent-amber);">
+                <span class="lang-en">Dimension 3: High-Ticket Invoicing & AI Tax Deduction Math</span>
+                <span class="lang-vi">Trụ cột 3: Xử lý hóa đơn thế nào (Giá trị lớn, giỏ hàng & thuế khấu trừ)</span>
+              </h4>
+              <span class="badge" style="background: rgba(217, 119, 6, 0.1); color: var(--accent-amber); padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">
+                <span class="lang-en">Financial Engine</span>
+                <span class="lang-vi">Xử lý tài chính</span>
+              </span>
+            </div>
+            <div style="font-size: 0.92rem; line-height: 1.65; color: var(--text-secondary);">
+              <div class="lang-en">
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>• High-Ticket Consignment Sizes:</strong> Unlike retail ecommerce where an order is $20, ocean freight invoices range from <strong>$10,000 to $250,000 USD</strong>. A single penny discrepancy will cause SAP general ledger audits to reject the clearance.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>• Batch Invoice Cart (<code>purchase_orders</code>):</strong> A single freight forwarder often checks out 1 to 50 container invoices simultaneously across multiple bills of lading. The system groups them into one immutable checkout cart snapshot.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>• Withholding Tax (WHT) Deductions:</strong> Corporate shippers have a legal obligation to withhold contractor taxes on freight payments (e.g., 5% withholding tax in Vietnam, 3% in Thailand). For a $100,000 invoice, the shipper transfers $95,000 via bank transfer, and uploads a scanned photo of the government tax payment certificate for $5,000.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>• The 4-Step AI FinOps Pipeline:</strong><br>
+                  1. <em>C++ OpenCV Cleanup (18ms):</em> Scanned certificates are often crumpled, crooked, and oily. C++ deskews angles, sharpens text, and shrinks the image to 4 Gemini vision tiles.<br>
+                  2. <em>Gemini Flash Extraction (258ms):</em> Extracts tax identification numbers and exact deduction values with prompts cached in Vertex AI RAM.<br>
+                  3. <em>Redis Vector Semantic Matching (1.2ms):</em> Shippers write localized descriptions (e.g. <em>"ve sinh cont"</em>, <em>"Cat Lai storage"</em>). Vector similarity matches them to standard SAP condition codes.<br>
+                  4. <em>Banker's Rounding Verification:</em> Checks the hard arithmetic equation: <code>Bank Transfer + AI Tax Amount == SAP Outstanding Debt</code>. Must match 100% penny-for-penny before any ledger entry is posted!
+                </p>
+              </div>
+              <div class="lang-vi">
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>• Giá trị đơn hàng cực lớn:</strong> Khác với mua sắm vài chục nghìn đồng trên mạng, một hóa đơn cước vận tải biển dao động từ **$10,000 đến $250,000 (từ vài trăm triệu đến hàng tỷ đồng)**. Sai một xu cũng làm cổng SAP từ chối gạch nợ.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>• Gom giỏ hàng nhiều container (<code>purchase_orders</code>):</strong> Một công ty logistics thường thanh toán cùng lúc từ 1 đến 50 hóa đơn container cho cả lô hàng. Hệ thống gom tất cả vào một giỏ hàng thanh toán duy nhất.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>• Bài toán khấu trừ thuế nhà thầu / VAT (WHT):</strong> Khách hàng là doanh nghiệp có nghĩa vụ nộp thuế thay cho hãng tàu (ví dụ: thuế nhà thầu 5% tại VN, 3% tại Thái Lan). Với hóa đơn 100 triệu, khách chuyển khoản 95 triệu qua ngân hàng và tải ảnh chụp tờ giấy nộp thuế 5 triệu lên web.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>• Quy trình 4 bước của AI FinOps:</strong><br>
+                  1. <em>C++ OpenCV làm sạch ảnh (18ms):</em> Xoay thẳng góc tờ giấy chụp bị nghiêng, làm nét chữ và nén gọn.<br>
+                  2. <em>Gemini Flash đọc số tiền (258ms):</em> Đọc chính xác mã số thuế và số tiền khấu trừ.<br>
+                  3. <em>Redis Vector khớp mã kế toán (1.2ms):</em> Tự động hiểu các tên phí viết tắt tiếng địa phương và khớp sang đúng mã kế toán chuẩn của SAP.<br>
+                  4. <em>Kiểm tra số học Banker's rounding:</em> Kiểm tra công thức: <code>Tiền chuyển khoản + Tiền thuế AI đọc = Tổng nợ trên SAP</code>. Khớp chính xác 100% từng đồng mới cho gạch nợ tự động!
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- DIMENSION 4: DIFFERENCES VS OTHER PAYMENT SYSTEMS -->
+          <div style="border: 1px solid var(--border-subtle); border-left: 5px solid var(--accent-purple); background: var(--bg-surface); padding: 1.5rem; border-radius: 8px; box-shadow: var(--shadow-sm);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h4 style="margin: 0; font-size: 1.15rem; font-weight: 700; color: var(--accent-purple);">
+                <span class="lang-en">Dimension 4: How It Differs from Consumer Payment Wallets (Stripe / MoMo)</span>
+                <span class="lang-vi">Trụ cột 4: Khác biệt cốt lõi với các ví điện tử tiêu dùng (MoMo, ShopeePay, Stripe)</span>
+              </h4>
+              <span class="badge" style="background: rgba(124, 58, 237, 0.1); color: var(--accent-purple); padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">
+                <span class="lang-en">B2B Maritime vs B2C Wallets</span>
+                <span class="lang-vi">Đặc thù hàng hải B2B</span>
+              </span>
+            </div>
+            <div style="font-size: 0.92rem; line-height: 1.65; color: var(--text-secondary);">
+              <div class="lang-en">
+                <p style="margin-bottom: 0.6rem;">
+                  Interviewers frequently ask: <em>"Why can't you just install an off-the-shelf payment gateway like Stripe or ShopeePay?"</em>. The fundamental architectural differences are:
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>1. No Wallet Balances (Zero Stored Funds):</strong> Consumer wallets manage user KYC profiles, stored cash balances, linked cards, and merchant accounts across 40+ database tables. Our platform stores zero wallet balances—money transfers directly into ONE's corporate bank accounts in seconds.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>2. The Handheld POS Principle (Only 2 Collections):</strong> SAP S/4HANA is the company's Chief Accountant and master ledger (SSOT). Our MongoDB only acts like a handheld card swipe machine outside the port gate: it only stores the Bill (<code>purchase_orders</code>) and the Swipe Result (<code>payment_transactions</code>). This gives us $O(1)$ sub-2ms speed, zero SQL joins, and zero data drift against SAP.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>3. Backed by Real 30-Ton Physical Assets:</strong> In retail ecommerce, if a payment fails or glitches, the seller cancels the order and refunds money days later. In maritime logistics, every payment click controls a <strong>physical 30-ton container sitting on seaport asphalt</strong> and a truck driver waiting at the terminal barrier gate.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>4. The 23:59:59 Midnight Demurrage Rollover Clock:</strong> Consumer ecommerce has no strict cutoffs. In maritime shipping, the second the clock strikes 00:00:00, port tariffs add an extra $300 daily penalty per container, creating intense checkout surges at 23:58.
+                </p>
+              </div>
+              <div class="lang-vi">
+                <p style="margin-bottom: 0.6rem;">
+                  Người phỏng vấn rất hay hỏi: <em>"Tại sao không dùng luôn Stripe hay MoMo cho nhanh mà phải tự xây hệ thống này?"</em>. Sự khác biệt cốt lõi nằm ở 4 điểm:
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>1. Không giữ ví tiền (No Wallet Balance):</strong> Các ví tiêu dùng phải có bảng số dư ví, nạp/rút tiền, điểm voucher với hơn 40 bảng dữ liệu. Hệ thống này không có ví tiền, tiền chuyển thẳng vào tài khoản ngân hàng của công ty.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>2. Nguyên lý Máy quẹt thẻ POS cầm tay (Chỉ cần 2 bảng):</strong> SAP S/4HANA đã là Kế toán trưởng nắm giữ 100% dữ liệu gốc (SSOT). MongoDB chỉ như chiếc máy quẹt POS cầm tay: lưu Tờ hóa đơn (<code>purchase_orders</code>) và Biên lai quẹt thẻ (<code>payment_transactions</code>). Tốc độ dưới 2ms, không cần SQL JOIN, không bao giờ lệch số liệu với SAP.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>3. Gắn liền với tài sản vật lý 30 tấn ngoài cảng:</strong> Mua hàng Shopee nếu lỗi thì hủy đơn hoàn tiền sau vài ngày. Ở đây, đằng sau mỗi cú click chuột là **thùng container 30 tấn sắt thép ngoài cảng biển** và barie cổng cảng. Xe tải chờ sẵn, hàng phải giải phóng dưới 60 giây.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>4. Áp lực đồng hồ nửa đêm (23:59:59):</strong> Đúng 00:00:00 là đồng hồ nhảy sang ngày mới, container bị phạt thêm $300 tiền lưu bãi. Khách dồn vào thanh toán lúc 23:58 tạo áp lực nghẽn mạng cực lớn.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- DIMENSION 5: 14-COUNTRY ARCHITECTURE ENGINE -->
+          <div style="border: 1px solid var(--border-subtle); border-left: 5px solid var(--accent-cyan); background: var(--bg-surface); padding: 1.5rem; border-radius: 8px; box-shadow: var(--shadow-sm);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h4 style="margin: 0; font-size: 1.15rem; font-weight: 700; color: var(--accent-cyan);">
+                <span class="lang-en">Dimension 5: The 14-Country Engine: Country Differences & How They Are Controlled</span>
+                <span class="lang-vi">Trụ cột 5: Nghiệp vụ 14 quốc gia khác nhau thế nào? Kiểm soát chống rối code ra sao?</span>
+              </h4>
+              <span class="badge" style="background: rgba(2, 132, 199, 0.1); color: var(--accent-cyan); padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">
+                <span class="lang-en">Strategy Pattern & CMS</span>
+                <span class="lang-vi">Kiểm soát đa quốc gia</span>
+              </span>
+            </div>
+            <div style="font-size: 0.92rem; line-height: 1.65; color: var(--text-secondary);">
+              <div class="lang-en">
+                <p style="margin-bottom: 0.6rem;">
+                  The platform operates across 14 Asian countries (Vietnam, Thailand, Singapore, China, Malaysia, Indonesia, etc.). Each country has distinct local rails, currency rules, and port systems:
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  • <em>Bank Rails:</em> Vietnam uses VietQR (Napas 247); Thailand uses PromptPay (EMVCo); China uses Bank of China (BOC NetBank API); Singapore uses PayNow Corporate.<br>
+                  • <em>Currencies & Decimals:</em> VND is integer-only (zero decimals); THB and USD have 2 decimals; Singapore has GST 9% rules.<br>
+                  • <em>Port Integrations:</em> Vietnam integrates with Cat Lai & Hai Phong; Thailand connects with Laem Chabang; Malaysia connects with Port Klang.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>How the Architecture Controls It Without Spaghetti Code:</strong><br>
+                  1. <em>Strategy Pattern + Factory Registry:</em> Each nation is encapsulated in an isolated <code>CountryStrategy</code> class implementing a strict interface (<code>generatePaymentQR()</code>, <code>verifyWebhook()</code>, <code>extractTaxRules()</code>, <code>callPortTOS()</code>). Adding country #15 requires creating one new strategy file with zero edits to core orchestration code.<br>
+                  2. <em>Two-Tier Dynamic CMS on Redis:</em> Non-breaking business parameters (bank logos, payment cutoff windows, currency masks) are stored in Redis. Local country teams update them via a live CMS dashboard, taking effect in real-time with zero code redeployments.
+                </p>
+              </div>
+              <div class="lang-vi">
+                <p style="margin-bottom: 0.6rem;">
+                  Hệ thống hoạt động trên 14 quốc gia tại Châu Á (Việt Nam, Thái Lan, Singapore, Trung Quốc, Malaysia, Indonesia,...). Mỗi nước là một bức tranh nghiệp vụ hoàn toàn khác nhau:
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  • <em>Cổng ngân hàng:</em> Việt Nam dùng VietQR (Napas 247); Thái Lan dùng PromptPay; Trung Quốc dùng BOC NetBank; Singapore dùng PayNow.<br>
+                  • <em>Tiền tệ:</em> Tiền Đồng (VND) là số nguyên không có số thập phân; USD và THB có 2 số lẻ; Singapore có thuế GST 9%.<br>
+                  • <em>Cảng kết nối:</em> Việt Nam nối với Cát Lái & Hải Phòng; Thái Lan nối với Laem Chabang; Malaysia nối với Port Klang.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>Cách kiểm soát kiến trúc chống rối code (Spaghetti Code):</strong><br>
+                  1. <em>Strategy Pattern kết hợp Factory Registry:</em> Mỗi nước được đóng gói thành một class <code>CountryStrategy</code> độc lập tuân theo một interface chuẩn. Mở rộng sang nước thứ 15 chỉ cần viết thêm 1 file strategy mới, không đụng chạm đến code lõi.<br>
+                  2. <em>Hệ thống cấu hình 2 tầng (Two-Tier CMS trên Redis):</em> Các thông số mềm (logo ngân hàng, giờ đóng cổng thanh toán) lưu trên Redis. Nhân viên từng nước tự chỉnh sửa trên trang quản trị, có hiệu lực ngay trong 1 giây mà không cần deploy lại code.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- DIMENSION 6: SCALABILITY & FAULT TOLERANCE -->
+          <div style="border: 1px solid var(--border-subtle); border-left: 5px solid var(--accent-red); background: var(--bg-surface); padding: 1.5rem; border-radius: 8px; box-shadow: var(--shadow-sm);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h4 style="margin: 0; font-size: 1.15rem; font-weight: 700; color: var(--accent-red);">
+                <span class="lang-en">Dimension 6: Scalability & Fault Tolerance: The Blast Radius Architecture</span>
+                <span class="lang-vi">Trụ cột 6: Hệ thống scale và chịu lỗi như thế nào? (Kiến trúc vách ngăn)</span>
+              </h4>
+              <span class="badge" style="background: rgba(220, 38, 38, 0.1); color: var(--accent-red); padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">
+                <span class="lang-en">Resiliency Engine</span>
+                <span class="lang-vi">Chịu tải & Cách ly lỗi</span>
+              </span>
+            </div>
+            <div style="font-size: 0.92rem; line-height: 1.65; color: var(--text-secondary);">
+              <div class="lang-en">
+                <p style="margin-bottom: 0.6rem;">
+                  The platform is built on the principle of <strong>Blast Radius Containment</strong>: a failure in any downstream system must never crash upstream checkout.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>• Stateless Autoscaling at Edge:</strong> APISIX and Go Brokers run stateless on GKE. In bursts, APISIX scales from 3 to 30 pods in 15 seconds without reloading workers, handling 50,000+ requests/sec per pod.<br>
+                  <strong>• Solving MongoDB WiredTiger 128 Ticket Contention:</strong> WiredTiger has a hard limit of 128 read and 128 write tickets in RAM. With 30 pods opening 100 connections, 3,000 connections flooded the database, causing 5-second query lines. Lowering <code>maxPoolSize</code> to 15 per pod kept active queries well under 128, eliminating queues and locking query latency to <strong>8ms flat</strong>.<br>
+                  <strong>• Watertight Bulkhead Pattern:</strong> Connection pools are split into 3 watertight buckets: 35 for checkout, 10 for finance team Excel report downloads, and 5 for health checks. A massive 500,000-row Excel export never starves live customer checkout.<br>
+                  <strong>• Circuit Breaker with Passive Probing:</strong> Trips OPEN during bank outages. When cooling down, Half-Open mode allows exactly 1 real request through to probe bank recovery, avoiding synthetic traffic storms.
+                </p>
+              </div>
+              <div class="lang-vi">
+                <p style="margin-bottom: 0.6rem;">
+                  Hệ thống thiết kế theo nguyên lý **Cách ly vùng cháy**: một bộ phận chết không bao giờ được làm sập toàn bộ hệ thống.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>• Scale tức thì ở tầng Gateway:</strong> APISIX và Go Broker chạy stateless trên GKE. Giờ cao điểm scale từ 3 lên 30 Pod trong 15 giây mà không rớt kết nối, chịu tải hơn 50,000 req/s mỗi Pod.<br>
+                  <strong>• Giải quyết nghẽn vé WiredTiger 128:</strong> MongoDB giới hạn 128 vé đọc/ghi trong RAM. Giảm <code>maxPoolSize</code> của mỗi Pod từ 100 xuống 15 kết nối giúp loại bỏ hoàn toàn hàng đợi, hạ thời gian truy vấn từ 5 giây xuống **8ms phẳng lỳ**.<br>
+                  <strong>• Vách ngăn khoang tàu chống chìm (Bulkhead):</strong> Chia connection pool thành 3 khoang kín: 35 chỗ cho khách thanh toán, 10 chỗ cho kế toán tải Excel, 5 cho kiểm tra hệ thống. Kế toán tải file nặng hết 10 kết nối thì khách thanh toán vẫn chạy mượt mà.<br>
+                  <strong>• Chốt ngắt mạch (Circuit Breaker):</strong> Tự ngắt khi ngân hàng chập chờn. Khi hồi phục, trạng thái Half-Open chỉ cho đúng 1 request thật đi qua thăm dò để tránh làm ngân hàng bị nghẽn thêm.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- DIMENSION 7: INFRASTRUCTURE & GITOPS -->
+          <div style="border: 1px solid var(--border-subtle); border-left: 5px solid #0f172a; background: var(--bg-surface); padding: 1.5rem; border-radius: 8px; box-shadow: var(--shadow-sm);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h4 style="margin: 0; font-size: 1.15rem; font-weight: 700; color: #0f172a;">
+                <span class="lang-en">Dimension 7: Cloud Infrastructure & GitOps Continuous Delivery</span>
+                <span class="lang-vi">Trụ cột 7: Hạ tầng đám mây và quy trình vận hành GitOps (ArgoCD & GKE)</span>
+              </h4>
+              <span class="badge" style="background: rgba(15, 23, 42, 0.1); color: #0f172a; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">
+                <span class="lang-en">Cloud Infrastructure</span>
+                <span class="lang-vi">Hạ tầng & Vận hành</span>
+              </span>
+            </div>
+            <div style="font-size: 0.92rem; line-height: 1.65; color: var(--text-secondary);">
+              <div class="lang-en">
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>• Multi-Zone GKE Cloud Platform:</strong> Runs on Google Cloud Platform (GCP) across 3 distinct availability zones. If one data center experiences a physical power failure, the remaining two zones absorb traffic seamlessly.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>• ArgoCD GitOps & 2-Second Rollbacks:</strong> Infrastructure is fully declared in Git code. Updates roll out via Canary Deployment: 5% of traffic is routed to the new release; if error spikes appear in Prometheus metrics, ArgoCD rolls back to the stable revision in <strong>2 seconds flat</strong>.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>• Zero-Downtime Database Schema Migrations:</strong> Uses the <em>Expand-Contract pattern</em> via ArgoCD Sync Waves. In Wave 0 (PreSync), a Kubernetes job adds new nullable fields or background indexes. In Wave 1, new pods deploy and write to both schemas. In Wave 2, deprecated fields are pruned with zero system downtime.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>• SOX 404 Immutable WORM Audit Logs:</strong> Every AI tax extraction prompt, image hash, bank signature, and SAP document ID is cryptographically written into an immutable <em>Write Once, Read Many (WORM)</em> table that cannot be edited or deleted by anyone, fulfilling international accounting audit requirements.
+                </p>
+              </div>
+              <div class="lang-vi">
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>• Cụm GKE đa vùng trên Google Cloud:</strong> Chạy trên Google Cloud Platform (GCP) với cụm Google Kubernetes Engine (GKE) phân tán trên 3 vùng độc lập. Nếu một trung tâm dữ liệu gặp sự cố thì 2 vùng còn lại vẫn gánh tải bình thường.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>• GitOps với ArgoCD & Rollback trong 2 giây:</strong> Toàn bộ hạ tầng định nghĩa bằng code trên Git. Cập nhật bằng Canary Deployment: chuyển 5% lượng khách sang bản mới; nếu thấy lỗi tăng là tự động quay về bản cũ trong **2 giây**.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>• Nâng cấp Database không dừng hệ thống:</strong> Dùng nguyên lý Expand-Contract (Mở rộng trước, thu hẹp sau) qua các Sync Wave của ArgoCD. Không bao giờ xóa hay sửa tên cột ngay lập tức, code đọc ghi song song trên cả 2 trường để bảo đảm 0 giây gián đoạn.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>• Nhật ký kiểm toán WORM chuẩn SOX 404:</strong> Toàn bộ kết quả đọc của AI, chữ ký số và chứng từ SAP được lưu vào bảng nhật ký bất biến chỉ ghi một lần (Write Once, Read Many), không ai có quyền sửa xóa để phục vụ kiểm toán tài chính quốc tế.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- DIMENSION 8: MULTI-LAYER VALIDATION PIPELINE -->
+          <div style="border: 1px solid var(--border-subtle); border-left: 5px solid #10b981; background: var(--bg-surface); padding: 1.5rem; border-radius: 8px; box-shadow: var(--shadow-sm);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h4 style="margin: 0; font-size: 1.15rem; font-weight: 700; color: #10b981;">
+                <span class="lang-en">Dimension 8: Multi-Layer Validation Pipeline (Defense-in-Depth from Edge to Port)</span>
+                <span class="lang-vi">Trụ cột 8: Các cơ chế kiểm tra và xác thực ở từng tầng (Defense-in-Depth)</span>
+              </h4>
+              <span class="badge" style="background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">
+                <span class="lang-en">Security & Validation</span>
+                <span class="lang-vi">Hàng rào phòng thủ</span>
+              </span>
+            </div>
+            <div style="font-size: 0.92rem; line-height: 1.65; color: var(--text-secondary);">
+              <div class="lang-en">
+                <p style="margin-bottom: 0.6rem;">
+                  The architecture enforces strict verification at every hop—data is never blindly trusted between services:
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  • <strong>Layer 1 (Edge Gateway):</strong> Validates user JWT tokens against in-memory public keys in 0.02ms, enforces IP rate limits, and strips malicious payload headers.<br>
+                  • <strong>Layer 2 (Go Ingestion):</strong> Verifies the bank's RSA-2048 cryptographic signature against official x.509 certificates to verify that the webhook actually came from the bank.<br>
+                  • <strong>Layer 3 (Redis Mutex):</strong> Enforces an atomic <code>MSETNX</code> lock to verify idempotency and reject concurrent duplicate payment clicks.<br>
+                  • <strong>Layer 4 (AI FinOps):</strong> Enforces hard deterministic math checks (<code>Invoice Net + VAT == Total</code>) and requires vector semantic confidence &gt; 0.88 before code matching.<br>
+                  • <strong>Layer 5 (SAP S/4HANA):</strong> Verifies open receivable item balances to ensure the invoice has not already been cleared via another channel.<br>
+                  • <strong>Layer 6 (Port Terminal):</strong> Validates container numbers, customs release status, and seal numbers before issuing the electronic release pass.
+                </p>
+              </div>
+              <div class="lang-vi">
+                <p style="margin-bottom: 0.6rem;">
+                  Hệ thống thiết lập hàng rào phòng thủ nhiều lớp—không bao giờ tin tưởng mù quáng dữ liệu giữa các dịch vụ:
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  • <strong>Tầng 1 (Gateway):</strong> Kiểm tra vé JWT token trong RAM (0.02ms), lọc IP và chặn request rác.<br>
+                  • <strong>Tầng 2 (Go Ingestion):</strong> Xác thực chữ ký số RSA-2048 của ngân hàng bằng chứng chỉ công khai x.509 để đảm bảo tin nhắn đúng từ ngân hàng gửi sang.<br>
+                  • <strong>Tầng 3 (Redis Mutex):</strong> Kiểm tra và chiếm khóa Idempotency Key để chặn đứng các giao dịch bấm trùng lặp.<br>
+                  • <strong>Tầng 4 (AI FinOps):</strong> Kiểm tra số học Banker's rounding và yêu cầu độ tương đồng vector phải trên 0.88 mới cho khớp mã kế toán.<br>
+                  • <strong>Tầng 5 (SAP S/4HANA):</strong> Kiểm tra trạng thái nợ của hóa đơn (Open Items) để bảo đảm hóa đơn chưa bị gạch nợ bởi kênh khác.<br>
+                  • <strong>Tầng 6 (Cảng TOS):</strong> Kiểm tra mã số container, trạng thái thông quan hải quan và số niêm chì trước khi cấp lệnh eDO.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- DIMENSION 9: TOP 5 REAL-WORLD EDGE CASES -->
+          <div style="border: 1px solid var(--border-subtle); border-left: 5px solid #d97706; background: var(--bg-surface); padding: 1.5rem; border-radius: 8px; box-shadow: var(--shadow-sm);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h4 style="margin: 0; font-size: 1.15rem; font-weight: 700; color: #d97706;">
+                <span class="lang-en">Dimension 9: The Top 5 Real-World Edge Cases & How the System Handles Them</span>
+                <span class="lang-vi">Trụ cột 9: 5 Tình huống rủi ro thực tế (Edge Cases) và cách hệ thống xử lý</span>
+              </h4>
+              <span class="badge" style="background: rgba(217, 119, 6, 0.1); color: #d97706; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">
+                <span class="lang-en">Edge Cases & Sagas</span>
+                <span class="lang-vi">Kịch bản rủi ro</span>
+              </span>
+            </div>
+            <div style="font-size: 0.92rem; line-height: 1.65; color: var(--text-secondary);">
+              <div class="lang-en">
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>1. The Midnight Demurrage Rollover Clock:</strong> Container storage penalties ($300/day) trigger at 23:59:59. If a customer pays at 23:58:30 but bank processing takes 3 minutes, SAP rolls over into the new day and adds $300, causing invoice underpayment! <em>Solution:</em> The platform takes a 15-minute <strong>Balance Freeze Snapshot</strong> at checkout. As long as the bank webhook proves payment before 23:59:59, the original balance is honored and cleared, absorbing the settlement drift.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>2. SAP 4-Hour Weekend Scheduled Downtime:</strong> Enterprise ERPs take 4-hour maintenance windows on Saturday nights. <em>Solution:</em> Temporal puts the clearing workflow to sleep with <strong>0% CPU burn</strong>, retrying with exponential backoff up to 48 hours. On Sunday morning when SAP boots up, Temporal wakes up and posts the clearing instantly with zero user disruption.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>3. Port Terminal Rejection & Customs Holds:</strong> Customer money is deducted and SAP cleared, but the port terminal refuses to release cargo because customs put a hold on the container. <em>Solution:</em> Temporal triggers its <strong>5-step Saga Rollback</strong>: reversing SAP clearing entries, issuing an instant bank refund to the customer, and notifying operations in under 3 minutes.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>4. Blurry or Crumpled Tax Certificates:</strong> A customer uploads an illegible tax photo where AI confidence falls below 0.85. <em>Solution:</em> The system routes it to a <strong>Human-in-the-Loop review queue</strong> with highlighted AI suggestions. An accountant approves it in 30 seconds, preventing any automated hallucination.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>5. Concurrent Double-Payment Clicks:</strong> Shippers open multiple browser tabs and click [Pay Now] simultaneously. <em>Solution:</em> The Go broker's 0.3ms <strong>Redis Mutex Lock</strong> lets the first thread through and immediately rejects the second thread with HTTP 409 Conflict.
+                </p>
+              </div>
+              <div class="lang-vi">
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>1. Cơn sốt thanh toán sát nửa đêm (Midnight D&D Rollover):</strong> Phí phạt lưu bãi ($300/ngày) tự tăng lúc 23:59:59. Khách trả tiền lúc 23:58 nhưng ngân hàng xử lý mất 3 phút, sang 00:01 SAP tự cộng thêm $300 phạt làm thiếu tiền! <em>Giải pháp:</em> Hệ thống **đóng băng số tiền thanh toán trong 15 phút**. Miễn là tin nhắn ngân hàng chứng minh khách chuyển tiền trước 23:59:59, hệ thống bảo lưu nguyên vẹn số tiền cũ và gạch nợ thành công cho khách.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>2. SAP bảo trì định kỳ 4 tiếng cuối tuần:</strong> Hệ thống ERP SAP tắt đi để nâng cấp suốt 4 tiếng đêm thứ Bảy. <em>Giải pháp:</em> Temporal đưa tiến trình vào **giấc ngủ đông với 0% CPU**, tự động thử lại theo số mũ. Sáng Chủ nhật khi SAP mở lại, Temporal tự thức dậy gạch nợ tiếp mà khách không hề cảm nhận gián đoạn.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>3. Cảng từ chối nhả hàng do Hải quan giữ (Customs Hold):</strong> Tiền đã trừ, SAP đã ghi sổ nhưng cổng cảng từ chối nhả container vì vướng kiểm tra hải quan. <em>Giải pháp:</em> Temporal kích hoạt **Chuỗi bù trừ tự động Saga 5 bước**: đảo bút toán SAP, hoàn tiền ngân hàng cho khách và báo cho hãng tàu trong chưa đầy 3 phút!
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>4. Ảnh chụp giấy thuế bị mờ tịt / rách nát:</strong> Khách nộp ảnh mờ khiến AI đạt độ tin cậy dưới 85%. <em>Giải pháp:</em> Hệ thống đẩy về **màn hình chờ duyệt của kế toán (Human-in-the-Loop)** kèm gợi ý của AI. Kế toán bấm duyệt trong 30 giây là luồng chạy tiếp, không bao giờ để AI đoán mò.
+                </p>
+                <p style="margin-bottom: 0.6rem;">
+                  <strong>5. Khách bấm thanh toán 2 lần liên tiếp:</strong> Khách mở 2 tab cùng bấm thanh toán. <em>Giải pháp:</em> Khóa nguyên tử **Redis Mutex** chiếm trong 0.3ms cho request đầu đi tiếp và từ chối ngay request thứ hai với mã 409 Conflict.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- DIMENSION 10: MASTER CLOSING ELEVATOR PITCH -->
+          <div style="border: 1px solid var(--border-subtle); border-left: 5px solid #0284c7; background: var(--bg-surface); padding: 1.5rem; border-radius: 8px; box-shadow: var(--shadow-sm);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h4 style="margin: 0; font-size: 1.15rem; font-weight: 700; color: #0284c7;">
+                <span class="lang-en">Dimension 10: The Master Executive Elevator Pitch</span>
+                <span class="lang-vi">Trụ cột 10: Bài nói chốt hạ phỏng vấn chuẩn Staff/Principal Architect</span>
+              </h4>
+              <span class="badge" style="background: rgba(2, 132, 199, 0.1); color: #0284c7; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">
+                <span class="lang-en">Interview Pitch</span>
+                <span class="lang-vi">Bài nói mẫu 90 giây</span>
+              </span>
+            </div>
+            <div style="font-size: 0.95rem; line-height: 1.7; color: var(--text-secondary);">
+              <div class="lang-en">
+                <div style="background: rgba(2, 132, 199, 0.05); padding: 1rem 1.25rem; border-radius: 6px; font-style: italic; border-left: 3px solid #0284c7;">
+                  "Our platform is the real-time bridge connecting three distinct worlds: <strong>Domestic Digital Banks ➔ Enterprise SAP ERP ➔ Physical Seaport Terminal Cranes</strong>.<br><br>
+                  We solved the high-ticket maritime payment bottleneck by connecting directly to local bank rails across 14 countries, saving <strong>$25 million USD annually</strong> in transaction fees with instant 3-second cash settlement.<br><br>
+                  With our <strong>4.2ms Go Broker</strong>, <strong>0.3ms Redis Mutex Lock</strong>, <strong>258ms AI FinOps pipeline</strong>, and <strong>Temporal Durable Execution</strong>, we compressed a 2-day manual paper trail down to <strong>under 60 seconds end-to-end</strong>, empowering truck drivers to pick up multi-ton physical containers at the port gate in under a minute!"
+                </div>
+              </div>
+              <div class="lang-vi">
+                <div style="background: rgba(2, 132, 199, 0.05); padding: 1rem 1.25rem; border-radius: 6px; font-style: italic; border-left: 3px solid #0284c7;">
+                  "Nền tảng E-Payment của tụi em là chiếc cầu nối thời gian thực giữa 3 thế giới: <strong>Ngân hàng số nội địa ➔ Kế toán trưởng SAP ERP ➔ Cần cẩu bãi cảng biển</strong>.<br><br>
+                  Tụi em giải quyết bài toán cước tàu biển giá trị lớn bằng cách đấu nối trực tiếp cổng ngân hàng 14 nước, tiết kiệm <strong>25 triệu USD tiền phí mỗi năm</strong> và đưa tiền về tài khoản trong 3 giây.<br><br>
+                  Nhờ tầng đón nhận <strong>Go Broker 4.2ms</strong>, chiếc khóa an toàn <strong>Redis Mutex</strong>, trợ lý bóc tách thuế <strong>AI FinOps 258ms</strong>, và vị nhạc trưởng <strong>Temporal</strong>, tụi em biến quy trình 2 ngày làm giấy tờ thủ công thành <strong>chưa đầy 60 giây hoàn toàn tự động</strong>, giúp bác tài xế xe tải kéo thùng container 30 tấn ra khỏi cổng cảng ngay tức thì!"
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
         <!-- 10 NON-NEGOTIABLE TRADE-OFFS TABLE -->
         <div class="subsection-title">
           <span>⚖️</span>
